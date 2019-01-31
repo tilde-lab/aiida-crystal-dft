@@ -1,8 +1,11 @@
 #!/usr/bin/env python
+"""
+A setup script
+"""
 
+import json
 from setuptools import setup, find_packages
 # from importlib import import_module
-import json
 
 if __name__ == '__main__':
     # Provide static information in setup.json

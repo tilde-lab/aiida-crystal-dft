@@ -1,7 +1,6 @@
 """
 A parser to read output from a standard CRYSTAL17 run
 """
-import os
 from aiida.parsers.parser import Parser
 from aiida.parsers.exceptions import OutputParsingError
 from aiida.common.datastructures import calc_states
@@ -19,11 +18,12 @@ class CryBasicParser(Parser):
         """
         Initialize Parser instance
         """
-        CryBasicCalculation = CalculationFactory('crystal.basic')
-        CryMainCalculation = CalculationFactory('crystal.main')
+        calc_entry_points = ['crystal.basic',
+                             'crystal.main']
+        calc_cls = [CalculationFactory(entry_point) for entry_point in calc_entry_points]
         # check for valid input
         if not isinstance(calculation,
-                          (CryBasicCalculation, CryMainCalculation)):
+                          tuple(calc_cls)):
             raise OutputParsingError(
                 "Can only parse CryBasicCalculation or CryMainCalculation")
 
@@ -140,7 +140,7 @@ class CryBasicParser(Parser):
 
         if 'fort.9' in list_of_files:
             node_list.append((self.get_linkname_wavefunction(),
-                             DataFactory('singlefile')(file=out_folder.get_abs_path('fort.9'))))
+                              DataFactory('singlefile')(file=out_folder.get_abs_path('fort.9'))))
 
         outparams = output_nodes.pop("parameters")
         perrors = outparams.get_attr("errors")
