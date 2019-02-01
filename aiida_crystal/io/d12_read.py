@@ -48,7 +48,7 @@ def _get_atom_prop(lines, ptype):
             line = _pop_line(lines)
             vals.extend([int(j) for j in line.split()])
         return vals, line
-    elif ptype == "atomspin":
+    if ptype == "atomspin":
         while len(vals) / 2 != natoms:
             line = _pop_line(lines)
             vals.extend([int(j) for j in line.split()])
@@ -56,8 +56,7 @@ def _get_atom_prop(lines, ptype):
         vals = np.reshape(vals, (natoms, 2))
         return (vals[vals[:, 1] == 1][:, 0].tolist(),
                 vals[vals[:, 1] == -1][:, 0].tolist()), line
-    else:
-        raise ValueError("ptype: {}".format(ptype))
+    raise ValueError("ptype: {}".format(ptype))
 
 
 def extract_data(input_string):

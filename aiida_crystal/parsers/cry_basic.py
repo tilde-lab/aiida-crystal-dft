@@ -6,7 +6,7 @@ from aiida.parsers.exceptions import OutputParsingError
 from aiida.common.datastructures import calc_states
 from aiida.orm import CalculationFactory, DataFactory
 
-from aiida_crystal.parsers.mainout_parse import parse_mainout
+from aiida_crystal.io.out import parse_mainout
 
 
 class CryBasicParser(Parser):

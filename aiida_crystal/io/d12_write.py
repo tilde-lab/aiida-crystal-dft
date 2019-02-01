@@ -62,7 +62,7 @@ def write_input(indict, basis_sets, atom_props=None):
     if atom_props is None:
         atom_props = {}
     if not set(atom_props.keys()).issubset(
-        ["spin_alpha", "spin_beta", "unfixed", "ghosts"]):
+            ["spin_alpha", "spin_beta", "unfixed", "ghosts"]):
         raise ValueError(
             "atom_props should only contain: 'spin_alpha', 'spin_beta', 'unfixed', 'ghosts'"
         )

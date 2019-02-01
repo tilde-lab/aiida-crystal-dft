@@ -1,7 +1,6 @@
 """
 Plugin to create a CRYSTAL17 output file from input files created via data nodes
 """
-import os
 
 import six
 from aiida.common.datastructures import (CalcInfo, CodeInfo)
@@ -12,7 +11,7 @@ from aiida.orm.calculation.job import JobCalculation
 from aiida_crystal.data.basis_set import get_basissets_from_structure
 from aiida_crystal.validation import read_schema
 from aiida_crystal.parsers.geometry import crystal_gui_string, structure_to_dict
-from aiida_crystal.parsers.inputd12_write import write_input
+from aiida_crystal.io.d12_write import write_input
 from aiida_crystal.utils import unflatten_dict, ATOMIC_NUM2SYMBOL
 
 StructureData = DataFactory('structure')

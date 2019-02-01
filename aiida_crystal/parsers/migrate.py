@@ -6,7 +6,7 @@ import tempfile
 
 import ase
 from aiida.parsers.exceptions import OutputParsingError
-from aiida_crystal.parsers.inputd12_read import extract_data
+from aiida_crystal.io.d12_read import extract_data
 from ejplugins import CrystalOutputPlugin
 
 

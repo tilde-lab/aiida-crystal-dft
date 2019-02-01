@@ -3,7 +3,7 @@ import os
 
 from aiida.parsers.exceptions import ParsingError
 from aiida.work import WorkChain
-from aiida_crystal.parsers.mainout_parse import parse_mainout
+from aiida_crystal.io.out import parse_mainout
 from aiida_crystal.parsers.migrate import create_inputs
 # from aiida.common.datastructures import calc_states
 from aiida_crystal.aiida_compatibility import run_get_node
