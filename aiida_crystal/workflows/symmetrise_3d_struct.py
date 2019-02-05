@@ -3,7 +3,7 @@ from aiida.common.exceptions import ValidationError
 from aiida.common.extendeddicts import AttributeDict
 from aiida.orm import DataFactory
 from aiida.work import WorkChain
-from aiida_crystal.parsers.geometry import structure_to_dict, compute_symmetry_3d, SYMMETRY_PROGRAM, SYMMETRY_VERSION, \
+from aiida_crystal.io.geometry import structure_to_dict, compute_symmetry_3d, SYMMETRY_PROGRAM, SYMMETRY_VERSION, \
     dict_to_structure
 from aiida_crystal.utils import unflatten_dict
 from aiida_crystal.aiida_compatibility import run_get_node

@@ -5,7 +5,7 @@ import os
 
 # TODO remove dependancy on ejplugins?
 import ejplugins
-from aiida_crystal.parsers.geometry import dict_to_structure
+from aiida_crystal.io.geometry import dict_to_structure
 from ejplugins.crystal import CrystalOutputPlugin
 
 from aiida.parsers.exceptions import OutputParsingError

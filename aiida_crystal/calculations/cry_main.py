@@ -10,7 +10,7 @@ from aiida.orm import DataFactory
 from aiida.orm.calculation.job import JobCalculation
 from aiida_crystal.data.basis_set import get_basissets_from_structure
 from aiida_crystal.validation import read_schema
-from aiida_crystal.parsers.geometry import crystal_gui_string, structure_to_dict
+from aiida_crystal.io.geometry import crystal_gui_string, structure_to_dict
 from aiida_crystal.io.d12_write import write_input
 from aiida_crystal.utils import unflatten_dict, ATOMIC_NUM2SYMBOL
 
@@ -39,7 +39,7 @@ class CryMainCalculation(JobCalculation):
         self._DEFAULT_OUTPUT_FILE = 'main.out'
 
         # parser entry point defined in setup.json
-        self._default_parser = 'crystal.basic'
+        self._default_parser = 'crystal'
 
         # output files
         self.retrieve_list = [
@@ -391,7 +391,7 @@ class CryMainCalculation(JobCalculation):
         calcinfo.codes_info = [codeinfo]
         calcinfo.local_copy_list = []
         calcinfo.remote_copy_list = []
-        calcinfo.retrieve_list = self._retrieve_list
+        calcinfo.retrieve_list = self.retrieve_list
         calcinfo.retrieve_temporary_list = []
 
         # TODO set hpc options (i.e. calcinfo.num_machines, etc)? Doesn't seem required looking at aiida-quantumespresso

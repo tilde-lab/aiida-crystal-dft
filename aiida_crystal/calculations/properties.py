@@ -8,7 +8,7 @@ from aiida.orm import DataFactory
 from aiida.orm.calculation.job import JobCalculation
 from aiida_crystal.validation import read_schema
 from aiida_crystal.data.basis_set import get_basissets_from_structure
-from aiida_crystal.parsers.geometry import structure_to_dict
+from aiida_crystal.io.geometry import structure_to_dict
 from aiida_crystal.io.d12_write import write_input
 from aiida_crystal.utils import unflatten_dict, ATOMIC_NUM2SYMBOL
 
