@@ -25,7 +25,9 @@
             "crystal.immigrant = aiida_crystal.calculations.cry_main_immigrant:CryMainImmigrantCalculation"
         ],
         "aiida.parsers": [
-            "crystal.basic = aiida_crystal.parsers.cry_basic:CryBasicParser"
+            "crystal.basic = aiida_crystal.parsers.cry_basic:CryBasicParser",
+            "crystal = aiida_crystal.parsers.cry_pycrystal:CrystalParser"
+
         ],
         "aiida.workflows": [
             "crystal.sym3d = aiida_crystal.workflows.symmetrise_3d_struct:Symmetrise3DStructure"
@@ -41,6 +43,7 @@
     "install_requires": [
         "aiida-core>=1.0.0a4",
         "ejplugins==0.9.7",
+        "pycrystal @ git+https://github.com/tilde-lab/pycrystal.git",
         "ase<3.17",
         "pymatgen==2018.5.3",
         "packaging",

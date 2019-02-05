@@ -5,8 +5,6 @@ Pycrystal-based parser for CRYSTAL AiiDA plugin
 
 from __future__ import absolute_import
 
-from six.moves import zip
-
 from aiida.parsers.parser import Parser
 from aiida.parsers.exceptions import OutputParsingError
 from aiida.orm import CalculationFactory
@@ -21,6 +19,7 @@ class CrystalParser(Parser):
     Parser class for parsing output of CRYSTAL calculation.
     """
 
+    # pylint: disable=protected-access
     def __init__(self, calculation):
         """
         Initialize Parser instance
@@ -28,7 +27,7 @@ class CrystalParser(Parser):
         super(CrystalParser, self).__init__(calculation)
         calc_entry_points = ['crystal.basic',
                              'crystal.main',
-                             'crystal']
+                             ]
 
         calc_cls = [CalculationFactory(entry_point) for entry_point in calc_entry_points]
 
@@ -42,7 +41,6 @@ class CrystalParser(Parser):
         self._parse = {calculation._DEFAULT_OUTPUT_FILE: self.parse_stdout,
                        calculation._DEFAULT_EXTERNAL_FILE: self.parse_out_structure,
                        'fort.9': self.parse_out_wavefunction}
-
 
     # pylint: disable=protected-access
     def parse_with_retrieved(self, retrieved):
@@ -78,7 +76,6 @@ class CrystalParser(Parser):
             self.logger.error("Not all expected output files {} were found".
                               format(output_files))
 
-        # Use something like this to loop over multiple output files
         for fname in output_files:
             if fname in self._parse:
                 node = self._parse[fname](out_folder.get_abs_path(fname))
@@ -88,18 +85,21 @@ class CrystalParser(Parser):
                     node_list += node
             else:
                 self.logger.warning("Could not find a parser for {}".
-                                  format(fname))
+                                    format(fname))
 
         success = True
         return success, node_list
 
-    def parse_stdout(self, file_name):
+    @classmethod
+    def parse_stdout(cls, file_name):
         result = out.parse(file_name)
+
         return 'output_parameters', ParameterData(dict=result)
 
-    def parse_out_structure(self, file_name):
-        pass
+    @classmethod
+    def parse_out_structure(cls, file_name):
+        return []
 
-    def parse_out_wavefunction(self, file_name):
+    @classmethod
+    def parse_out_wavefunction(cls, file_name):
         return 'wavefunction', SinglefileData(file=file_name)
-
