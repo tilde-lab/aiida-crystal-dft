@@ -41,6 +41,13 @@ class CryMainCalculation(JobCalculation):
         # parser entry point defined in setup.json
         self._default_parser = 'crystal.basic'
 
+        # output files
+        self.retrieve_list = [
+            self._DEFAULT_OUTPUT_FILE,
+            self._DEFAULT_EXTERNAL_FILE,
+            'fort.9'
+        ]
+
     @classproperty
     def settings_schema(cls):
         """get a copy of the settings schema"""
@@ -384,11 +391,7 @@ class CryMainCalculation(JobCalculation):
         calcinfo.codes_info = [codeinfo]
         calcinfo.local_copy_list = []
         calcinfo.remote_copy_list = []
-        calcinfo.retrieve_list = [
-            self._DEFAULT_OUTPUT_FILE,
-            self._DEFAULT_EXTERNAL_FILE,
-            'fort.9'
-        ]
+        calcinfo.retrieve_list = self._retrieve_list
         calcinfo.retrieve_temporary_list = []
 
         # TODO set hpc options (i.e. calcinfo.num_machines, etc)? Doesn't seem required looking at aiida-quantumespresso
