@@ -9,7 +9,7 @@ from aiida.parsers.parser import Parser
 from aiida.parsers.exceptions import OutputParsingError
 from aiida.orm import CalculationFactory
 from aiida.orm.data.parameter import ParameterData
-from aiida.orm.data.structure import StructureData
+# from aiida.orm.data.structure import StructureData
 from aiida.orm.data.singlefile import SinglefileData
 from aiida_crystal.io.pycrystal import out
 
