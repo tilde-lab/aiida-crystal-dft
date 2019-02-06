@@ -22,7 +22,7 @@ def new_database(aiida_profile):
     aiida_profile.reset_db()
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='session')
 def new_workdir():
     """get a new temporary folder to use as the computer's wrkdir"""
     dirpath = tempfile.mkdtemp()

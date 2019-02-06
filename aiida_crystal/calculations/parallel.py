@@ -2,7 +2,7 @@
 A parallel version of CRYSTAL calculation
 """
 from aiida.common.datastructures import CalcInfo, CodeInfo
-from aiida_crystal.calculations import CrystalCommonCalculation
+from aiida_crystal.calculations.common import CrystalCommonCalculation
 
 
 class CrystalParallelCalculation(CrystalCommonCalculation):

@@ -7,7 +7,7 @@ Register calculations via the "aiida.calculations" entry point in setup.json.
 #  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 
 from aiida.common.datastructures import CalcInfo, CodeInfo
-from aiida_crystal.calculations import CrystalCommonCalculation
+from aiida_crystal.calculations.common import CrystalCommonCalculation
 
 
 class CrystalSerialCalculation(CrystalCommonCalculation):
