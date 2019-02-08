@@ -30,11 +30,7 @@ from aiida_crystal.utils import ATOMIC_SYMBOL2NUM, ATOMIC_NUM2SYMBOL
 SYMMETRY_PROGRAM = "spglib"
 SYMMETRY_VERSION = ".".join([str(i) for i in spglib.get_version()])
 
-# python 3 to 2 compatibility
-try:
-    import pathlib
-except ImportError:
-    import pathlib2 as pathlib
+import pathlib
 
 CRYSTAL_TYPE_MAP = {
     1: 'triclinic',
