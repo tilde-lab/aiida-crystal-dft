@@ -5,7 +5,7 @@ import pytest
 
 
 @pytest.fixture
-def new_computer(aiida_profile, new_workdir):
+def test_computer(aiida_profile, new_workdir):
     from aiida.common.exceptions import NotExistent
     try:
         computer = aiida_profile._backend.computers.get(name='localhost')
@@ -22,14 +22,13 @@ def new_computer(aiida_profile, new_workdir):
 
 
 @pytest.fixture
-def new_code(new_computer):
+def test_code(test_computer):
     from aiida.orm import Code
-    if not new_computer.pk:
-        new_computer.store()
+    if not test_computer.pk:
+        test_computer.store()
     code = Code()
     code.label = 'crystal'
     code.description = 'CRYSTAL code'
-    code.set_remote_computer_exec((new_computer, '/usr/local/bin/crystal'))
+    code.set_remote_computer_exec((test_computer, '/usr/local/bin/crystal'))
     code.set_input_plugin_name('crystal.main')
     return code
-
