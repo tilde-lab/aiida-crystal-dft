@@ -29,19 +29,23 @@ class CrystalCommonCalculation(JobCalculation):
         """
         Init internal parameters at class load time
         """
+        # reuse base class function
+        super(CrystalCommonCalculation, self)._init_internal_params()
 
         # parser entry point defined in setup.json
         self._default_parser = 'crystal'
 
+        # input files
+        self._DEFAULT_INPUT_FILE = self._INPUT_FILE_NAME
+
         # output files
-        self._retrieve_list = [
+        self._DEFAULT_OUTPUT_FILE = self._OUTPUT_FILE_NAME
+        self.retrieve_list = [
             self._GEOMETRY_FILE_NAME,
             self._OUTPUT_FILE_NAME,
             'fort.9'
         ]
 
-        # reuse base class function
-        super(CrystalCommonCalculation, self)._init_internal_params()
 
     @classproperty
     def _use_methods(cls):
@@ -56,7 +60,7 @@ class CrystalCommonCalculation(JobCalculation):
             "structure": {
                 'valid_types': StructureData,
                 'additional_parameter': None,
-                'linkname': 'parameters',
+                'linkname': 'structure',
                 'docstring': "Input structure (for fort.34 file)"
             },
             "parameters": {
@@ -92,6 +96,15 @@ class CrystalCommonCalculation(JobCalculation):
                                        "calculation")
 
         try:
+            validated_dict['structure'] = inputdict.pop(self.get_linkname('structure'))
+        except KeyError:
+            raise InputValidationError("No structure specified for this "
+                                       "calculation")
+        if not isinstance(validated_dict['structure'], StructureData):
+            raise InputValidationError("structure not of type "
+                                       "StructureData: {}".format(validated_dict['structure']))
+
+        try:
             validated_dict['parameters'] = inputdict.pop(self.get_linkname('parameters'))
         except KeyError:
             raise InputValidationError("No parameters specified for this "
@@ -101,13 +114,13 @@ class CrystalCommonCalculation(JobCalculation):
                                        "ParameterData: {}".format(validated_dict['parameters']))
 
         # settings are optional
-        validated_dict['settings'] = inputdict.pop(self.get_linkname('settings'))
+        validated_dict['settings'] = inputdict.pop(self.get_linkname('settings'), None)
         if validated_dict['settings'] is not None:
             if not isinstance(validated_dict['settings'], ParameterData):
                 raise InputValidationError(
                     "settings not of type ParameterData: {}".format(validated_dict['settings']))
 
-        basis_inputs = [_ for _ in inputdict if _.beginswith(self._BASIS_PREFIX)]
+        basis_inputs = [_ for _ in inputdict if _.startswith(self._BASIS_PREFIX)]
         basis_dict = {}
         if not basis_inputs:
             raise InputValidationError('No basis sets specified for calculation!')

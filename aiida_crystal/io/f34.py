@@ -1,5 +1,6 @@
 #  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 
+from __future__ import print_function
 import numpy as np
 import spglib
 from .geometry import get_crystal_system, get_centering_code
