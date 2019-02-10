@@ -13,4 +13,9 @@ def test_from_ase(aiida_profile, test_ase_structure):
     assert reader.space_group == 225
     assert reader.crystal_type == 6
     assert reader.centring == 5
+    assert reader.abc[0, 1] == 2.105
+    assert len(reader.positions) == 2
+    assert reader.atomic_numbers[0] == 12
+    with open("fort.34", "w") as f:
+        reader.write(f)
 

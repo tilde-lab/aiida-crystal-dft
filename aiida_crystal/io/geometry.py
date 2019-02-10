@@ -30,7 +30,11 @@ from aiida_crystal.utils import ATOMIC_SYMBOL2NUM, ATOMIC_NUM2SYMBOL
 SYMMETRY_PROGRAM = "spglib"
 SYMMETRY_VERSION = ".".join([str(i) for i in spglib.get_version()])
 
-import pathlib
+# python 3 to 2 compatibility
+try:
+    import pathlib
+except ImportError:
+    import pathlib2 as pathlib
 
 CRYSTAL_TYPE_MAP = {
     1: 'triclinic',
@@ -408,6 +412,8 @@ def compute_symmetry_3d(structdata, standardize, primitive, idealize, symprec,
     fcoords = cart2frac(lattice, ccoords)
     cell = [lattice, fcoords, inequivalent_sites]
     cell = tuple(cell)
+    with open("cell_before", "w") as f:
+        print(cell, file=f)
 
     if standardize or primitive:
         scell = spglib.standardize_cell(
@@ -424,7 +430,8 @@ def compute_symmetry_3d(structdata, standardize, primitive, idealize, symprec,
         fcoords = cell[1]
         ccoords = frac2cart(lattice, fcoords)
         inequivalent_sites = cell[2].tolist()
-
+    with open("cell_after", "w") as f:
+        print(cell, file=f)
     # find symmetry
     # TODO can we get only the symmetry operators accepted by CRYSTAL?
     symm_dataset = spglib.get_symmetry_dataset(
@@ -478,6 +485,9 @@ def compute_symmetry_3d(structdata, standardize, primitive, idealize, symprec,
         "crystal_type": crystal_type,
         "centring_code": origin_setting,
     }
+    with open("symmetry", "w") as f:
+        from pprint import pprint
+        pprint(symmdata, f)
 
     return structdata, symmdata
 
