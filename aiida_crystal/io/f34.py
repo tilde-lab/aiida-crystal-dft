@@ -22,9 +22,20 @@ class Fort34(object):
         self.atomic_numbers = None
 
     def from_aiida(self, aiida_struct):
-        raise NotImplemented
+        """
+        Convert aiida StructureData to format suitable for writing fort.34 file
+        :param aiida_struct: aiida StructureData object
+        :return: a Fort34 instance
+        """
+        ase_struct = aiida_struct.get_ase()
+        return self.from_ase(ase_struct)
 
     def from_ase(self, ase_struct):
+        """
+        Convert ase Atoms to format suitable for writing fort.34 file
+        :param ase_struct: ase Atoms object
+        :return: a Fort34 instance
+        """
         if all(ase_struct.pbc):
             self.dimensionality = 3
         else:
