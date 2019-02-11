@@ -24,9 +24,8 @@ class CrystalParser(Parser):
         Initialize Parser instance
         """
         super(CrystalParser, self).__init__(calculation)
-        calc_entry_points = ['crystal.basic',
-                             'crystal.main',
-                             'crystal.serial'
+        calc_entry_points = ['crystal.serial',
+                             'crystal.parallel'
                              ]
 
         calc_cls = [CalculationFactory(entry_point) for entry_point in calc_entry_points]
