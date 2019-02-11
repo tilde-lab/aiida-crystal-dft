@@ -18,6 +18,10 @@ class CrystalParallelCalculation(CrystalCommonCalculation):
         super(CrystalParallelCalculation, self)._init_internal_params()
 
         self._OUTPUT_FILE_NAME = self._SCHED_ERROR_FILE
+        self.retrieve_list = [
+            self._GEOMETRY_FILE_NAME,
+            'fort.9'
+        ]
 
     def _prepare_for_submission(self, tempfolder, inputdict):
         """
@@ -37,7 +41,7 @@ class CrystalParallelCalculation(CrystalCommonCalculation):
         except (ValueError, NotImplementedError) as err:
             raise InputValidationError(
                 "an input file could not be created from the parameters: {}".
-                format(err))
+                    format(err))
         with open(tempfolder.get_abs_path(self._INPUT_FILE_NAME), 'w') as f:
             f.write(d12_filecontent)
 
@@ -57,6 +61,7 @@ class CrystalParallelCalculation(CrystalCommonCalculation):
         calcinfo.local_copy_list = []
         calcinfo.remote_copy_list = []
         calcinfo.retrieve_list = self.retrieve_list
+
         calcinfo.local_copy_list = []
 
         return calcinfo

@@ -40,11 +40,6 @@ class CrystalCommonCalculation(JobCalculation):
 
         # output files
         self._DEFAULT_OUTPUT_FILE = self._OUTPUT_FILE_NAME
-        self.retrieve_list = [
-            self._GEOMETRY_FILE_NAME,
-            self._OUTPUT_FILE_NAME,
-            'fort.9'
-        ]
 
 
     @classproperty

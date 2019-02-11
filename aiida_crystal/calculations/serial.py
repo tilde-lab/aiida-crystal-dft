@@ -15,6 +15,19 @@ from aiida_crystal.io.f34 import Fort34
 
 class CrystalSerialCalculation(CrystalCommonCalculation):
 
+    def _init_internal_params(self):
+        """
+        Init internal parameters at class load time
+        """
+        # reuse base class function
+        super(CrystalSerialCalculation, self)._init_internal_params()
+
+        self.retrieve_list = [
+            self._GEOMETRY_FILE_NAME,
+            self._OUTPUT_FILE_NAME,
+            'fort.9'
+        ]
+
     def _prepare_for_submission(self, tempfolder, inputdict):
         """
         Create input files.
