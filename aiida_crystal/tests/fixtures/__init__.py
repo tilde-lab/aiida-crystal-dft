@@ -2,3 +2,4 @@
 
 from .code import *
 from .calculations import *
+from .basis import *

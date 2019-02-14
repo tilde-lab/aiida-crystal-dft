@@ -6,9 +6,32 @@ from aiida_crystal.tests.fixtures import *
 
 def test_store_calc(crystal_calc):
     calc = crystal_calc
+    calc.set_resources({"num_machines": 1, "num_mpiprocs_per_machine": 1})
     calc.store_all()
     assert calc.pk is not None
+    assert calc.inp.code.pk is not None
     assert calc.inp.parameters.pk is not None
     assert calc.inp.structure.pk is not None
-    assert calc.inp.settings.pk is not None
 
+
+def test_validate_input(test_code, test_structure_data, calc_parameters, test_basis):
+    from aiida.common.exceptions import InputValidationError
+    from aiida_crystal.calculations.serial import CrystalSerialCalculation
+    calc = CrystalSerialCalculation()
+    with pytest.raises(InputValidationError):
+        calc._validate_input(calc.get_inputs_dict())
+    calc.use_code(test_code)
+    with pytest.raises(InputValidationError):
+        calc._validate_input(calc.get_inputs_dict())
+    calc.use_structure(test_structure_data)
+    with pytest.raises(InputValidationError):
+        calc._validate_input(calc.get_inputs_dict())
+    calc.use_parameters(calc_parameters)
+    with pytest.raises(InputValidationError):
+        calc._validate_input(calc.get_inputs_dict())
+    calc.use_basis(test_basis['Mg'], 'Mg')
+    calc.use_basis(test_basis['O'], 'O')
+    assert calc._validate_input(calc.get_inputs_dict())
+    with pytest.raises(InputValidationError):
+        calc.use_basis(test_basis['O'], 'XXX')
+        calc._validate_input(calc.get_inputs_dict())

@@ -481,9 +481,6 @@ def compute_symmetry_3d(structdata, standardize, primitive, idealize, symprec,
         "crystal_type": crystal_type,
         "centring_code": origin_setting,
     }
-    with open("symmetry", "w") as f:
-        from pprint import pprint
-        pprint(symmdata, f)
 
     return structdata, symmdata
 

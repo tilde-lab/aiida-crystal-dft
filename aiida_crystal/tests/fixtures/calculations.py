@@ -12,7 +12,6 @@ def crystal_calc(test_code, calc_parameters, test_structure_data):
     calc.set_computer(test_code.get_computer())
     calc.use_structure(test_structure_data)
     calc.use_parameters(calc_parameters)
-
     return calc
 
 

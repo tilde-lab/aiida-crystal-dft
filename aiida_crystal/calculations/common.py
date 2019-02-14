@@ -41,7 +41,6 @@ class CrystalCommonCalculation(JobCalculation):
         # output files
         self._DEFAULT_OUTPUT_FILE = self._OUTPUT_FILE_NAME
 
-
     @classproperty
     def _use_methods(cls):
         """
