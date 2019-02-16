@@ -45,7 +45,7 @@ class PropertiesCalculation(JobCalculation):
     @classproperty
     def input_schema(cls):
         """get a copy of the settings schema"""
-        return read_schema("inputd12")
+        return read_schema("d12")
 
     # pylint: disable=too-many-arguments
     @classmethod
