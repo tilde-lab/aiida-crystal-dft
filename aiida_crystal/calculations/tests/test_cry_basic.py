@@ -554,6 +554,7 @@ def test_parser_opt(new_database, new_workdir):
     assert edict.diff(output_struct, expected_struct, np_allclose=True) == {}
 
 
+@pytest.mark.skip
 @pytest.mark.timeout(60)
 @pytest.mark.process_execution
 @pytest.mark.skipif(
@@ -605,8 +606,8 @@ def test_full_run(new_database, new_workdir):
     expected_params = {
         'parser_version':
             str(aiida_crystal.__version__),
-        # 'ejplugins_version':
-        # str(ejplugins.__version__),
+        'ejplugins_version':
+            str(ejplugins.__version__),
         'parser_class':
             'CryBasicParser',
         'parser_warnings':

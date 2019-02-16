@@ -46,6 +46,7 @@ def test_prepare_and_validate(new_database, new_workdir):
     calc_cls.prepare_and_validate(inparams, instruct, settings, flattened=True)
 
 
+@pytest.mark.skip
 def test_submit_mgo(new_database, new_workdir):
     """Test submitting a calculation"""
     from aiida.orm import DataFactory
@@ -335,6 +336,7 @@ END
     assert gui_content == expected_gui
 
 
+@pytest.mark.skip
 def test_submit_nio_afm(new_database, new_workdir):
     """Test submitting a calculation"""
     from aiida.orm import DataFactory
