@@ -14,8 +14,7 @@ addons:
 env:
   global:
   - TEST_AIIDA_BACKEND: django
-  - TEST_AIIDA_BACKEND: django
-  - AIIDA_DEVELOP_GIT_HASH: 7854680b268dcf29425a866256c9b34bdaa40ae5
+#  - AIIDA_DEVELOP_GIT_HASH: 7854680b268dcf29425a866256c9b34bdaa40ae5
   # show timings of tests
 #  - PYTEST_ADDOPTS: --duration 0
 
@@ -92,9 +91,9 @@ before_install:
 
 install:
 #- if [ "$AIIDA_VERSION" == "develop" ]; then .travis-data/install_aiida_github.sh ; fi  # installs develop branch
-- pip install -e .[testing,docs,pre-commit]
+- pip install -e .[testing]
 - reentry scan -r aiida
-- pip install coveralls
+#- pip install coveralls
 
 script:
 - if [ "$TEST_TYPE" == "tests" ] ; then py.test --cov aiida_crystal --cov-append . ; fi  # runs unit tests
