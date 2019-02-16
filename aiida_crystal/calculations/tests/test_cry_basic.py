@@ -12,6 +12,8 @@ from aiida_crystal.aiida_compatibility import aiida_version, cmp_version, run_ge
 
 # pylint: disable=unused-argument
 
+pytestmark = pytest.mark.skip(reason='Tests for old calculations')
+
 
 def get_basic_code(workdir, configure=False):
     """get the crystal.basic code """

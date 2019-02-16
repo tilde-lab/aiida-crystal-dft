@@ -4,7 +4,7 @@ import os
 import jsonschema
 
 
-def read_schema(name="inputd12"):
+def read_schema(name="d12"):
     """read and return an json schema
 
     :return:
@@ -16,7 +16,7 @@ def read_schema(name="inputd12"):
     return schema
 
 
-def validate_with_json(data, name="inputd12"):
+def validate_with_json(data, name="d12"):
     """ validate json-type data against a schema
 
     :param data: dictionary

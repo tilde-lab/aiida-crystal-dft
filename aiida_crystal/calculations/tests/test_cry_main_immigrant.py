@@ -2,9 +2,13 @@
 
 import os
 import shutil
+import pytest
 
 from aiida_crystal.tests import TEST_DIR
 import aiida_crystal.tests.utils as tests
+
+
+pytestmark = pytest.mark.skip(reason='Tests for old calculations')
 
 
 def get_main_code(workdir):

@@ -1,8 +1,11 @@
 import os
-
-from aiida_crystal.tests import TEST_DIR
 import pytest
+
 from jsonextended import edict
+from aiida_crystal.tests import TEST_DIR
+
+
+pytestmark = pytest.mark.skip(reason='Tests for old workflow')
 
 
 @pytest.mark.timeout(60)

@@ -428,7 +428,6 @@ def compute_symmetry_3d(structdata, standardize, primitive, idealize, symprec,
         fcoords = cell[1]
         ccoords = frac2cart(lattice, fcoords)
         inequivalent_sites = cell[2].tolist()
-
     # find symmetry
     # TODO can we get only the symmetry operators accepted by CRYSTAL?
     symm_dataset = spglib.get_symmetry_dataset(

@@ -9,7 +9,6 @@ from aiida.parsers.parser import Parser
 from aiida.parsers.exceptions import OutputParsingError
 from aiida.orm import CalculationFactory
 from aiida.orm.data.parameter import ParameterData
-from aiida.orm.data.structure import StructureData
 from aiida.orm.data.singlefile import SinglefileData
 from aiida_crystal.io.pycrystal import out
 
@@ -25,8 +24,8 @@ class CrystalParser(Parser):
         Initialize Parser instance
         """
         super(CrystalParser, self).__init__(calculation)
-        calc_entry_points = ['crystal.basic',
-                             'crystal.main',
+        calc_entry_points = ['crystal.serial',
+                             'crystal.parallel'
                              ]
 
         calc_cls = [CalculationFactory(entry_point) for entry_point in calc_entry_points]
@@ -38,8 +37,8 @@ class CrystalParser(Parser):
                 calculation.__class__.__name__
             ))
         # each parse_* function should return a list of [(link, node)...] format
-        self._parse = {calculation._DEFAULT_OUTPUT_FILE: self.parse_stdout,
-                       calculation._DEFAULT_EXTERNAL_FILE: self.parse_out_structure,
+        self._parse = {calculation._OUTPUT_FILE_NAME: self.parse_stdout,
+                       calculation._GEOMETRY_FILE_NAME: self.parse_out_structure,
                        'fort.9': self.parse_out_wavefunction}
 
     # pylint: disable=protected-access
@@ -93,7 +92,6 @@ class CrystalParser(Parser):
     @classmethod
     def parse_stdout(cls, file_name):
         result = out.parse(file_name)
-
         return 'output_parameters', ParameterData(dict=result)
 
     @classmethod

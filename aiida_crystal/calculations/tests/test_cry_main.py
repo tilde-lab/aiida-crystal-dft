@@ -13,6 +13,9 @@ from aiida_crystal.aiida_compatibility import aiida_version, cmp_version, run_ge
 from aiida_crystal.tests import TEST_DIR
 
 
+pytestmark = pytest.mark.skip(reason='Tests for old calculations')
+
+
 # pylint: disable=unused-argument
 
 

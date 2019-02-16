@@ -65,7 +65,7 @@ def extract_data(input_string):
     - Any geometry creation commands are ignored
     - Basis sets must be included explicitly (no keywords) and are read into the basis_sets list
     - FRAGMENT, GHOSTS and ATOMSPIN commands are read into the atom_props dict
-    - Otherwise, only commands contained in the inputd12.schema.json are allowed
+    - Otherwise, only commands contained in the d12.schema.json are allowed
 
     :param input_string: a string if the content of the file
     :returns output_dict: the paramtere dict for use in ``crystal.main`` calculation
@@ -75,7 +75,7 @@ def extract_data(input_string):
     """
     lines = input_string.splitlines()
 
-    schema = read_schema("inputd12")
+    schema = read_schema("d12")
     output_dict = {}
     basis_sets = []
     atom_props = {}
@@ -102,7 +102,7 @@ def extract_data(input_string):
     _read_hamiltonian_block(atom_props, lines, output_dict, schema)
 
     output_dict = unflatten_dict(output_dict)
-    validate_with_json(output_dict, "inputd12")
+    validate_with_json(output_dict, "d12")
 
     return output_dict, basis_sets, atom_props
 
