@@ -94,6 +94,7 @@ install:
 #- if [ "$AIIDA_VERSION" == "develop" ]; then .travis-data/install_aiida_github.sh ; fi  # installs develop branch
 - pip install -e .[testing]
 - reentry scan -r aiida
+- pip install numpy==1.15
 #- pip install coveralls
 
 script:
