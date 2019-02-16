@@ -2,16 +2,19 @@
 
 import pytest
 from ase.spacegroup import crystal
+from .basis import test_basis
 
 
 @pytest.fixture
-def crystal_calc(test_code, calc_parameters, test_structure_data):
+def crystal_calc(test_code, calc_parameters, test_structure_data, test_basis):
     from aiida_crystal.calculations.serial import CrystalSerialCalculation
-    calc = CrystalSerialCalculation()
+    calc = CrystalSerialCalculation(resources={"num_machines": 1, "num_mpiprocs_per_machine": 1})
     calc.use_code(test_code)
     calc.set_computer(test_code.get_computer())
     calc.use_structure(test_structure_data)
     calc.use_parameters(calc_parameters)
+    calc.use_basis(test_basis['Mg'], 'Mg')
+    calc.use_basis(test_basis['O'], 'O')
     return calc
 
 
