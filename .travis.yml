@@ -87,6 +87,7 @@ matrix:
 
 before_install:
 # Upgrade pip setuptools and wheel
+# pip 19.0.2 has problems
 - pip install pip==18.1
 - pip install -U wheel setuptools
 
@@ -94,6 +95,7 @@ install:
 #- if [ "$AIIDA_VERSION" == "develop" ]; then .travis-data/install_aiida_github.sh ; fi  # installs develop branch
 - pip install -e .[testing]
 - reentry scan -r aiida
+# Doesn't work for me due to numpy.ufunc; however, works for Travis
 - pip install pymatgen==2018.4.20
 #- pip install coveralls
 

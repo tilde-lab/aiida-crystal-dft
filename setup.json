@@ -1,9 +1,9 @@
 {
     "name": "aiida-crystal",
-    "author": "Chris Sewell",
-    "author_email": "chrisj_sewell@hotmail.com",
-    "description": "AiiDA plugin for running the CRYSTAL17 code",
-    "url": "https://github.com/chrisjsewell/aiida-crystal17",
+    "author": "Andrey Sobolev, based on aiida-crystal17 plugin by Chris Sewell",
+    "author_email": "as@tilde.pro",
+    "description": "Yet another AiiDA plugin for CRYSTAL code",
+    "url": "https://github.com/tilde-lab/aiida-crystal",
     "license": "MIT",
     "classifiers": [
         "Programming Language :: Python",
@@ -13,7 +13,6 @@
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Scientific/Engineering :: Physics"
     ],
-    "version": "0.1a1",
     "entry_points": {
         "aiida.data": [
             "crystal.basisset = aiida_crystal.data.basis_set:BasisSetData",
