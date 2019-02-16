@@ -87,7 +87,8 @@ matrix:
 
 before_install:
 # Upgrade pip setuptools and wheel
-- pip install -U pip wheel setuptools
+- pip install pip==18.1
+- pip install -U wheel setuptools
 
 install:
 #- if [ "$AIIDA_VERSION" == "develop" ]; then .travis-data/install_aiida_github.sh ; fi  # installs develop branch
@@ -96,7 +97,7 @@ install:
 #- pip install coveralls
 
 script:
-- if [ "$TEST_TYPE" == "tests" ] ; then py.test --cov aiida_crystal --cov-append . ; fi  # runs unit tests
+- if [ "$TEST_TYPE" == "tests" ] ; then py.test --ignore=examples/ --cov aiida_crystal --cov-append . ; fi  # runs unit tests
 - if [ "$TEST_TYPE" == "docs" ] ; then cd docs; make; fi  # creates documentation
 # runs precommit checks (failures allowed)
 # - if [ "$TEST_TYPE" == "pre-commit" ] ; then pre-commit install; pre-commit run --all-files || ( git status --short; git diff ; exit 1 ); fi
