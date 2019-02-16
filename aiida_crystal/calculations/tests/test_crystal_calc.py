@@ -42,10 +42,10 @@ def test_validate_input(test_code, test_structure_data, calc_parameters, test_ba
 
 def test_submit(crystal_calc):
     from aiida.common.folders import Folder
-    temp_dir = tempfile.gettempdir()
+    temp_dir = tempfile.mkdtemp()
     crystal_calc.store_all()
-    crystal_calc.submit_test(Folder(temp_dir))
-    files = os.listdir(temp_dir)
+    crystal_calc.submit_test(folder=Folder(temp_dir), subfolder_name='test')
+    files = os.listdir(os.path.join(temp_dir, 'test-00001'))
     assert '_aiidasubmit.sh' in files
     assert 'fort.34' in files
     assert 'INPUT' in files
