@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "description": "Inputs for properties calculation (.d3 file)",
   "type": "object",
-
+  "required": ["band"],
   "properties": {
     "band": {
       "description": "Bands calculation inputs",
