@@ -27,7 +27,8 @@
         ],
         "aiida.parsers": [
             "crystal.basic = aiida_crystal.parsers.cry_basic:CryBasicParser",
-            "crystal = aiida_crystal.parsers.cry_pycrystal:CrystalParser"
+            "crystal = aiida_crystal.parsers.cry_pycrystal:CrystalParser",
+            "crystal.properties = aiida_crystal.parsers.properties:PropertiesParser"
 
         ],
         "aiida.workflows": [
