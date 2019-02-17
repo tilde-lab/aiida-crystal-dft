@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Inputs for properties calculation (.d3 file)",
+  "type": "object",
+
+  "properties": {
+    "band": {
+      "description": "Bands calculation inputs",
+      "type": "object",
+      "properties": {
+        "title": {
+          "description": "Bands comment string",
+          "type": "string"
+        },
+        "shrink": {
+          "description": "Shrinking factor in terms of which the coordinates of the segments' extremes are expressed",
+          "type": "integer",
+          "minimum": 0,
+          "exclusiveMinimum": false
+        },
+        "kpoints": {
+          "description": "Total number of k-points along the path",
+          "type": "integer",
+          "minimum": 2,
+          "exclusiveMinimum": false
+        },
+        "first": {
+          "description":"First band to plot",
+          "type": "integer",
+          "minimum": 0,
+          "exclusiveMinimum": true
+        },
+        "last": {
+          "description": "Last band to plot",
+          "type": "integer",
+          "minimum": 1,
+          "exclusiveMinimum": false
+        },
+        "store": {
+          "description": "Whether to store results on disk (in fort.25 file)",
+          "type": "boolean"
+        },
+        "print": {
+          "description": "Whether to print resultant eigenvalues",
+          "type": "boolean"
+        },
+        "bands": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "A", "B", "C", "D", "E", "F",
+                    "G", "H", "K", "L", "M", "N",
+                    "P", "R", "S", "T", "U", "W",
+                    "X", "Y", "Z"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "required": [
+        "shrink",
+        "kpoints",
+        "first",
+        "last",
+        "bands"
+      ]
+    }
+  }
+}
