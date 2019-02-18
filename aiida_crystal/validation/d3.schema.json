@@ -46,6 +46,7 @@
         },
         "bands": {
           "type": "array",
+          "minItems": 1,
           "items": {
             "type": "array",
             "minItems": 2,
