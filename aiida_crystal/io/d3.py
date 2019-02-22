@@ -35,7 +35,7 @@ class D3(object):
         if band is None:
             return []
         lines = ["BAND",
-                 "{}".format(self._parameters.get("title", "CRYSTAL RUN")),
+                 "{}".format(band.get("title", "CRYSTAL RUN")),
                  "{} {} {} {} {} {}".format(len(band["bands"]),
                                             band["shrink"],
                                             band["kpoints"],
