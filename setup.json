@@ -21,6 +21,7 @@
         "aiida.calculations": [
             "crystal.serial = aiida_crystal.calculations.serial:CrystalSerialCalculation",
             "crystal.parallel = aiida_crystal.calculations.parallel:CrystalParallelCalculation",
+            "crystal.properties = aiida_crystal.calculations.properties:PropertiesCalculation",
             "crystal.basic = aiida_crystal.calculations.cry_basic:CryBasicCalculation",
             "crystal.main = aiida_crystal.calculations.cry_main:CryMainCalculation",
             "crystal.immigrant = aiida_crystal.calculations.cry_main_immigrant:CryMainImmigrantCalculation"

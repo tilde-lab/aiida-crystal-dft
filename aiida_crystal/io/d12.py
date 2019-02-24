@@ -18,6 +18,9 @@ class D12(object):
         """Reading input from file (eg for immigration)"""
         raise NotImplementedError
 
+    def __str__(self):
+        return ""
+
     def write(self):
         """Writing input to file"""
         if self._input is None:

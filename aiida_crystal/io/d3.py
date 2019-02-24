@@ -30,6 +30,10 @@ class D3(object):
         lines = self._band_block_str()
         return "\n".join(lines)
 
+    def write(self, f):
+        """Writes the content to file f"""
+        print(self, file=f)
+
     def _band_block_str(self):
         band = self._parameters.get("band", None)
         if band is None:
