@@ -12,5 +12,9 @@ def test_read_bands():
                              "input_files",
                              "mgo_sto3g_external.bands")
     parser = Fort25(file_name)
-    parser.parse()
-    assert parser
+    result = parser.parse()
+    assert result["bands"]
+    bands = result["bands"]
+    assert bands["n_bands"] == 8
+    assert bands["n_k"] == [8, 3, 5, 6, 8]
+    assert bands["bands"].shape == (30, 8)

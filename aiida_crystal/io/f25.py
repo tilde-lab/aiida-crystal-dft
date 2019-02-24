@@ -7,6 +7,8 @@ from pyparsing import *
 
 pc = pyparsing_common
 
+__all__ = ["Fort25"]
+
 
 def _parse_string(parser, string):
     try:
@@ -38,22 +40,29 @@ class Fort25(object):
             self._data = f.read().split('-%-')
 
     def parse(self):
+        # the resulting dictionary
+        result = {"bands": {}}
+        # band structure
         band_data = [bloc for bloc in self._data if bloc[1:5] == 'BAND']
-        return self._parse_bands(band_data)
+        result["bands"] = self._parse_bands(band_data)
+        return result
 
     def _parse_bands(self, data):
-        labels = []
         bands = []
+        result = {"n_bands": 0,
+                  "n_k": [],
+                  "path": [],
+                  "bands": None}
         for datum in data:
             parsed_data = _parse_string(band_parser(), datum)
-            num_bands = parsed_data["header"][2]
-            num_k = parsed_data["header"][3]
-            k_start = tuple(parsed_data["k_path"][:3])
-            k_end = tuple(parsed_data["k_path"][3:])
-            # work with labels
-            if not labels:
-                labels.append(str(k_start))
-            labels += ['' for _ in range(num_k - 2)]
-            labels.append(str(k_end))
-            bands.append(np.array(parsed_data["bands"].asList()).reshape(num_k, num_bands))
-        return labels, np.vstack(bands)
+            if not result["n_bands"]:
+                result["n_bands"] = parsed_data["header"][2]
+            else:
+                # hope no bands just materialize out of thin air
+                assert result["n_bands"] == parsed_data["header"][2]
+            # gather k-point quantities for each segment
+            result["n_k"].append(parsed_data["header"][3])
+            result["path"].append((tuple(parsed_data["k_path"][:3]), tuple(parsed_data["k_path"][3:])))
+            bands.append(np.array(parsed_data["bands"].asList()).reshape(result["n_k"][-1], result["n_bands"]))
+        result["bands"] = np.vstack(bands)
+        return result
