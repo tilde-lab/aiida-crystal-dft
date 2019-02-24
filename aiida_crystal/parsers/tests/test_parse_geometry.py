@@ -9,8 +9,8 @@ import numpy as np
 from ase.spacegroup import crystal
 from jsonextended import edict
 from aiida_crystal.tests import TEST_DIR
-from aiida_crystal.io.geometry import read_gui_file, get_centering_code, get_crystal_system, \
-    crystal_gui_string, structdict_to_ase, compute_symmetry_3d, ase_to_structdict, ops_frac_to_cart, ops_cart_to_frac
+from aiida_crystal.io.geometry import read_gui_file, crystal_gui_string, structdict_to_ase, compute_symmetry_3d, ase_to_structdict, ops_frac_to_cart, ops_cart_to_frac
+from aiida_crystal.utils.geometry import get_crystal_system, get_centering_code
 
 
 @pytest.mark.parametrize(

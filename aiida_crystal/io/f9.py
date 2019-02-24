@@ -3,7 +3,7 @@
 """
 import os
 from scipy.io import FortranFile
-from aiida_crystal.utils.geometry import scale_positions
+from aiida_crystal.utils.geometry import cart2frac
 
 
 def _open(file_name):
@@ -34,5 +34,5 @@ class Fort9(object):
         # the 8th record contains cartesian atomic coordinates
         positions = data[8].reshape(len(numbers), 3)
         if scale:
-            positions = scale_positions(positions, cell)
+            positions = cart2frac(positions, cell)
         return cell, positions, numbers

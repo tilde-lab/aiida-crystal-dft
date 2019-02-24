@@ -6,10 +6,8 @@ from aiida.common.utils import classproperty
 from aiida.orm import DataFactory
 from aiida.orm.calculation.job import JobCalculation
 from aiida.orm.data.singlefile import SinglefileData
-from aiida.common.exceptions import InputValidationError
-# from aiida_crystal.validation import read_schema
+from aiida.common.exceptions import ValidationError, InputValidationError
 # from aiida_crystal.io.geometry import structure_to_dict
-# from aiida_crystal.utils import unflatten_dict, ATOMIC_NUM2SYMBOL
 
 
 ParameterData = DataFactory("parameters")
@@ -18,7 +16,6 @@ ParameterData = DataFactory("parameters")
 class PropertiesCalculation(JobCalculation):
     """
     AiiDA calculation plugin wrapping the properties executable.
-
     """
 
     def _init_internal_params(self):  # pylint: disable=useless-super-delegation
@@ -66,67 +63,52 @@ class PropertiesCalculation(JobCalculation):
         })
         return use_dict
 
-    def _validate_input(self, inputdict):
+    def _validate_input(self, input_dict):
         """Input validation; returns the dict of validated data"""
         validated_dict = {}
 
         try:
-            validated_dict['code'] = inputdict.pop(self.get_linkname('code'))
+            validated_dict['code'] = input_dict.pop(self.get_linkname('code'))
         except KeyError:
             raise InputValidationError("No code specified for this "
                                        "calculation")
 
         try:
-            validated_dict['structure'] = inputdict.pop(self.get_linkname('structure'))
+            validated_dict['wavefunction'] = input_dict.pop(self.get_linkname('wavefunction'))
         except KeyError:
-            raise InputValidationError("No structure specified for this "
+            raise InputValidationError("No wavefunction specified for this "
                                        "calculation")
-        if not isinstance(validated_dict['structure'], StructureData):
-            raise InputValidationError("structure not of type "
-                                       "StructureData: {}".format(validated_dict['structure']))
+        if not isinstance(validated_dict['wavefunction'], SinglefileData):
+            raise InputValidationError("wavefunction not of type "
+                                       "SinglefileData: {}".format(validated_dict['wavefunction']))
 
         try:
-            validated_dict['parameters'] = inputdict.pop(self.get_linkname('parameters'))
+            validated_dict['parameters'] = input_dict.pop(self.get_linkname('parameters'))
         except KeyError:
             raise InputValidationError("No parameters specified for this "
                                        "calculation")
         if not isinstance(validated_dict['parameters'], ParameterData):
             raise InputValidationError("parameters not of type "
                                        "ParameterData: {}".format(validated_dict['parameters']))
-
         # settings are optional
-        validated_dict['settings'] = inputdict.pop(self.get_linkname('settings'), None)
+        validated_dict['settings'] = input_dict.pop(self.get_linkname('settings'), None)
         if validated_dict['settings'] is not None:
             if not isinstance(validated_dict['settings'], ParameterData):
                 raise InputValidationError(
                     "settings not of type ParameterData: {}".format(validated_dict['settings']))
 
-        basis_inputs = [_ for _ in inputdict if _.startswith(self._BASIS_PREFIX)]
-        basis_dict = {}
-        if not basis_inputs:
-            raise InputValidationError('No basis sets specified for calculation!')
-        for basis_name in basis_inputs:
-            _, symbol = basis_name.split('_')
-            if symbol not in chemical_symbols:
-                raise InputValidationError('Basis set provided for element not in periodic table: {}'.format(symbol))
-            basis = inputdict.pop(basis_name)
-            basis_dict[symbol] = basis
-        validated_dict['basis'] = basis_dict
-
-        if inputdict:
-            raise ValidationError("Unknown inputs remained after validation: {}".format(inputdict))
+        if input_dict:
+            raise ValidationError("Unknown inputs remained after validation: {}".format(input_dict))
 
         return validated_dict
 
-
-
-    def _prepare_for_submission(self, tempfolder, inputdict):
+    def _prepare_for_submission(self, temp_folder, input_dict):
         """
         Create input files.
 
-            :param tempfolder: aiida.common.folders.Folder subclass where
+            :param temp_folder: aiida.common.folders.Folder subclass where
                 the plugin should put all its files.
-            :param inputdict: dictionary of the input nodes as they would
+            :param input_dict: dictionary of the input nodes as they would
                 be returned by get_inputs_dict
         """
 
