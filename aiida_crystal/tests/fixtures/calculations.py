@@ -61,7 +61,7 @@ def test_wavefunction():
     from aiida.orm.data.singlefile import SinglefileData
     from aiida_crystal.tests import TEST_DIR
     file_name = os.path.join(TEST_DIR,
-                             'input_files',
+                             'output_files',
                              'mgo_sto3g_external.fort.9')
     temp_dir = tempfile.gettempdir()
     expected = os.path.join(temp_dir, "fort.9")

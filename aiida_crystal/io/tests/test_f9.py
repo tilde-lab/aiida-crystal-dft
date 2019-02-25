@@ -9,7 +9,7 @@ from aiida_crystal.tests import TEST_DIR
 from aiida_crystal.io.f9 import Fort9
 
 file_name = os.path.join(TEST_DIR,
-                         "input_files",
+                         "output_files",
                          "mgo_sto3g_external.fort.9")
 
 
