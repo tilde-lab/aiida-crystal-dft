@@ -22,7 +22,7 @@ class CrystalCommonCalculation(JobCalculation):
     """
     _INPUT_FILE_NAME = 'INPUT'
     _GEOMETRY_FILE_NAME = 'fort.34'
-    _OUTPUT_FILE_NAME = 'aiida.out'
+    _OUTPUT_FILE_NAME = 'crystal.out'
     _BASIS_PREFIX = 'basis_'
 
     def _init_internal_params(self):

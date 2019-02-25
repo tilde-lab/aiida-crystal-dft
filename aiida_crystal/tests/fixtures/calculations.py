@@ -21,6 +21,18 @@ def crystal_calc(test_crystal_code, crystal_calc_parameters, test_structure_data
 
 
 @pytest.fixture
+def crystal_calc_results(crystal_calc):
+    from aiida.common.folders import SandboxFolder
+    from aiida_crystal.tests import TEST_DIR
+    out_files = [os.path.join(TEST_DIR, "output_files", "mgo_sto3g_external.{}".format(f))
+                 for f in crystal_calc.retrieve_list]
+    with SandboxFolder() as folder:
+        for src, dst in zip(out_files, crystal_calc.retrieve_list):
+            shutil.copy(src, os.path.join(folder.abspath, dst))
+        yield folder
+
+
+@pytest.fixture
 def properties_calc(test_properties_code, properties_calc_parameters, test_wavefunction):
     from aiida_crystal.calculations.properties import PropertiesCalculation
     calc = PropertiesCalculation(resources={"num_machines": 1, "num_mpiprocs_per_machine": 1})

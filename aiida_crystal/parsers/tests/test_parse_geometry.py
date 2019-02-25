@@ -10,24 +10,6 @@ from ase.spacegroup import crystal
 from jsonextended import edict
 from aiida_crystal.tests import TEST_DIR
 from aiida_crystal.io.geometry import read_gui_file, crystal_gui_string, structdict_to_ase, compute_symmetry_3d, ase_to_structdict, ops_frac_to_cart, ops_cart_to_frac
-from aiida_crystal.utils.geometry import get_crystal_system, get_centering_code
-
-
-@pytest.mark.parametrize(
-    "sg_num,sg_symbol,centering,crystal_type",
-    [
-        (15, "C2/c", 4, 2),  # pyrrhotite-4c
-        (205, 'Pa3', 1, 6),  # pyrite
-        (58, 'Pnnm', 1, 3),  # marcasite
-        (190, 'P-62c', 1, 5),  # troilite
-        (129, 'P4/nmm', 1,
-         4),  # mackinawite (origin choice 2) CENTRING CODE 1/1
-        (227, 'Fd3m', 5, 6)  # greigite
-    ])
-def test_get_centering_code(sg_num, sg_symbol, centering, crystal_type):
-    """Test reading centering code"""
-    assert get_crystal_system(sg_num, as_number=True) == crystal_type
-    assert get_centering_code(sg_num, sg_symbol) == centering
 
 
 def test_read_gui_file():

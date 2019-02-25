@@ -17,6 +17,9 @@ class CrystalParser(Parser):
     """
     Parser class for parsing output of CRYSTAL calculation.
     """
+    _linkname_structure = "output_structure"
+    _linkname_parameters = "output_parameters"
+    _linkname_wavefunction = "wavefunction"
 
     # pylint: disable=protected-access
     def __init__(self, calculation):
@@ -36,7 +39,8 @@ class CrystalParser(Parser):
                 self.__class__.__name__,
                 calculation.__class__.__name__
             ))
-        # each parse_* function should return a list of [(link, node)...] format
+        self._nodes = []
+
         self._parse = {calculation._OUTPUT_FILE_NAME: self.parse_stdout,
                        calculation._GEOMETRY_FILE_NAME: self.parse_out_structure,
                        'fort.9': self.parse_out_wavefunction}
@@ -66,7 +70,7 @@ class CrystalParser(Parser):
             return success, node_list
 
         # Check the folder content is as expected
-        list_of_files = out_folder.get_folder_list()
+        list_of_files = out_folder.get_content_list()
         output_files = self._calc.retrieve_list
         # Note: set(A) <= set(B) checks whether A is a subset
         if set(output_files) <= set(list_of_files):
@@ -75,24 +79,23 @@ class CrystalParser(Parser):
             self.logger.error("Not all expected output files {} were found".
                               format(output_files))
 
-        for fname in output_files:
-            if fname in self._parse:
-                node = self._parse[fname](out_folder.get_abs_path(fname))
-                if isinstance(node, tuple):
-                    node_list.append(node)
-                else:
-                    node_list += node
-            else:
-                self.logger.warning("Could not find a parser for {}".
-                                    format(fname))
-
+        # self.add_node(self._linkname_structure, self._calc._GEOMETRY_FILE_NAME, self.parse_out_structure)
+        self.add_node(self._linkname_parameters,
+                      out_folder.get_abs_path(self._calc._DEFAULT_OUTPUT_FILE),
+                      self.parse_stdout)
+        self.add_node(self._linkname_wavefunction,
+                      out_folder.get_abs_path("fort.9"),
+                      self.parse_out_wavefunction)
         success = True
-        return success, node_list
+        return success, self._nodes
+
+    def add_node(self, link_name, file_name, callback):
+        self._nodes.append((link_name, callback(file_name)))
 
     @classmethod
     def parse_stdout(cls, file_name):
         result = out.parse(file_name)
-        return 'output_parameters', ParameterData(dict=result)
+        return ParameterData(dict=result)
 
     @classmethod
     def parse_out_structure(cls, file_name):
@@ -100,4 +103,4 @@ class CrystalParser(Parser):
 
     @classmethod
     def parse_out_wavefunction(cls, file_name):
-        return 'wavefunction', SinglefileData(file=file_name)
+        return SinglefileData(file=file_name)
