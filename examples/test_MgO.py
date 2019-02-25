@@ -20,7 +20,7 @@ get_basis_set = BasisSetData.get_basis_group
 StructureData = DataFactory('structure')
 ParameterData = DataFactory('parameter')
 # get code
-code = Code.get_from_string('Pcrystal@torquessh')
+code = Code.get_from_string('crystal@torquessh')
 
 # Prepare input parameters
 params = ParameterData(dict=unflatten_dict({

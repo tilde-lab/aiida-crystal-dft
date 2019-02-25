@@ -22,7 +22,7 @@ def test_computer(aiida_profile, new_workdir):
 
 
 @pytest.fixture
-def test_code(test_computer):
+def test_crystal_code(test_computer):
     from aiida.orm import Code
     if not test_computer.pk:
         test_computer.store()
@@ -30,5 +30,18 @@ def test_code(test_computer):
     code.label = 'crystal'
     code.description = 'CRYSTAL code'
     code.set_remote_computer_exec((test_computer, '/usr/local/bin/crystal'))
-    code.set_input_plugin_name('crystal.main')
+    code.set_input_plugin_name('crystal.serial')
+    return code
+
+
+@pytest.fixture
+def test_properties_code(test_computer):
+    from aiida.orm import Code
+    if not test_computer.pk:
+        test_computer.store()
+    code = Code()
+    code.label = 'properties'
+    code.description = 'CRYSTAL properties code'
+    code.set_remote_computer_exec((test_computer, '/usr/local/bin/properties'))
+    code.set_input_plugin_name('crystal.properties')
     return code
