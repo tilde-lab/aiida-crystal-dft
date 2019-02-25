@@ -23,8 +23,8 @@ class D3(object):
             self._parameters['band']['shrink'] = 0
 
     def use_parameters(self, parameters):
-        validate_with_json(parameters.get_dict(), name="d3")
-        self._parameters = parameters.get_dict()
+        validate_with_json(parameters, name="d3")
+        self._parameters = parameters
 
     def __str__(self):
         self._validate()

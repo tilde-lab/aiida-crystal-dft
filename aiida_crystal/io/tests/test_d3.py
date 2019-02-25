@@ -5,7 +5,6 @@ from aiida_crystal.io.d3 import D3
 
 
 def test_pass(aiida_profile):
-    from aiida.orm.data.parameter import ParameterData
     data = {
         "band": {
             "shrink": 12,
@@ -15,5 +14,5 @@ def test_pass(aiida_profile):
             "bands": [["G", "Y"]]
         }
     }
-    input = D3(parameters=ParameterData(dict=data))
-    assert input
+    parser = D3(data)
+    assert parser

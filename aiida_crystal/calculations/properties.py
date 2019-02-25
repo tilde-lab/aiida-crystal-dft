@@ -29,6 +29,8 @@ class PropertiesCalculation(JobCalculation):
         self._DEFAULT_OUTPUT_FILE = 'main.out'
         self._WAVEFUNCTION_FILE = 'fort.9'
 
+        self.retrieve_list = ["fort.25"]
+
         # parser entry point defined in setup.json
         self._default_parser = 'crystal.properties'
 
