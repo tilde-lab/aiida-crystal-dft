@@ -2,6 +2,7 @@
 """
 An adapter for writing out .d3 file (for properties calculation)
 """
+from __future__ import print_function
 import six
 from aiida_crystal.validation import validate_with_json
 

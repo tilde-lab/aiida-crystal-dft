@@ -16,5 +16,4 @@ def test_pass(aiida_profile):
         }
     }
     input = D3(parameters=ParameterData(dict=data))
-    print(input)
     assert input

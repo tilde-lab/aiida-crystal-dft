@@ -1,8 +1,5 @@
 #  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 
-import os
-import shutil
-import tempfile
 # noinspection PyUnresolvedReferences
 from aiida_crystal.tests.fixtures import *
 
@@ -17,19 +14,19 @@ def test_store_calc(crystal_calc):
     assert calc.inp.structure.pk is not None
 
 
-def test_validate_input(test_code, test_structure_data, calc_parameters, test_basis):
+def test_validate_input(test_crystal_code, test_structure_data, crystal_calc_parameters, test_basis):
     from aiida.common.exceptions import InputValidationError
     from aiida_crystal.calculations.serial import CrystalSerialCalculation
     calc = CrystalSerialCalculation()
     with pytest.raises(InputValidationError):
         calc._validate_input(calc.get_inputs_dict())
-    calc.use_code(test_code)
+    calc.use_code(test_crystal_code)
     with pytest.raises(InputValidationError):
         calc._validate_input(calc.get_inputs_dict())
     calc.use_structure(test_structure_data)
     with pytest.raises(InputValidationError):
         calc._validate_input(calc.get_inputs_dict())
-    calc.use_parameters(calc_parameters)
+    calc.use_parameters(crystal_calc_parameters)
     with pytest.raises(InputValidationError):
         calc._validate_input(calc.get_inputs_dict())
     calc.use_basis(test_basis['Mg'], 'Mg')
