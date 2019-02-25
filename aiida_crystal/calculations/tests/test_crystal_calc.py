@@ -38,12 +38,11 @@ def test_validate_input(test_crystal_code, test_structure_data, crystal_calc_par
 
 
 def test_submit(crystal_calc):
-    from aiida.common.folders import Folder
-    temp_dir = tempfile.mkdtemp()
+    from aiida.common.folders import SandboxFolder
     crystal_calc.store_all()
-    crystal_calc.submit_test(folder=Folder(temp_dir), subfolder_name='test')
-    files = os.listdir(os.path.join(temp_dir, 'test-00001'))
-    assert '_aiidasubmit.sh' in files
-    assert 'fort.34' in files
-    assert 'INPUT' in files
-    shutil.rmtree(temp_dir)
+    with SandboxFolder() as folder:
+        subfolder, script_filename = crystal_calc.submit_test(folder=folder)
+        files = os.listdir(subfolder.abspath)
+    assert script_filename in files
+    assert crystal_calc._GEOMETRY_FILE_NAME in files
+    assert crystal_calc._DEFAULT_INPUT_FILE in files

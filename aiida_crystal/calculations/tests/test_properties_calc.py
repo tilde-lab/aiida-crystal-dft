@@ -31,12 +31,11 @@ def test_validate_input(test_properties_code, properties_calc_parameters, test_w
 
 
 def test_submit(properties_calc):
-    from aiida.common.folders import Folder
-    temp_dir = tempfile.mkdtemp()
+    from aiida.common.folders import SandboxFolder
     properties_calc.store_all()
-    properties_calc.submit_test(folder=Folder(temp_dir), subfolder_name='test')
-    files = os.listdir(os.path.join(temp_dir, 'test-00001'))
-    assert '_aiidasubmit.sh' in files
+    with SandboxFolder() as folder:
+        subfolder, script_filename = properties_calc.submit_test(folder=folder)
+        files = os.listdir(subfolder.abspath)
+    assert script_filename in files
     assert properties_calc._WAVEFUNCTION_FILE in files
     assert properties_calc._DEFAULT_INPUT_FILE in files
-    shutil.rmtree(temp_dir)
