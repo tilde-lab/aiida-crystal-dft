@@ -48,7 +48,6 @@
         "ejplugins==0.9.7",
         "pycrystal @ git+https://github.com/tilde-lab/pycrystal.git",
         "ase<3.17",
-        "pymatgen==2018.5.3",
         "packaging",
         "mpds_client",
         "tzlocal==2.0.0b1"

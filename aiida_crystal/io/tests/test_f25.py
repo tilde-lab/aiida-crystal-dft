@@ -10,7 +10,7 @@ from aiida_crystal.io.f25 import Fort25
 def test_read_bands():
     file_name = os.path.join(TEST_DIR,
                              "output_files",
-                             "mgo_sto3g_external.bands")
+                             "mgo_sto3g_external.fort.25")
     parser = Fort25(file_name)
     result = parser.parse()
     assert result["bands"]

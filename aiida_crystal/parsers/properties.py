@@ -10,6 +10,9 @@ class PropertiesParser(Parser):
     """
     Parser class for parsing output of CRYSTAL calculation.
     """
+    _linkname_bands = "output_bands"
+    _linkname_dos = "output_dos"
+    _calc_entry_points = ('crystal.properties', )
 
     # pylint: disable=protected-access
     def __init__(self, calculation):
@@ -17,10 +20,8 @@ class PropertiesParser(Parser):
         Initialize Parser instance
         """
         super(PropertiesParser, self).__init__(calculation)
-        calc_entry_points = ['crystal.properties',
-                             ]
 
-        calc_cls = [CalculationFactory(entry_point) for entry_point in calc_entry_points]
+        calc_cls = [CalculationFactory(entry_point) for entry_point in self._calc_entry_points]
 
         # check for valid input
         if not isinstance(calculation, tuple(calc_cls)):
@@ -28,8 +29,8 @@ class PropertiesParser(Parser):
                 self.__class__.__name__,
                 calculation.__class__.__name__
             ))
-        # each parse_* function should return a list of [(link, node)...] format
-        self._parse = {"fort.25": self.parse_fort25}
+
+        self._nodes = []
 
     # pylint: disable=protected-access
     def parse_with_retrieved(self, retrieved):
@@ -56,7 +57,7 @@ class PropertiesParser(Parser):
             return success, node_list
 
         # Check the folder content is as expected
-        list_of_files = out_folder.get_folder_list()
+        list_of_files = out_folder.get_content_list()
         output_files = self._calc.retrieve_list
         # Note: set(A) <= set(B) checks whether A is a subset
         if set(output_files) <= set(list_of_files):
@@ -65,22 +66,21 @@ class PropertiesParser(Parser):
             self.logger.error("Not all expected output files {} were found".
                               format(output_files))
 
-        for fname in output_files:
-            if fname in self._parse:
-                node = self._parse[fname](out_folder.get_abs_path(fname))
-                if isinstance(node, tuple):
-                    node_list.append(node)
-                else:
-                    node_list += node
-            else:
-                self.logger.warning("Could not find a parser for {}".
-                                    format(fname))
-
+        self.add_node(self._linkname_bands,
+                      out_folder.get_abs_path("fort.25"),
+                      self.parse_bands)
         success = True
-        return success, node_list
+        return success, self._nodes
 
-    def parse_fort25(self, file_name):
-        """Parse fort.25 file"""
+    def add_node(self, link_name, file_name, callback):
+        """Adds nodes to parser results"""
+        try:
+            self._nodes.append((link_name, callback(file_name)))
+        except (ValueError, NotImplementedError) as err:
+            self.logger.warning("Exception {} was raised while parsing {}".format(err, link_name))
+
+    def parse_bands(self, file_name):
+        """Parse bands from fort.25 file"""
         # from aiida.tools import get_kpoints_path, get_explicit_kpoints_path
         # from aiida.orm.data.array.kpoints import KpointsData
         # from aiida.orm.data.array.bands import BandsData
@@ -90,3 +90,4 @@ class PropertiesParser(Parser):
         bands = result["bands"]
         if not bands:
             self.logger.info("Sorry, didn't find bands info in fort.25")
+

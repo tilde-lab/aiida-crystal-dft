@@ -26,10 +26,11 @@ class PropertiesCalculation(JobCalculation):
 
         # default input and output files
         self._DEFAULT_INPUT_FILE = 'main.d3'
-        self._DEFAULT_OUTPUT_FILE = 'main.out'
+        self._DEFAULT_OUTPUT_FILE = 'properties.out'
         self._WAVEFUNCTION_FILE = 'fort.9'
+        self._PROPERTIES_FILE = 'fort.25'
 
-        self.retrieve_list = ["fort.25"]
+        self.retrieve_list = [self._PROPERTIES_FILE]
 
         # parser entry point defined in setup.json
         self._default_parser = 'crystal.properties'
@@ -117,7 +118,6 @@ class PropertiesCalculation(JobCalculation):
         # create input files: d3
         try:
             d3_content = D3(validated_dict["parameters"].get_dict())
-            # here should tinkering with k-point path go
         except (ValueError, NotImplementedError) as err:
             raise InputValidationError(
                 "an input file could not be created from the parameters: {}".

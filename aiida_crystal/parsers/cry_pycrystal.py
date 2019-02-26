@@ -41,10 +41,6 @@ class CrystalParser(Parser):
             ))
         self._nodes = []
 
-        self._parse = {calculation._OUTPUT_FILE_NAME: self.parse_stdout,
-                       calculation._GEOMETRY_FILE_NAME: self.parse_out_structure,
-                       'fort.9': self.parse_out_wavefunction}
-
     # pylint: disable=protected-access
     def parse_with_retrieved(self, retrieved):
         """
