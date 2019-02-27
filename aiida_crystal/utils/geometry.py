@@ -2,7 +2,7 @@
 """Utility functions for facilitating working with geometry
 """
 import numpy as np
-# import spglib
+import spglib
 
 
 CRYSTAL_TYPE_MAP = {
@@ -13,6 +13,13 @@ CRYSTAL_TYPE_MAP = {
     5: 'hexagonal',
     6: 'cubic'
 }
+
+
+def get_spacegroup(cell, positions, numbers):
+    """Returns Pearson symbol and intl number corresponding to the given structure"""
+    cell = (cell, positions, numbers)
+    sg = spglib.get_spacegroup(cell).split()
+    return sg[0], int(sg[1][1:-1])
 
 
 def cart2frac(positions, cell):

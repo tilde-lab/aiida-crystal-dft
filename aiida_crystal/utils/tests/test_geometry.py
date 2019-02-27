@@ -4,7 +4,8 @@
 """
 
 import pytest
-from aiida_crystal.utils.geometry import get_crystal_system, get_centering_code
+from aiida_crystal.utils.geometry import get_crystal_system, get_centering_code, get_spacegroup
+from aiida_crystal.tests.fixtures import *
 
 
 @pytest.mark.parametrize(
@@ -23,3 +24,11 @@ def test_get_centering_code(sg_num, sg_symbol, centering, crystal_type):
     assert get_crystal_system(sg_num, as_number=True) == crystal_type
     assert get_centering_code(sg_num, sg_symbol) == centering
 
+
+def test_get_spacegroup(test_ase_structure):
+    """Test getting spacegroup"""
+    symbol, number = get_spacegroup(test_ase_structure.get_cell(),
+                                    test_ase_structure.get_scaled_positions(),
+                                    test_ase_structure.get_atomic_numbers())
+    assert symbol == "Fm-3m"
+    assert number == 225

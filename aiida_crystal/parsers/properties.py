@@ -86,8 +86,10 @@ class PropertiesParser(Parser):
         # from aiida.orm.data.array.bands import BandsData
         parser = Fort25(file_name)
         result = parser.parse()
-        # to get BandsData node first we need to get k-points path and set KpointsData
         bands = result["bands"]
+        # to get BandsData node first we need to get k-points path and set KpointsData
+        shrink = self._calc.inp.parameters.dict.band['shrink']
+        path = bands["path"]
         if not bands:
             self.logger.info("Sorry, didn't find bands info in fort.25")
 

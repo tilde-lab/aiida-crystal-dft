@@ -105,6 +105,6 @@ def test_ase_structure():
 
 
 @pytest.fixture
-def test_structure_data(test_ase_structure):
+def test_structure_data(aiida_profile, test_ase_structure):
     from aiida.orm.data.structure import StructureData
     return StructureData(ase=test_ase_structure)
