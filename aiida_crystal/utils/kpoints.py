@@ -3,7 +3,7 @@
 A file with various data devoted to k-points calculations: special k-points etc.
 """
 from __future__ import division
-from .geometry import get_lattice_type
+from .geometry import get_lattice_type, get_spacegroup
 
 # Cubic: simple: P; BC: I, FC: F;
 # Orthorhombic: Primitive - P, AC: S, BC: I, FC: F
@@ -129,3 +129,30 @@ def get_explicit_kpoints_path(structure, path):
 
 def get_kpoints_from_shrink(path, shrink):
     return [[[x/shrink for x in point] for point in segment] for segment in path]
+
+
+def construct_kpoints_path(cell, path, shrink, k_number):
+    """
+    Constructs a path description value that can be used for getting explicit k-points
+    :param cell: A cell (in spglib sense) for which k-points path is calculated
+    :param path: a list of path segments in CRYSTAL sense
+    :param shrink: shrinking factor
+    :param k_number: a list of k-point numbers along path segments
+    :return: the path description
+    """
+    # get k-points (real)
+    path = get_kpoints_from_shrink(path, shrink)
+    # symmetry information
+    sg_symbol, sg_number = get_spacegroup(*cell)
+    special_k = {v: k for k, v in get_special_kpoints(sg_symbol, sg_number).items()}
+    special_k[(0., 0., 0.)] = 'G'  # add Gamma-point
+    result = []
+    # due to the differences in k-points counting along path segments in CRYSTAL and aiida
+    # we have to add 1 to all the k-point numbers except for the 1st segment
+    k_number[1:] = [x + 1 for x in k_number[1:]]
+    for (p1, p2), n_k in zip(path, k_number):
+        # TODO: deal with the path of special k-points
+        label1 = special_k.get(tuple(p1), str(p1))
+        label2 = special_k.get(tuple(p2), str(p2))
+        result.append((label1, tuple(p1), label2, tuple(p2), n_k))
+    return result

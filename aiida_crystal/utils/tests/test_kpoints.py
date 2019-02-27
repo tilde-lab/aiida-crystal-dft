@@ -11,7 +11,7 @@ from aiida_crystal.utils.kpoints import get_special_kpoints, get_kpoints_path, g
         (205, 'Pa3', ("M", "R", "X")),  # pyrite
         (58, 'Pnnm', ("S", "T", "U", "R", "X", "Y", "Z")),  # marcasite
         (190, 'P-62c', ("M", "K", "A", "L", "H")),  # troilite
-        (129, 'P4/nmm', ("M", "R", "A", "X", "Z")),  # mackinawite (origin choice 2) CENTRING CODE 1/1
+        (129, 'P4/nmm', ("M", "R", "A", "X", "Z")),  # mackinawite
         (227, 'Fd3m', ("X", "L", "W"))  # greigite
     ])
 def test_get_special_kpoints(sg_num, sg_symbol, kpoints):

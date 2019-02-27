@@ -4,7 +4,8 @@ from aiida.parsers.parser import Parser
 from aiida.parsers.exceptions import OutputParsingError
 from aiida.orm import CalculationFactory
 from aiida_crystal.io.f25 import Fort25
-
+from aiida_crystal.io.f9 import Fort9
+from aiida_crystal.utils.kpoints import construct_kpoints_path, get_explicit_kpoints_path
 
 class PropertiesParser(Parser):
     """
@@ -81,15 +82,27 @@ class PropertiesParser(Parser):
 
     def parse_bands(self, file_name):
         """Parse bands from fort.25 file"""
-        # from aiida.tools import get_kpoints_path, get_explicit_kpoints_path
-        # from aiida.orm.data.array.kpoints import KpointsData
-        # from aiida.orm.data.array.bands import BandsData
+        from aiida.orm import DataFactory
+
         parser = Fort25(file_name)
         result = parser.parse()
         bands = result["bands"]
         # to get BandsData node first we need to get k-points path and set KpointsData
         shrink = self._calc.inp.parameters.dict.band['shrink']
         path = bands["path"]
+        k_number = bands["n_k"]
         if not bands:
             self.logger.info("Sorry, didn't find bands info in fort.25")
-
+        # for path construction we're getting geometry from fort.9
+        geometry_parser = Fort9(self._calc.inp.wavefunction.get_file_abs_path())
+        cell = geometry_parser.get_cell(scale=True)
+        path_description = construct_kpoints_path(cell, path, shrink, k_number)
+        structure = DataFactory('structure')(ase=geometry_parser.get_ase())
+        # and now find k-points along the path
+        k_points = get_explicit_kpoints_path(structure, path_description)['explicit_kpoints']
+        # ...and finally populate bands data
+        bands_data = DataFactory('array.bands')()
+        bands_data.set_kpointsdata(k_points)
+        bands_data.set_bands(bands["bands"])
+        bands_data.export('k.pdf')
+        return self._linkname_bands, bands_data
