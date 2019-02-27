@@ -7,6 +7,7 @@ from aiida_crystal.io.f25 import Fort25
 from aiida_crystal.io.f9 import Fort9
 from aiida_crystal.utils.kpoints import construct_kpoints_path, get_explicit_kpoints_path
 
+
 class PropertiesParser(Parser):
     """
     Parser class for parsing output of CRYSTAL calculation.
@@ -104,5 +105,4 @@ class PropertiesParser(Parser):
         bands_data = DataFactory('array.bands')()
         bands_data.set_kpointsdata(k_points)
         bands_data.set_bands(bands["bands"])
-        bands_data.export('k.pdf')
         return self._linkname_bands, bands_data

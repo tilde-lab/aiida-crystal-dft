@@ -29,7 +29,7 @@ def test_fail():
 
 def test_pass(rename_file):
     parser = Fort9(rename_file)
-    cell, positions, numbers = parser.get_geometry()
+    cell, positions, numbers = parser.get_cell()
     assert cell.shape == (3, 3)
     assert positions.shape == (2, 3)
     assert numbers.tolist() == [12, 8]
