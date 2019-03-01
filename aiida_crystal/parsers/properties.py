@@ -1,5 +1,6 @@
 #  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 
+import numpy as np
 from aiida.parsers.parser import Parser
 from aiida.parsers.exceptions import OutputParsingError
 from aiida.orm import CalculationFactory
@@ -68,9 +69,16 @@ class PropertiesParser(Parser):
             self.logger.error("Not all expected output files {} were found".
                               format(output_files))
 
+        # parse file here
+        parser = Fort25(out_folder.get_abs_path("fort.25"))
+        result = parser.parse()
         self.add_node(self._linkname_bands,
-                      out_folder.get_abs_path("fort.25"),
+                      result.get("BAND", None),
                       self.parse_bands)
+        self.add_node(self._linkname_dos,
+                      result.get("DOSS", None),
+                      self.parse_dos)
+
         success = True
         return success, self._nodes
 
@@ -81,19 +89,16 @@ class PropertiesParser(Parser):
         except (ValueError, NotImplementedError) as err:
             self.logger.warning("Exception {} was raised while parsing {}".format(err, link_name))
 
-    def parse_bands(self, file_name):
+    def parse_bands(self, bands):
         """Parse bands from fort.25 file"""
-        from aiida.orm import DataFactory
+        if not bands:
+            raise ValueError("Sorry, didn't find bands info in fort.25")
 
-        parser = Fort25(file_name)
-        result = parser.parse()
-        bands = result["BAND"]
+        from aiida.orm import DataFactory
         # to get BandsData node first we need to get k-points path and set KpointsData
         shrink = self._calc.inp.parameters.dict.band['shrink']
         path = bands["path"]
         k_number = bands["n_k"]
-        if not bands:
-            self.logger.info("Sorry, didn't find bands info in fort.25")
         # for path construction we're getting geometry from fort.9
         geometry_parser = Fort9(self._calc.inp.wavefunction.get_file_abs_path())
         cell = geometry_parser.get_cell(scale=True)
@@ -105,4 +110,16 @@ class PropertiesParser(Parser):
         bands_data = DataFactory('array.bands')()
         bands_data.set_kpointsdata(k_points)
         bands_data.set_bands(bands["bands"])
-        return self._linkname_bands, bands_data
+        return bands_data
+
+    def parse_dos(self, data):
+        """A function that returns ArrayData with densities of states. The array should have shape (nproj+2, ne),
+        where ne is the number of energy points, and nproj is the number of DOS projections"""
+        if not data:
+            raise ValueError("Sorry, didn't find dos info in fort.25")
+
+        from aiida.orm import DataFactory
+
+        array_data = DataFactory("array")()
+        array_data.set_array("dos", np.vstack((data["e"], data["dos"])))
+        return array_data
