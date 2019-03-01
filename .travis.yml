@@ -96,7 +96,7 @@ install:
 - pip install -e .[testing]
 - reentry scan -r aiida
 # Doesn't work for me due to numpy.ufunc; however, works for Travis
-- pip install pymatgen==2018.4.20
+#- pip install pymatgen==2018.4.20
 #- pip install coveralls
 
 script:
