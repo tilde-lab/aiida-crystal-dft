@@ -87,7 +87,7 @@ class PropertiesParser(Parser):
 
         parser = Fort25(file_name)
         result = parser.parse()
-        bands = result["bands"]
+        bands = result["BAND"]
         # to get BandsData node first we need to get k-points path and set KpointsData
         shrink = self._calc.inp.parameters.dict.band['shrink']
         path = bands["path"]
