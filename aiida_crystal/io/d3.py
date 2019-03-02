@@ -17,10 +17,16 @@ class D3(object):
 
     def _validate(self):
         """Scientific validation routine"""
+        from aiida.common.exceptions import ValidationError
         if self._parameters is None:
             raise ValueError("No ParameterData is given for .d3 input")
-        if isinstance(self._parameters['band']['bands'][0][0], six.string_types):
+        if ("band" in self._parameters) and isinstance(self._parameters['band']['bands'][0][0], six.string_types):
             self._parameters['band']['shrink'] = 0
+        dos = self._parameters.get("dos", {})
+        if dos and "newk" not in self._parameters:
+            raise ValidationError("NEWK must be set for DOS calculation")
+        if dos and abs(dos["first"]) > abs(dos["last"]):
+            raise ValidationError("DOS input: first band must be below last")
 
     def use_parameters(self, parameters):
         validate_with_json(parameters, name="d3")
@@ -45,13 +51,13 @@ class D3(object):
         lines = [
             "BAND",
             "{}".format(band.get("title", "CRYSTAL RUN")),
-            "{} {} {} {} {} {}".format(len(band["bands"]),
-                                       band["shrink"],
-                                       band["kpoints"],
-                                       band["first"],
-                                       band["last"],
-                                       int(band.get("store", True)),
-                                       int(band.get("write", False)))
+            "{} {} {} {} {} {} {}".format(len(band["bands"]),
+                                          band["shrink"],
+                                          band["kpoints"],
+                                          band["first"],
+                                          band["last"],
+                                          int(band.get("store", True)),
+                                          int(band.get("write", False)))
         ]
         # now add lines to be explored
         if isinstance(band["bands"][0][0], six.string_types):
@@ -67,7 +73,7 @@ class D3(object):
             return []
         lines = [
             "NEWK",
-            "{0[0]} {0[1]}".format(newk["k_points"]),
+            "{0[0]} {0[1]}".format(newk["kpoints"]),
             "{} {}".format(int(newk.get("fermi", True)), 0)  # 0 is the default for NPR
         ]
         return lines
@@ -76,9 +82,11 @@ class D3(object):
         dos = self._parameters.get("dos", None)
         if dos is None:
             return []
+        n_proj_at = len(dos["projections_atoms"]) if "projections_atoms" in dos else 0
+        n_proj_ao = len(dos["projections_orbitals"]) if "projections_orbitals" in dos else 0
         lines = [
             "DOSS",
-            "{} {} {} {} {} {} {}".format(len(dos["projections_atoms"]) + len(dos["projections_orbitals"]),
+            "{} {} {} {} {} {} {}".format(n_proj_ao + n_proj_at,
                                           dos["n_e"],
                                           dos["first"],
                                           dos["last"],
@@ -87,6 +95,10 @@ class D3(object):
                                           int(dos.get("print", False))
                                           ),
         ]
-        lines += [("{} "*(len(proj_i)+1)).format(-1*len(proj_i), *proj_i) for proj_i in dos["projections_atoms"]]
-        lines += [("{} "*(len(proj_i)+1)).format(len(proj_i), *proj_i) for proj_i in dos["projections_orbitals"]]
+        if n_proj_at:
+            lines += [("{} " * (len(proj_i) + 1)).format(-1 * len(proj_i), *proj_i) for proj_i in
+                      dos["projections_atoms"]]
+        if n_proj_ao:
+            lines += [("{} " * (len(proj_i) + 1)).format(len(proj_i), *proj_i) for proj_i in
+                      dos["projections_orbitals"]]
         return lines

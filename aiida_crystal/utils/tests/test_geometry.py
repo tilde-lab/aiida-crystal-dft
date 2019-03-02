@@ -3,7 +3,6 @@
 """Tests for utilities dealing with geometry
 """
 
-import pytest
 from aiida_crystal.utils.geometry import get_crystal_system, get_centering_code, get_spacegroup
 from aiida_crystal.tests.fixtures import *
 
