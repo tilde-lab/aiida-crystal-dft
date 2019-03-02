@@ -29,6 +29,9 @@ class D3(object):
     def __str__(self):
         self._validate()
         lines = self._band_block_str()
+        lines += self._newk_block_str()
+        lines += self._dos_block_str()
+        lines.append("END")
         return "\n".join(lines)
 
     def write(self, f):
@@ -39,20 +42,51 @@ class D3(object):
         band = self._parameters.get("band", None)
         if band is None:
             return []
-        lines = ["BAND",
-                 "{}".format(band.get("title", "CRYSTAL RUN")),
-                 "{} {} {} {} {} {}".format(len(band["bands"]),
-                                            band["shrink"],
-                                            band["kpoints"],
-                                            band["first"],
-                                            band["last"],
-                                            int(band.get("store", True)),
-                                            int(band.get("write", False)))
-                 ]
+        lines = [
+            "BAND",
+            "{}".format(band.get("title", "CRYSTAL RUN")),
+            "{} {} {} {} {} {}".format(len(band["bands"]),
+                                       band["shrink"],
+                                       band["kpoints"],
+                                       band["first"],
+                                       band["last"],
+                                       int(band.get("store", True)),
+                                       int(band.get("write", False)))
+        ]
         # now add lines to be explored
         if isinstance(band["bands"][0][0], six.string_types):
             format_line = '{0[0]}  {0[1]}'
         else:
             format_line = '{0[0][0]} {0[0][1]} {0[0][2]}  {0[1][0]} {0[1][1]} {0[1][2]}'
         lines += [format_line.format(line) for line in band["bands"]]
+        return lines
+
+    def _newk_block_str(self):
+        newk = self._parameters.get("newk", None)
+        if newk is None:
+            return []
+        lines = [
+            "NEWK",
+            "{0[0]} {0[1]}".format(newk["k_points"]),
+            "{} {}".format(int(newk.get("fermi", True)), 0)  # 0 is the default for NPR
+        ]
+        return lines
+
+    def _dos_block_str(self):
+        dos = self._parameters.get("dos", None)
+        if dos is None:
+            return []
+        lines = [
+            "DOSS",
+            "{} {} {} {} {} {} {}".format(len(dos["projections_atoms"]) + len(dos["projections_orbitals"]),
+                                          dos["n_e"],
+                                          dos["first"],
+                                          dos["last"],
+                                          dos.get("store", 1),
+                                          dos.get("n_poly", 16),
+                                          int(dos.get("print", False))
+                                          ),
+        ]
+        lines += [("{} "*(len(proj_i)+1)).format(-1*len(proj_i), *proj_i) for proj_i in dos["projections_atoms"]]
+        lines += [("{} "*(len(proj_i)+1)).format(len(proj_i), *proj_i) for proj_i in dos["projections_orbitals"]]
         return lines

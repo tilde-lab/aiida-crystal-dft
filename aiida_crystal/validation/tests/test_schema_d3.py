@@ -17,13 +17,17 @@ from jsonschema import ValidationError
                                                   "first": 7,
                                                   "last": 14,
                                                   "bands": [["G", "Q", "Y"]]}},
+                                        {"newk": {}},
+                                        {"newk": {"kpoints": 8}},
+                                        {"dos": {"n_e": 100,
+                                                 "first": 7,
+                                                 "last": 14,
+                                                 "projections_atoms": 1}},
                                         ]
                          )
-def test_toplevel_fail(test_input):
+def test_band_toplevel_fail(test_input):
     with pytest.raises(ValidationError):
-        validate_with_json({}, name='d3')
-    with pytest.raises(ValidationError):
-        validate_with_json({"a": 1}, name='d3')
+        validate_with_json(test_input, name='d3')
 
 
 def test_toplevel_pass():
@@ -34,6 +38,16 @@ def test_toplevel_pass():
             "first": 7,
             "last": 14,
             "bands": [["G", "Y"]]
+        },
+        "newk": {
+            "kpoints": [8, 8],
+            "fermi": False,
+        },
+        "dos": {
+            "n_e": 100,
+            "first": 5,
+            "last": 10,
+            "projections_atoms": [[1], [2]]
         }
     }
     validate_with_json(data, name="d3")

@@ -46,6 +46,7 @@
     "install_requires": [
         "aiida-core>=1.0.0a4",
         "ejplugins==0.9.7",
+        "pymatgen==2018.4.20",
         "pycrystal @ git+https://github.com/tilde-lab/pycrystal.git",
         "ase<3.17",
         "packaging",
