@@ -8,7 +8,7 @@ def test_crystal_parser(crystal_calc, crystal_calc_results):
     from aiida.orm import DataFactory
     from aiida_crystal.parsers.cry_pycrystal import CrystalParser
     parser = CrystalParser(crystal_calc)
-    assert crystal_calc._DEFAULT_OUTPUT_FILE in crystal_calc_results.get_content_list()
+    assert crystal_calc._DEFAULT_OUTPUT_FILE in crystal_calc_results.get_folder_list()
     _, nodes = parser.parse_with_retrieved({"retrieved": crystal_calc_results})
     nodes = dict(nodes)
     # wavefunction tests

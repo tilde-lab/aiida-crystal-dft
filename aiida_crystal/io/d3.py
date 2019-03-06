@@ -45,13 +45,13 @@ class D3(object):
         lines = [
             "BAND",
             "{}".format(band.get("title", "CRYSTAL RUN")),
-            "{} {} {} {} {} {}".format(len(band["bands"]),
-                                       band["shrink"],
-                                       band["kpoints"],
-                                       band["first"],
-                                       band["last"],
-                                       int(band.get("store", True)),
-                                       int(band.get("write", False)))
+            "{} {} {} {} {} {} {}".format(len(band["bands"]),
+                                          band["shrink"],
+                                          band["kpoints"],
+                                          band["first"],
+                                          band["last"],
+                                          int(band.get("store", True)),
+                                          int(band.get("write", False)))
         ]
         # now add lines to be explored
         if isinstance(band["bands"][0][0], six.string_types):
@@ -87,6 +87,6 @@ class D3(object):
                                           int(dos.get("print", False))
                                           ),
         ]
-        lines += [("{} "*(len(proj_i)+1)).format(-1*len(proj_i), *proj_i) for proj_i in dos["projections_atoms"]]
-        lines += [("{} "*(len(proj_i)+1)).format(len(proj_i), *proj_i) for proj_i in dos["projections_orbitals"]]
+        lines += [("{} " * (len(proj_i) + 1)).format(-1 * len(proj_i), *proj_i) for proj_i in dos["projections_atoms"]]
+        lines += [("{} " * (len(proj_i) + 1)).format(len(proj_i), *proj_i) for proj_i in dos["projections_orbitals"]]
         return lines

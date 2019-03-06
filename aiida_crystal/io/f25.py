@@ -51,7 +51,8 @@ class Fort25(object):
         # the resulting dictionary
         for part in self._parser.keys():
             data = [bloc for bloc in self._data if bloc[1:5] == part]
-            result[part] = self._parser[part](data)
+            if data:
+                result[part] = self._parser[part](data)
         return result
 
 

@@ -66,7 +66,8 @@ class CrystalParser(Parser):
             return success, node_list
 
         # Check the folder content is as expected
-        list_of_files = out_folder.get_content_list()
+        # out_folder is of type FolderData here
+        list_of_files = out_folder.get_folder_list()
         output_files = self._calc.retrieve_list
         # Note: set(A) <= set(B) checks whether A is a subset
         if set(output_files) <= set(list_of_files):
