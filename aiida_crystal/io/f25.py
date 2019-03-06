@@ -93,10 +93,10 @@ def _parse_dos(data):
         _, _, _, n, de, _, e_fermi = parsed_data["header"]
         e0, _ = parsed_data["energy"]
         if result["e"] is None:
-            result["e"] = np.linspace(e0, e0+de*(n-1), n)
+            result["e"] = np.linspace(e0, e0 + de * (n - 1), n)
             result["e_fermi"] = e_fermi
         else:
-            assert (e0, de, n) == (result["e"][0], result["e"][1]-result["e"][0], len(result["e"]))
+            assert (e0, de, n) == (result["e"][0], result["e"][1] - result["e"][0], len(result["e"]))
             assert result["e_fermi"] == e_fermi
         dos.append(np.array(parsed_data["data"].asList()))
     result["dos"] = np.vstack(dos)
