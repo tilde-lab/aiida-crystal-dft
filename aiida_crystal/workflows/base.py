@@ -57,7 +57,17 @@ class BaseCrystalWorkChain(WorkChain):
         return self.to_context(calculations=append_(running))
 
     def retrieve_results(self):
-        pass
+        """Process calculation results"""
+        # return the results of the last calculation
+        last_calc = self.ctx.calculations[-1]
+        for name, port in self.spec().outputs.items():
+            if port.required and name not in last_calc.out:
+                self.report('the spec specifies the output {} as required '
+                            'but was not an output of {}<{}>'.format(name, self._calculation.__name__,
+                                                                     last_calc.pk))
 
-
-
+            if name in last_calc.out:
+                node = last_calc.out[name]
+                self.out(name, last_calc.out[name])
+                self.report("attaching the node {}<{}> as '{}'".format(node.__class__.__name__, node.pk, name))
+        return

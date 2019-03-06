@@ -1,10 +1,10 @@
 """Tests for base workflow calculation
 """
 
-# noinspection PyUnresolvedReferences
 from aiida_crystal.tests.fixtures import *
 
 
+@pytest.mark.skip
 def test_run(test_crystal_code, crystal_calc_parameters, test_structure_data, test_basis):
     from aiida_crystal.workflows.base import BaseCrystalWorkChain
     from aiida.orm import DataFactory

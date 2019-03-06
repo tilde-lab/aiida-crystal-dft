@@ -19,7 +19,7 @@ class CrystalParser(Parser):
     """
     _linkname_structure = "output_structure"
     _linkname_parameters = "output_parameters"
-    _linkname_wavefunction = "wavefunction"
+    _linkname_wavefunction = "output_wavefunction"
 
     # pylint: disable=protected-access
     def __init__(self, calculation):

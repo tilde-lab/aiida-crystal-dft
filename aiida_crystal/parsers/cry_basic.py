@@ -74,7 +74,7 @@ class CryBasicParser(Parser):
         Returns the name of the link to the output_structure
         Node exists if positions or cell changed.
         """
-        return 'wavefunction'
+        return 'output_wavefunction'
 
     # pylint: disable=too-many-locals
     def parse_with_retrieved(self, retrieved):
