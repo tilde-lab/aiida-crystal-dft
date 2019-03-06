@@ -7,12 +7,12 @@ import json
 from mpds_client.retrieve_MPDS import MPDSDataRetrieval
 
 from aiida.orm import DataFactory, Code
-from aiida.work import submit, run
-from aiida_crystal.workflows.base import BaseCrystalWorkChain as crystal_wc
+from aiida.work import submit
+from aiida_crystal.workflows.base import BaseCrystalWorkChain
 from aiida_crystal.tests import TEST_DIR
 
 
-inputs = crystal_wc.get_builder()
+inputs = BaseCrystalWorkChain.get_builder()
 inputs.code = Code.get_from_string('crystal@torquessh')
 inputs.parameters = DataFactory('parameter')(dict={
     "title": "MgO",
@@ -41,7 +41,6 @@ inputs.options = DataFactory('parameter')(dict={
     }
 })
 
-calc = submit(crystal_wc, **inputs)
+calc = submit(BaseCrystalWorkChain, **inputs)
 print("submitted WorkChain; calc=WorkCalculation(PK={})".format(
     calc.dbnode.pk))
-
