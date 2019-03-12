@@ -10,6 +10,7 @@ from aiida.orm.data.parameter import ParameterData
 from aiida.orm.data.singlefile import SinglefileData
 from aiida.common.exceptions import ValidationError, InputValidationError
 from aiida_crystal.io.d3 import D3
+from aiida_crystal.utils.kpoints import get_shrink_kpoints_path
 
 
 class PropertiesCalculation(JobCalculation):
@@ -103,7 +104,20 @@ class PropertiesCalculation(JobCalculation):
         if input_dict:
             raise ValidationError("Unknown inputs remained after validation: {}".format(input_dict))
 
-        return validated_dict
+        return self._validate_science(validated_dict)
+
+    def _validate_science(self, input_dict):
+        """Validate scientific conditions"""
+        parameters = input_dict['parameters'].get_dict()
+        if 'band' in parameters and 'bands' not in parameters['band']:
+            from aiida_crystal.io.f9 import Fort9
+            self.logger.info('Proceeding with automatic generation of k-points path')
+            structure = Fort9(input_dict['wavefunction'].get_file_abs_path()).get_structure()
+            shrink, points, path = get_shrink_kpoints_path(structure)
+            parameters['band']['shrink'] = shrink
+            parameters['band']['bands'] = path
+            input_dict['parameters'] = ParameterData(dict=parameters)
+        return input_dict
 
     def _prepare_for_submission(self, temp_folder, input_dict):
         """
@@ -117,7 +131,7 @@ class PropertiesCalculation(JobCalculation):
         validated_dict = self._validate_input(input_dict)
         # create input files: d3
         try:
-            d3_content = D3(validated_dict["parameters"].get_dict())
+            d3_content = D3(validated_dict['parameters'].get_dict())
         except (ValueError, NotImplementedError) as err:
             raise InputValidationError(
                 "an input file could not be created from the parameters: {}".

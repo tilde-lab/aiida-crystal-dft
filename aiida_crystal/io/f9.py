@@ -54,3 +54,8 @@ class Fort9(object):
             self._read_geometry()
         cell, positions, numbers = self._geometry
         return Atoms(cell=cell, positions=positions, numbers=numbers, pbc=True)
+
+    def get_structure(self):
+        """Returns aiida StructureData"""
+        from aiida.orm import DataFactory
+        return DataFactory('structure')(ase=self.get_ase())

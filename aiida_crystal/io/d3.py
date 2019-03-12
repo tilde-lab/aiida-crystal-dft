@@ -19,8 +19,9 @@ class D3(object):
         """Scientific validation routine"""
         if self._parameters is None:
             raise ValueError("No ParameterData is given for .d3 input")
-        if isinstance(self._parameters['band']['bands'][0][0], six.string_types):
-            self._parameters['band']['shrink'] = 0
+        if 'band' in self._parameters:
+            if isinstance(self._parameters['band']['bands'][0][0], six.string_types):
+                self._parameters['band']['shrink'] = 0
 
     def use_parameters(self, parameters):
         validate_with_json(parameters, name="d3")
