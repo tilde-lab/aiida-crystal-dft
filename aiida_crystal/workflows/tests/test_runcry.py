@@ -5,6 +5,7 @@
 from aiida_crystal.tests.fixtures import *
 
 
+@pytest.mark.skip
 def test_props_wc_run(test_crystal_code,
                       test_properties_code,
                       crystal_calc_parameters,
