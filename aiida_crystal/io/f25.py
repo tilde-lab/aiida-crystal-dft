@@ -5,24 +5,11 @@ A parser for fort.25 bands and DOS files
 import numpy as np
 from pyparsing import *
 
+from aiida_crystal.io import _parse_string
+
 pc = pyparsing_common
 
 __all__ = ["Fort25"]
-
-
-def _parse_string(parser, string):
-    try:
-        parsed_data = parser.parseString(string)
-    except ParseException as pe:
-        # complete the error message
-        msg = "ERROR during parsing of line %d:" % pe.lineno
-        msg += '\n' + '-' * 40 + '\n'
-        msg += pe.line + '\n'
-        msg += ' ' * (pe.col - 1) + '^\n'
-        msg += '-' * 40 + '\n' + pe.msg
-        pe.msg = msg
-        raise
-    return parsed_data
 
 
 def band_parser():

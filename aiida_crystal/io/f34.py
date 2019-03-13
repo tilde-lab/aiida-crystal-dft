@@ -3,7 +3,22 @@
 from __future__ import print_function
 import numpy as np
 import spglib
+from pyparsing import *
 from aiida_crystal.utils.geometry import get_crystal_system, get_centering_code
+from aiida_crystal.io import _parse_string
+
+PC = pyparsing_common
+
+
+def f34_parser():
+    """Fort.34 pyparsing parser"""
+    header = (3 * PC.integer).setResultsName('header')
+    cell = (9 * PC.sci_real).setResultsName('abc')
+    nsymops = PC.integer.setResultsName('n_symops')
+    symops = OneOrMore(PC.sci_real).setResultsName('symops')
+    nat = PC.integer.setResultsName('nat')
+    geom = OneOrMore(Group(PC.integer + 3 * PC.sci_real)).setResultsName('geometry')
+    return header + cell + nsymops + symops + nat + geom
 
 
 class Fort34(object):
@@ -40,7 +55,7 @@ class Fort34(object):
         if all(ase_struct.pbc):
             self.dimensionality = 3
         else:
-            raise NotImplemented('Structure with dimensionality < 3 currently not supported')
+            raise NotImplementedError('Structure with dimensionality < 3 currently not supported')
         abc = ase_struct.get_cell()
         positions = ase_struct.get_scaled_positions()
         atomic_numbers = ase_struct.get_atomic_numbers()
@@ -68,7 +83,28 @@ class Fort34(object):
         return self
 
     def read(self, file_name):
-        raise NotImplemented
+        """Read and parse fort.34 file"""
+        with open(file_name) as f:
+            data = f.read()
+        parsed_data = _parse_string(f34_parser(), data)
+        self.dimensionality, self.centring, self.crystal_type = parsed_data['header']
+        if self.dimensionality != 3:
+            raise NotImplementedError('Structure with dimensionality < 3 currently not supported')
+        self.abc = np.array(parsed_data['abc'].asList()).reshape((3, 3))
+        self.n_symops = parsed_data['n_symops']
+        self.symops = np.array(parsed_data['symops'].asList()).reshape(self.n_symops * 4, 3)
+        self.atomic_numbers = [d[0] for d in parsed_data['geometry']]
+        self.positions = [d[1:] for d in parsed_data['geometry']]
+        rotations = np.zeros((self.n_symops, 3, 3))
+        for i in range(3):
+            rotations[:, i] = self.symops[i::4]
+        # convert symmetry operations from cartesian to fractional
+        rotations = np.dot(np.dot(np.linalg.inv(self.abc.T), rotations), self.abc.T)
+        rotations = np.swapaxes(rotations, 0, 1)
+        translations = np.dot(self.symops[3::4], np.linalg.inv(self.abc))
+        hall = spglib.get_hall_number_from_symmetry(rotations, translations)
+        self.space_group = spglib.get_spacegroup_type(hall)['number']
+        return self
 
     def __str__(self):
         f34_lines = ["{0} {1} {2}".format(self.dimensionality,
@@ -88,4 +124,5 @@ class Fort34(object):
         return "\n".join(f34_lines)
 
     def write(self, f):
+        """Write geometry to file fort.34"""
         print(self, file=f)
