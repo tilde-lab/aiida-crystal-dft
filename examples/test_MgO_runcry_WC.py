@@ -30,8 +30,8 @@ inputs.properties_parameters = DataFactory('parameter')(dict={
         "kpoints": 30,
         "first": 7,
         "last": 14,
-        "bands": [["G", "W"]]
-    }
+#        "bands": [["G", "W"]]
+    },
 })
 inputs.basis_family = DataFactory('str')('sto-3g')
 with open(os.path.join(TEST_DIR, "input_files", "MgO.json")) as f:

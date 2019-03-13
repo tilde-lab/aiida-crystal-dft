@@ -11,6 +11,7 @@ from aiida.orm.data.singlefile import SinglefileData
 from aiida.common.exceptions import ValidationError, InputValidationError
 from aiida_crystal.io.d3 import D3
 from aiida_crystal.utils.kpoints import get_shrink_kpoints_path
+from aiida_crystal.utils.dos import get_dos_projections_atoms
 
 
 class PropertiesCalculation(JobCalculation):
@@ -109,14 +110,18 @@ class PropertiesCalculation(JobCalculation):
     def _validate_science(self, input_dict):
         """Validate scientific conditions"""
         parameters = input_dict['parameters'].get_dict()
+        from aiida_crystal.io.f9 import Fort9
+        wavefunction = Fort9(input_dict['wavefunction'].get_file_abs_path())
         if 'band' in parameters and 'bands' not in parameters['band']:
-            from aiida_crystal.io.f9 import Fort9
             self.logger.info('Proceeding with automatic generation of k-points path')
-            structure = Fort9(input_dict['wavefunction'].get_file_abs_path()).get_structure()
+            structure = wavefunction.get_structure()
             shrink, points, path = get_shrink_kpoints_path(structure)
             parameters['band']['shrink'] = shrink
             parameters['band']['bands'] = path
-            input_dict['parameters'] = ParameterData(dict=parameters)
+        if 'dos' in parameters and 'projections_atoms' not in parameters['dos']:
+            self.logger.info('Proceeding with automatic generation of dos atomic projections')
+            parameters['dos']['projections_atoms'] = get_dos_projections_atoms(wavefunction.get_atomic_numbers())
+        input_dict['parameters'] = ParameterData(dict=parameters)
         return input_dict
 
     def _prepare_for_submission(self, temp_folder, input_dict):

@@ -48,6 +48,11 @@ class Fort9(object):
         cell, positions, numbers = self._geometry
         return cell, cart2frac(positions, cell), numbers
 
+    def get_atomic_numbers(self):
+        """Returns a list of atomic numbers in geometry order"""
+        _, _, numbers = self.get_cell()
+        return numbers
+
     def get_ase(self):
         """Returns ase Atoms object"""
         if self._geometry is None:
