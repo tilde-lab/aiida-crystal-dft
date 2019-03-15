@@ -3,6 +3,8 @@
 from __future__ import print_function
 import numpy as np
 import spglib
+from ase.spacegroup import crystal
+from ase.data import chemical_symbols
 from pyparsing import *
 from aiida_crystal.utils.geometry import get_crystal_system, get_centering_code
 from aiida_crystal.io import _parse_string
@@ -81,6 +83,18 @@ class Fort34(object):
         self.symops[2::4] = rotations[:, 2]
         self.symops[3::4] = translations
         return self
+
+    def to_ase(self):
+        """Return conventional unit cell in ase format"""
+        return crystal(symbols=[chemical_symbols[n] for n in self.atomic_numbers],
+                       basis=self.positions,
+                       spacegroup=self.space_group,
+                       cell=self.abc)
+
+    def to_aiida(self):
+        """Return structure in aiida format"""
+        from aiida.orm import DataFactory
+        return DataFactory('structure')(ase=self.to_ase())
 
     def read(self, file_name):
         """Read and parse fort.34 file"""

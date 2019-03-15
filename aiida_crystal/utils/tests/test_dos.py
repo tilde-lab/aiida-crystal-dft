@@ -4,8 +4,8 @@ Tests for DOS utility functions
 """
 # noinspection PyUnresolvedReferences
 from aiida_crystal.tests.fixtures import *
-from aiida_crystal.utils.dos import get_dos_file_projections
+from aiida_crystal.utils.dos import get_dos_projections_atoms
 
 
-def test_dos_projections(test_structure_data):
-    assert get_dos_file_projections(test_structure_data)
+def test_dos_projections():
+    assert get_dos_projections_atoms([5, 6, 5, 10])
