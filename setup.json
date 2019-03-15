@@ -35,15 +35,15 @@
             "crystal.base = aiida_crystal.workflows.base:BaseCrystalWorkChain"
         ],
         "aiida.cmdline.data": [
-            "structsettings = aiida_crystal.cmndline.structsettings:structsettings",
-            "crystal-basis = aiida_crystal.cmndline.basis_set:basisset"
+            "structsettings = aiida_crystal.cli.structsettings:structsettings",
+            "crystal-basis = aiida_crystal.cli.basis_set:basisset"
         ]
     },
     "include_package_data": true,
     "setup_requires": ["reentry"],
     "reentry_register": true,
     "install_requires": [
-        "aiida-core>=1.0.0a4",
+        "aiida-core==1.0.0a4",
         "ejplugins==0.9.7",
         "pymatgen==2018.4.20",
         "pycrystal @ git+https://github.com/tilde-lab/pycrystal.git",
