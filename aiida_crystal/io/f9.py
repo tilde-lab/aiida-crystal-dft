@@ -21,21 +21,20 @@ class Fort9(object):
         # do our best to check if the file is fort.9
         if os.path.basename(file_name) != "fort.9":
             raise ValueError("Expected fort.9 as the file name, got {} instead".format(os.path.basename(file_name)))
-        self._name = file_name
         self._geometry = None
+        # read arrays from file
+        with FortranFile(file_name) as f:
+            self._data = [f.read_record(rtype) for rtype in self._record_types]
 
     def _read_geometry(self):
         """Returns geometry from fort.9. All lengths are in Bohr. If scale=True, then convert positions to fractional.
         If ase=True, returns geometry as ase Atoms (independently of scale)"""
-        # read arrays from file
-        with FortranFile(self._name) as f:
-            data = [f.read_record(rtype) for rtype in self._record_types]
         # the first 9 entries of the 5th record (if counting from 0) contain cell
-        cell = data[5][:9].reshape(3, 3)
+        cell = self._data[5][:9].reshape(3, 3)
         # the 7th record contains atomic numbers
-        numbers = data[7].astype(int)
+        numbers = self._data[7].astype(int)
         # the 8th record contains cartesian atomic coordinates
-        positions = data[8].reshape(len(numbers), 3)
+        positions = self._data[8].reshape(len(numbers), 3)
         # internally store positions in Cartesian coordinates
         self._geometry = (cell, positions, numbers)
 
@@ -64,3 +63,7 @@ class Fort9(object):
         """Returns aiida StructureData"""
         from aiida.orm import DataFactory
         return DataFactory('structure')(ase=self.get_ase())
+
+    def get_ao_number(self):
+        """Get number of atomic orbitals (which is the number of bands)"""
+        return self._data[3][6]

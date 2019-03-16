@@ -23,6 +23,11 @@ class D3(object):
             if isinstance(self._parameters['band']['bands'][0][0], six.string_types):
                 self._parameters['band']['shrink'] = 0
 
+        if 'dos' in self._parameters and 'projections_atoms' not in self._parameters['dos']:
+            self._parameters['dos']['projections_atoms'] = []
+        if 'dos' in self._parameters and 'projections_orbitals' not in self._parameters['dos']:
+            self._parameters['dos']['projections_orbitals'] = []
+
     def use_parameters(self, parameters):
         validate_with_json(parameters, name="d3")
         self._parameters = parameters

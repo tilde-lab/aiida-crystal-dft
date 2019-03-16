@@ -33,3 +33,4 @@ def test_pass(rename_file):
     assert cell.shape == (3, 3)
     assert positions.shape == (2, 3)
     assert numbers.tolist() == [12, 8]
+    assert parser.get_ao_number() == 18
