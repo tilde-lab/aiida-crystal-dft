@@ -11,6 +11,7 @@ from aiida.orm import CalculationFactory
 from aiida.orm.data.parameter import ParameterData
 from aiida.orm.data.singlefile import SinglefileData
 from aiida_crystal.io.pycrystal import out
+from aiida_crystal.io.f34 import Fort34
 
 
 class CrystalParser(Parser):
@@ -76,7 +77,9 @@ class CrystalParser(Parser):
             self.logger.error("Not all expected output files {} were found".
                               format(output_files))
 
-        # self.add_node(self._linkname_structure, self._calc._GEOMETRY_FILE_NAME, self.parse_out_structure)
+        self.add_node(self._linkname_structure,
+                      out_folder.get_abs_path(self._calc._GEOMETRY_FILE_NAME),
+                      self.parse_out_structure)
         self.add_node(self._linkname_parameters,
                       out_folder.get_abs_path(self._calc._DEFAULT_OUTPUT_FILE),
                       self.parse_stdout)
@@ -96,7 +99,8 @@ class CrystalParser(Parser):
 
     @classmethod
     def parse_out_structure(cls, file_name):
-        return []
+        parser = Fort34().read(file_name)
+        return parser.to_aiida()
 
     @classmethod
     def parse_out_wavefunction(cls, file_name):
