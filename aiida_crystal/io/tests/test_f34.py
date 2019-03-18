@@ -38,5 +38,11 @@ def test_read():
     reader = Fort34().read(file_name)
     assert reader.centring == 5
     assert reader.n_symops == 48
+    file_name = os.path.join(TEST_DIR,
+                             'output_files',
+                             'mgo_sto3g_external.fort.34')
+    reader = Fort34().read(file_name)
+    assert reader.centring == 5
+    assert reader.n_symops == 48
 
 
