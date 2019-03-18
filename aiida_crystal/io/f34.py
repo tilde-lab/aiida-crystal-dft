@@ -5,11 +5,11 @@ import numpy as np
 import spglib
 from ase.spacegroup import crystal
 from ase.data import chemical_symbols
-from pyparsing import *
+import pyparsing as pp
 from aiida_crystal.utils.geometry import get_crystal_system, get_centering_code
 from aiida_crystal.io import _parse_string
 
-PC = pyparsing_common
+PC = pp.pyparsing_common
 
 
 def f34_parser():
@@ -17,10 +17,10 @@ def f34_parser():
     header = (3 * PC.integer).setResultsName('header')
     cell = (9 * PC.sci_real).setResultsName('abc')
     nsymops = PC.integer.setResultsName('n_symops')
-    symops = OneOrMore(PC.sci_real).setResultsName('symops')
+    symops = pp.OneOrMore(PC.sci_real).setResultsName('symops')
     nat = PC.integer.setResultsName('nat')
-    geom = OneOrMore(Group(PC.integer + 3 * PC.sci_real)).setResultsName('geometry')
-    return header + cell + nsymops + symops + nat + geom
+    geom = pp.OneOrMore(pp.Group(PC.integer + 3 * PC.sci_real)).setResultsName('geometry')
+    return header + pp.Suppress(pp.restOfLine) + cell + nsymops + symops + nat + geom
 
 
 class Fort34(object):
@@ -114,10 +114,11 @@ class Fort34(object):
             rotations[:, i] = self.symops[i::4]
         # convert symmetry operations from cartesian to fractional
         rotations = np.dot(np.dot(np.linalg.inv(self.abc.T), rotations), self.abc.T)
-        rotations = np.swapaxes(rotations, 0, 1)
+        # have to round rotations matrix as it is used to find symmetry group
+        rotations = np.round(np.swapaxes(rotations, 0, 1), 9)
         translations = np.dot(self.symops[3::4], np.linalg.inv(self.abc))
         hall = spglib.get_hall_number_from_symmetry(rotations, translations)
-        self.space_group = spglib.get_spacegroup_type(hall)['number']
+        self.space_group = int(spglib.get_spacegroup_type(hall)['number'])
         return self
 
     def __str__(self):
