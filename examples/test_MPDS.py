@@ -7,6 +7,7 @@
 
 import os
 import csv
+from ast import literal_eval
 from mpds_client.retrieve_MPDS import MPDSDataRetrieval
 
 from aiida.orm import DataFactory, Code
@@ -30,34 +31,28 @@ inputs.crystal_parameters = DataFactory('parameter')(dict={
     "title": data['chemical_formula'],
     "scf": {
         "k_points": (8, 8),
+        "xc": "PBE0",
     },
     "geometry": {
-        "optimise": True
+        "optimise": {}
     }
 })
 inputs.properties_parameters = DataFactory('parameter')(dict={
     "band": {
-        "shrink": 12,
         "kpoints": 30,
-        "first": 7,
-        "last": 14,
     },
     "dos": {
         "n_e": 300,
-        "first": 7,
-        "last": 14
     }
 })
-inputs.basis_family = DataFactory('str')('TVZP')
-
-
+inputs.basis_family = DataFactory('str')('TZVP')
 
 datarow = [
-    data["cell_abc"],
-    data["sg_n"],
+    literal_eval(data["cell_abc"]),
+    int(data["sg_n"]),
     data.get("setting", None),
-    data["basis_noneq"],
-    data["els_noneq"]
+    literal_eval(data["basis_noneq"]),
+    literal_eval(data["els_noneq"])
 ]
 
 atoms = MPDSDataRetrieval.compile_crystal(datarow, flavor='ase')
