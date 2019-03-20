@@ -4,16 +4,49 @@ An adapter for writing out .d3 file (for properties calculation)
 """
 from __future__ import print_function
 import six
+import pyparsing as pp
+from collections import defaultdict
 from aiida_crystal.validation import validate_with_json
+from aiida_crystal.utils.keywords import PROPERTIES_KEYWORDS
+pc = pp.pyparsing_common
+
+
+def _band_parser():
+    kw = pp.Keyword("BAND")
+    title = pp.Word(pp.alphas)('title')
+    settings = pp.Group(7 * pc.integer)('settings')
+    point = pp.Group(3 * pc.integer)
+    segment = pp.Group(2 * point)
+    return kw + title + settings + pp.OneOrMore(segment)('path')
 
 
 class D3(object):
     """A writer for .d3 file (input for properties calculation)"""
 
     def __init__(self, parameters=None):
-        self._parameters = None
+        self._parameters = {}
         if parameters is not None:
             self.use_parameters(parameters)
+
+    def read(self, file_name):
+        """Read .d3 parameters from file"""
+        if self._parameters:
+            raise ValueError("Attempting to read parameters to not empty D3 instance!")
+        with open(file_name) as f:
+            lines = f.readlines()
+        data = defaultdict(list)
+        kw = ""
+        for line in lines:
+            if line.strip() in PROPERTIES_KEYWORDS:
+                kw = line.strip()
+            data[kw].append(line)
+        bands = _band_parser().parseString(''.join(data['BAND']))
+        return {'band':
+            {
+                'title': bands['title'],
+                'shrink': bands['settings'][1]
+            }
+        }
 
     def _validate(self):
         """Scientific validation routine"""

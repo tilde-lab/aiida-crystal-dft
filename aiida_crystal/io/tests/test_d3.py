@@ -45,3 +45,12 @@ DOSS
 -3 6 7 10 
 END"""
     assert str(parser) == expected
+
+
+def test_d3_reader(aiida_profile):
+    from aiida_crystal.tests import TEST_DIR
+    d3_file = os.path.join(TEST_DIR,
+                           "input_files",
+                           "mgo_sto3g.d3")
+    parameters = D3().read(d3_file)
+    assert parameters
