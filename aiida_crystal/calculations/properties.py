@@ -10,8 +10,6 @@ from aiida.orm.data.parameter import ParameterData
 from aiida.orm.data.singlefile import SinglefileData
 from aiida.common.exceptions import ValidationError, InputValidationError
 from aiida_crystal.io.d3 import D3
-from aiida_crystal.utils.kpoints import get_shrink_kpoints_path
-from aiida_crystal.utils.dos import get_dos_projections_atoms
 
 
 class PropertiesCalculation(JobCalculation):
@@ -105,42 +103,7 @@ class PropertiesCalculation(JobCalculation):
         if input_dict:
             raise ValidationError("Unknown inputs remained after validation: {}".format(input_dict))
 
-        return self._validate_science(validated_dict)
-
-    def _validate_science(self, input_dict):
-        """Validate scientific conditions"""
-        parameters = input_dict['parameters'].get_dict()
-        from aiida_crystal.io.f9 import Fort9
-        wavefunction = Fort9(input_dict['wavefunction'].get_file_abs_path())
-        if 'band' in parameters:
-            # automatic generation of k-point path
-            if 'bands' not in parameters['band']:
-                self.logger.info('Proceeding with automatic generation of k-points path')
-                structure = wavefunction.get_structure()
-                shrink, points, path = get_shrink_kpoints_path(structure)
-                parameters['band']['shrink'] = shrink
-                parameters['band']['bands'] = path
-            # automatic generation of first and last band
-            if 'first' not in parameters['band']:
-                parameters['band']['first'] = 1
-            if 'last' not in parameters['band']:
-                parameters['band']['last'] = wavefunction.get_ao_number()
-
-        if 'dos' in parameters:
-            # automatic generation of projections in case no projections are given
-            # TODO: explicit asking for automatic projections
-            if ('projections_atoms' not in parameters['dos'] and
-                    'projections_orbitals' not in parameters['dos']):
-                self.logger.info('Proceeding with automatic generation of dos atomic projections')
-                parameters['dos']['projections_atoms'] = get_dos_projections_atoms(wavefunction.get_atomic_numbers())
-            # automatic generation of first and last band
-            if 'first' not in parameters['dos']:
-                parameters['dos']['first'] = 1
-            if 'last' not in parameters['dos']:
-                parameters['band']['dos'] = wavefunction.get_ao_number()
-
-        input_dict['parameters'] = ParameterData(dict=parameters)
-        return input_dict
+        return validated_dict
 
     def _prepare_for_submission(self, temp_folder, input_dict):
         """

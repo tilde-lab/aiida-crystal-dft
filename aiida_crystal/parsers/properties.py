@@ -15,6 +15,7 @@ class PropertiesParser(Parser):
     """
     _linkname_bands = "output_bands"
     _linkname_dos = "output_dos"
+    _linkname_input_parameters = "input_parameters"
     _calc_entry_points = ('crystal.properties', )
 
     # pylint: disable=protected-access

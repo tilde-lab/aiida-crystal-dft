@@ -7,6 +7,8 @@ from aiida.common.extendeddicts import AttributeDict
 from aiida.work.workchain import WorkChain, append_
 from aiida_crystal.aiida_compatibility import get_data_class
 from aiida_crystal.data.basis_set import get_basissets_from_structure
+from aiida_crystal.utils.kpoints import get_shrink_kpoints_path
+from aiida_crystal.utils.dos import get_dos_projections_atoms
 
 
 class BaseCrystalWorkChain(WorkChain):
@@ -101,11 +103,44 @@ class BasePropertiesWorkChain(WorkChain):
         self.ctx.inputs.code = self.inputs.code
         # set the wavefunction
         self.ctx.inputs.wavefunction = self.inputs.wavefunction
-        # set parameters
-        self.ctx.inputs.parameters = self.inputs.parameters
+        # set parameters, giving the defaults
+        self.ctx.inputs.parameters = self._set_default_parameters(self.inputs.parameters)
         # set options
         if 'options' in self.inputs:
             self.ctx.inputs.options = self.inputs.options
+
+    def _set_default_parameters(self, parameters):
+        """Set defaults to calculation parameters"""
+        parameters_dict = parameters.get_dict()
+        from aiida_crystal.io.f9 import Fort9
+        wf = Fort9(self.inputs.wavefunction.get_file_abs_path())
+        if 'band' in parameters_dict:
+            # automatic generation of k-point path
+            if 'bands' not in parameters_dict['band']:
+                self.logger.info('Proceeding with automatic generation of k-points path')
+                structure = wf.get_structure()
+                shrink, points, path = get_shrink_kpoints_path(structure)
+                parameters_dict['band']['shrink'] = shrink
+                parameters_dict['band']['bands'] = path
+            # automatic generation of first and last band
+            if 'first' not in parameters_dict['band']:
+                parameters_dict['band']['first'] = 1
+            if 'last' not in parameters_dict['band']:
+                parameters_dict['band']['last'] = wf.get_ao_number()
+
+        if 'dos' in parameters_dict:
+            # automatic generation of projections in case no projections are given
+            # TODO: explicit asking for automatic projections
+            if ('projections_atoms' not in parameters_dict['dos'] and
+                    'projections_orbitals' not in parameters_dict['dos']):
+                self.logger.info('Proceeding with automatic generation of dos atomic projections')
+                parameters_dict['dos']['projections_atoms'] = get_dos_projections_atoms(wf.get_atomic_numbers())
+            # automatic generation of first and last band
+            if 'first' not in parameters_dict['dos']:
+                parameters_dict['dos']['first'] = 1
+            if 'last' not in parameters_dict['dos']:
+                parameters_dict['dos']['last'] = wf.get_ao_number()
+        return get_data_class('parameter')(dict=parameters_dict)
 
     def run_calculation(self):
         """Run a calculation from self.ctx.inputs"""
