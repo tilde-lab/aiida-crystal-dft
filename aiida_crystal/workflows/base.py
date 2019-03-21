@@ -62,7 +62,7 @@ class BaseCrystalWorkChain(WorkChain):
             calculation = self._serial_calculation
         process = CalculationFactory(calculation).process()
 
-        running = self.submit(process, options=options.get_dict(), **self.ctx.inputs)
+        running = self.submit(process, options=options, **self.ctx.inputs)
         return self.to_context(calculations=append_(running))
 
     def retrieve_results(self):
