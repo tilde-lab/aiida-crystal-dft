@@ -14,7 +14,8 @@ from aiida_crystal.utils.dos import get_dos_projections_atoms
 class BaseCrystalWorkChain(WorkChain):
     """Run CRYSTAL calculation"""
 
-    _calculation = 'crystal.serial'
+    _serial_calculation = 'crystal.serial'
+    _parallel_calculation = 'crystal.parallel'
 
     @classmethod
     def define(cls, spec):
@@ -53,8 +54,14 @@ class BaseCrystalWorkChain(WorkChain):
 
     def run_calculation(self):
         """Run a calculation from self.ctx.inputs"""
-        process = CalculationFactory(self._calculation).process()
-        options = self.ctx.inputs.pop('options')
+        options = self.ctx.inputs.pop('options').get_dict()
+        # check if it's a serial or parallel calculation (as of now, pretty simple)
+        if options['resources']['num_machines'] > 1 or options['resources']['num_mpiprocs_per_machine'] > 1:
+            calculation = self._parallel_calculation
+        else:
+            calculation = self._serial_calculation
+        process = CalculationFactory(calculation).process()
+
         running = self.submit(process, options=options.get_dict(), **self.ctx.inputs)
         return self.to_context(calculations=append_(running))
 
