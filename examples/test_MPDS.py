@@ -22,7 +22,7 @@ inputs.properties_code = Code.get_from_string('properties@torquessh')
 # Structure
 mpds_file_name = os.path.join(TEST_DIR, 'input_files', 'entries.csv')
 
-with open(mpds_file_name, newline='') as mpds_file:
+with open(mpds_file_name) as mpds_file:
     reader = csv.DictReader(mpds_file)
     data = next(reader)
 
@@ -39,7 +39,10 @@ inputs.crystal_parameters = DataFactory('parameter')(dict={
 })
 inputs.properties_parameters = DataFactory('parameter')(dict={
     "band": {
-        "kpoints": 30,
+        "k_points": 30,
+    },
+    "newk": {
+        "k_points": [6, 6]
     },
     "dos": {
         "n_e": 300,

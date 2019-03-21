@@ -86,7 +86,7 @@ class D3(object):
             "{}".format(band.get("title", "CRYSTAL RUN")),
             "{} {} {} {} {} {} {}".format(len(band["bands"]),
                                           band["shrink"],
-                                          band["kpoints"],
+                                          band["k_points"],
                                           band["first"],
                                           band["last"],
                                           int(band.get("store", True)),

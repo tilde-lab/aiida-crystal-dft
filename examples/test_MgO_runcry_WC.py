@@ -27,7 +27,7 @@ inputs.crystal_parameters = DataFactory('parameter')(dict={
 inputs.properties_parameters = DataFactory('parameter')(dict={
     "band": {
         "shrink": 12,
-        "kpoints": 30,
+        "k_points": 30,
         "first": 7,
         "last": 14,
 #        "bands": [["G", "W"]]

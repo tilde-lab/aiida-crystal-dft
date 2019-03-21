@@ -8,7 +8,7 @@ def test_bands_writer(aiida_profile):
     data = {
         "band": {
             "shrink": 12,
-            "kpoints": 30,
+            "k_points": 30,
             "first": 7,
             "last": 14,
             "bands": [["G", "Y"]]

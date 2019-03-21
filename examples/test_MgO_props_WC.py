@@ -13,7 +13,7 @@ inputs.code = Code.get_from_string('properties@torquessh')
 inputs.parameters = DataFactory('parameter')(dict={
     "band": {
         "shrink": 12,
-        "kpoints": 30,
+        "k_points": 30,
         "first": 7,
         "last": 14,
         "bands": [["G", "W"]]

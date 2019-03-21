@@ -78,7 +78,7 @@ def properties_calc_parameters():
     return ParameterData(dict={
         "band": {
             "shrink": 12,
-            "kpoints": 30,
+            "k_points": 30,
             "first": 7,
             "last": 14,
             "bands": [["G", "Y"]]
