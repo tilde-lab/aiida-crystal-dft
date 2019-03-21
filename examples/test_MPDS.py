@@ -26,12 +26,13 @@ with open(mpds_file_name) as mpds_file:
     reader = csv.DictReader(mpds_file)
     data = next(reader)
 
-
 inputs.crystal_parameters = DataFactory('parameter')(dict={
     "title": data['chemical_formula'],
     "scf": {
         "k_points": (8, 8),
-        "xc": "PBE0",
+        "dft": {
+            "xc": "PBE0",
+        }
     },
     "geometry": {
         "optimise": {}

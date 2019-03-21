@@ -81,7 +81,7 @@ class CrystalParser(Parser):
                       out_folder.get_abs_path(self._calc._GEOMETRY_FILE_NAME),
                       self.parse_out_structure)
         self.add_node(self._linkname_parameters,
-                      out_folder.get_abs_path(self._calc._DEFAULT_OUTPUT_FILE),
+                      out_folder.get_abs_path(self._calc._OUTPUT_FILE_NAME),
                       self.parse_stdout)
         self.add_node(self._linkname_wavefunction,
                       out_folder.get_abs_path("fort.9"),
