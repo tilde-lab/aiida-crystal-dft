@@ -43,7 +43,12 @@ def test_submit(properties_calc):
     assert properties_calc._DEFAULT_INPUT_FILE in files
     assert d3_content == """BAND
 CRYSTAL RUN
-1 0 30 7 14 1 0
-G  Y
+6 8 30 1 14 1 0
+0 0 0  4 0 4
+4 0 4  5 2 5
+3 3 6  0 0 0
+0 0 0  4 4 4
+4 4 4  4 2 6
+4 2 6  4 0 4
 END
 """

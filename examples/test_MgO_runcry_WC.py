@@ -26,12 +26,14 @@ inputs.crystal_parameters = DataFactory('parameter')(dict={
 })
 inputs.properties_parameters = DataFactory('parameter')(dict={
     "band": {
-        "shrink": 12,
         "k_points": 30,
-        "first": 7,
-        "last": 14,
-#        "bands": [["G", "W"]]
     },
+    "newk": {
+        "k_points": [6, 6],
+    },
+    "dos": {
+        "n_e": 300
+    }
 })
 inputs.basis_family = DataFactory('str')('sto-3g')
 with open(os.path.join(TEST_DIR, "input_files", "MgO.json")) as f:

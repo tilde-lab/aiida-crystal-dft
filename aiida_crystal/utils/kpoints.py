@@ -161,17 +161,23 @@ def construct_kpoints_path(cell, path, shrink, k_number):
     """
     # get k-points (real)
     path = get_kpoints_from_shrink(path, shrink)
+    continuous = get_continuity(path)
     # symmetry information
     sg_symbol, sg_number = get_spacegroup(*cell)
     special_k = {v: k for k, v in get_special_kpoints(sg_symbol, sg_number).items()}
     special_k[(0., 0., 0.)] = 'G'  # add Gamma-point
     result = []
     # due to the differences in k-points counting along path segments in CRYSTAL and aiida
-    # we have to add 1 to all the k-point numbers except for the 1st segment
-    k_number[1:] = [x + 1 for x in k_number[1:]]
+    # we have to add 1 to all the k-point numbers except for the 1st and for discontinuous segments
+    k_number[1:] = [x + int(cont) for x, cont in zip(k_number[1:], continuous)]
     for (p1, p2), n_k in zip(path, k_number):
         # TODO: deal with the path of special k-points
         label1 = special_k.get(tuple(p1), str(p1))
         label2 = special_k.get(tuple(p2), str(p2))
         result.append((label1, tuple(p1), label2, tuple(p2), n_k))
     return result
+
+
+def get_continuity(path):
+    """Returns whether k-path is continuous for all segment junctions"""
+    return [path[i][1] == p_i[0] for i, p_i in enumerate(path[1:])]

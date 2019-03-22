@@ -17,9 +17,9 @@ def test_properties_parser(properties_calc, properties_calc_results):
     # bands tests
     assert parser._linkname_bands in nodes
     assert isinstance(nodes[parser._linkname_bands], DataFactory("array.bands"))
-    assert nodes[parser._linkname_bands].get_kpoints().shape == (30, 3)
+    assert nodes[parser._linkname_bands].get_kpoints().shape == (31, 3)
     # dos tests
     assert parser._linkname_dos in nodes
     assert isinstance(nodes[parser._linkname_dos], DataFactory("array"))
     assert nodes[parser._linkname_dos].get_arraynames() == ["dos", ]
-    assert nodes[parser._linkname_dos].get_shape("dos") == (4, 102)
+    assert nodes[parser._linkname_dos].get_shape("dos") == (4, 302)

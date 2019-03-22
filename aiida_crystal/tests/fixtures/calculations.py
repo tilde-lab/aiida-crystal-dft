@@ -77,14 +77,18 @@ def properties_calc_parameters():
     from aiida.orm.data.parameter import ParameterData
     return ParameterData(dict={
         "band": {
-            "shrink": 12,
+            "shrink": 8,
             "k_points": 30,
-            "first": 7,
+            "first": 1,
             "last": 14,
-            "bands": [["G", "Y"]]
+            "bands": [[[0, 0, 0], [4, 0, 4]],
+                      [[4, 0, 4], [5, 2, 5]],
+                      [[3, 3, 6], [0, 0, 0]],
+                      [[0, 0, 0], [4, 4, 4]],
+                      [[4, 4, 4], [4, 2, 6]],
+                      [[4, 2, 6], [4, 0, 4]]]
         }
     })
-
 
 @pytest.fixture
 def test_wavefunction():

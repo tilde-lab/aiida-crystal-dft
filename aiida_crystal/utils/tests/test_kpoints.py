@@ -2,7 +2,8 @@
 
 from aiida_crystal.tests.fixtures import *
 from aiida_crystal.utils.kpoints import get_special_kpoints, \
-    get_kpoints_path, get_kpoints_from_shrink, get_shrink_kpoints_path
+    get_kpoints_path, get_kpoints_from_shrink, get_shrink_kpoints_path, construct_kpoints_path, \
+    get_explicit_kpoints_path
 
 
 @pytest.mark.parametrize(
@@ -30,6 +31,7 @@ def test_get_shrink_kpoints_path(test_structure_data):
     shrink, points, path = get_shrink_kpoints_path(test_structure_data)
     assert shrink == 8
     assert points['GAMMA'] == [0, 0, 0]
+    assert len(path) == 6
 
 
 def test_get_kpoints_from_shrink():
