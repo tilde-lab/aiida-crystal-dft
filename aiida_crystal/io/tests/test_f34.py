@@ -2,7 +2,6 @@
 """
 A test for fort.34 reader and writer
 """
-import os
 # noinspection PyUnresolvedReferences
 from aiida_crystal.tests.fixtures import *
 
@@ -27,6 +26,12 @@ def test_from_aiida(aiida_profile, test_structure_data):
     assert reader.abc[0, 1] == 2.105
     assert len(reader.positions) == 2
     assert reader.atomic_numbers[0] == 12
+
+
+# def test_geom_str(aiida_profile, test_structure_data):
+#     from aiida_crystal.io.f34 import Fort34
+#     reader = Fort34().from_aiida(test_structure_data)
+#     print(reader)
 
 
 def test_read():

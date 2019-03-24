@@ -62,18 +62,21 @@ class Fort34(object):
         positions = ase_struct.get_scaled_positions()
         atomic_numbers = ase_struct.get_atomic_numbers()
         cell = (abc, positions, atomic_numbers)
-
-        cell = spglib.find_primitive(cell)
-        self.abc, positions, self.atomic_numbers = cell
-        # convert positions from fractional to cartesian
-        self.positions = np.dot(self.abc, positions.T).T
+        cell = spglib.standardize_cell(cell, to_primitive=True, no_idealize=False)
+        self.abc, positions, atomic_numbers = cell
         # symmetries related stuff
         dataset = spglib.get_symmetry_dataset(cell)
+        # leave only symmetrically inequivalent atoms
+        inequiv_atoms = np.unique(dataset['equivalent_atoms'])
+        positions = positions[inequiv_atoms]
+        self.atomic_numbers = atomic_numbers[inequiv_atoms]
+        # convert positions from fractional to cartesian
+        self.positions = np.dot(self.abc.T, positions.T).T
         self.space_group = dataset['number']
         self.crystal_type = get_crystal_system(self.space_group, as_number=True)
         self.centring = get_centering_code(self.space_group, dataset['international'])
         self.n_symops = len(dataset["translations"])
-        self.symops = np.zeros((self.n_symops * 4, 3), dtype=int)
+        self.symops = np.zeros((self.n_symops * 4, 3), dtype=float)
         # convert symmetry operations from fractional to cartesian
         rotations = np.dot(self.abc.T, np.dot(dataset["rotations"], np.linalg.inv(self.abc.T)))
         rotations = np.swapaxes(rotations, 0, 1)

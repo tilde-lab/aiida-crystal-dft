@@ -65,7 +65,7 @@ def properties_calc_results(properties_calc):
 def crystal_calc_parameters():
     from aiida.orm.data.parameter import ParameterData
     return ParameterData(dict={
-        "title": "MgO Bulk",
+        "title": "Crystal calc",
         "scf": {
             "k_points": (8, 8)
         }
@@ -106,6 +106,12 @@ def test_wavefunction():
 
 @pytest.fixture
 def test_ase_structure():
+    # LiCl
+    # return crystal(
+    #     symbols=['Cl', 'Li'],
+    #     basis=[[0.3333333333, 0.6666666667, 0.379], [0.3333333333, 0.6666666667, 0.0]],
+    #     spacegroup=186,
+    #     cellpar=[3.852, 3.852, 6.118, 90.0, 90.0, 120.0])
     # MgO
     return crystal(
         symbols=[12, 8],
