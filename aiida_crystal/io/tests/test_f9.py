@@ -32,5 +32,5 @@ def test_pass(rename_file):
     cell, positions, numbers = parser.get_cell()
     assert cell.shape == (3, 3)
     assert positions.shape == (2, 3)
-    assert numbers.tolist() == [8, 12]
-    assert parser.get_ao_number() == 14
+    assert sorted(numbers.tolist()) == [8, 12]
+    assert parser.get_ao_number() == 18

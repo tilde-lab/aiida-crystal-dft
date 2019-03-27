@@ -17,7 +17,7 @@ def test_crystal_parser(crystal_calc, crystal_calc_results):
     # output parameter tests
     assert parser._linkname_parameters in nodes
     assert isinstance(nodes[parser._linkname_parameters], DataFactory("parameter"))
-    assert nodes[parser._linkname_parameters].dict.energy == -7380.2216063748
+    assert nodes[parser._linkname_parameters].dict.energy == -7473.995626235668
     # output structure tests
     assert parser._linkname_structure in nodes
     assert isinstance(nodes[parser._linkname_structure], DataFactory("structure"))

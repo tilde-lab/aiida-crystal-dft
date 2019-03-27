@@ -32,6 +32,8 @@ class CrystalParser(Parser):
                              'crystal.parallel'
                              ]
 
+        self.converged_structure = None
+
         calc_cls = [CalculationFactory(entry_point) for entry_point in calc_entry_points]
 
         # check for valid input
@@ -77,12 +79,13 @@ class CrystalParser(Parser):
             self.logger.error("Not all expected output files {} were found".
                               format(output_files))
 
-        self.add_node(self._linkname_structure,
-                      out_folder.get_abs_path(self._calc._GEOMETRY_FILE_NAME),
-                      self.parse_out_structure)
+        # parameters should be parsed first, as the results
         self.add_node(self._linkname_parameters,
                       out_folder.get_abs_path(self._calc._OUTPUT_FILE_NAME),
                       self.parse_stdout)
+        self.add_node(self._linkname_structure,
+                      out_folder.get_abs_path(self._calc._GEOMETRY_FILE_NAME),
+                      self.parse_out_structure)
         self.add_node(self._linkname_wavefunction,
                       out_folder.get_abs_path("fort.9"),
                       self.parse_out_wavefunction)
@@ -90,15 +93,20 @@ class CrystalParser(Parser):
         return success, self._nodes
 
     def add_node(self, link_name, file_name, callback):
-        self._nodes.append((link_name, callback(file_name)))
+        parse_result = callback(file_name)
+        if parse_result is not None:
+            self._nodes.append((link_name, callback(file_name)))
 
-    @classmethod
-    def parse_stdout(cls, file_name):
-        result = out.parse(file_name)
-        return ParameterData(dict=result)
+    def parse_stdout(self, file_name):
+        parser = out.OutFileParser(file_name)
+        params = parser.get_parameters()
+        # raise flag if structure is good
+        self.converged_structure = params['converged_ionic']
+        return ParameterData(dict=params)
 
-    @classmethod
-    def parse_out_structure(cls, file_name):
+    def parse_out_structure(self, file_name):
+        if not self.converged_structure:
+            return None
         parser = Fort34().read(file_name)
         return parser.to_aiida()
 
