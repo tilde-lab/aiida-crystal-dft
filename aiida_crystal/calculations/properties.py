@@ -117,7 +117,7 @@ class PropertiesCalculation(JobCalculation):
         validated_dict = self._validate_input(input_dict)
         # create input files: d3
         try:
-            d3_content = D3(validated_dict["parameters"].get_dict())
+            d3_content = D3(validated_dict['parameters'].get_dict())
         except (ValueError, NotImplementedError) as err:
             raise InputValidationError(
                 "an input file could not be created from the parameters: {}".

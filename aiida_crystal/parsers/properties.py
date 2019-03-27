@@ -15,6 +15,7 @@ class PropertiesParser(Parser):
     """
     _linkname_bands = "output_bands"
     _linkname_dos = "output_dos"
+    _linkname_input_parameters = "input_parameters"
     _calc_entry_points = ('crystal.properties', )
 
     # pylint: disable=protected-access
@@ -60,7 +61,7 @@ class PropertiesParser(Parser):
             return success, node_list
 
         # Check the folder content is as expected
-        list_of_files = out_folder.get_content_list()
+        list_of_files = out_folder.get_folder_list()
         output_files = self._calc.retrieve_list
         # Note: set(A) <= set(B) checks whether A is a subset
         if set(output_files) <= set(list_of_files):
@@ -119,7 +120,6 @@ class PropertiesParser(Parser):
             raise ValueError("Sorry, didn't find dos info in fort.25")
 
         from aiida.orm import DataFactory
-
         array_data = DataFactory("array")()
         array_data.set_array("dos", np.vstack((data["e"], data["dos"])))
         return array_data

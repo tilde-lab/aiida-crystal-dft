@@ -13,12 +13,12 @@ from jsonschema import ValidationError
                                         {"band": {}},
                                         {"band": {"shrink": 8}},
                                         {"band": {"shrink": 8,
-                                                  "kpoints": 12,
+                                                  "k_points": 12,
                                                   "first": 7,
                                                   "last": 14,
                                                   "bands": [["G", "Q", "Y"]]}},
                                         {"newk": {}},
-                                        {"newk": {"kpoints": 8}},
+                                        {"newk": {"k_points": 8}},
                                         {"dos": {"n_e": 100,
                                                  "first": 7,
                                                  "last": 14,
@@ -34,13 +34,13 @@ def test_toplevel_pass():
     data = {
         "band": {
             "shrink": 12,
-            "kpoints": 30,
+            "k_points": 30,
             "first": 7,
             "last": 14,
             "bands": [["G", "Y"]]
         },
         "newk": {
-            "kpoints": [8, 8],
+            "k_points": [8, 8],
             "fermi": False,
         },
         "dos": {
@@ -58,7 +58,7 @@ def test_full_pass():
         "band": {
             "title": "some title",
             "shrink": 12,
-            "kpoints": 30,
+            "k_points": 30,
             "first": 7,
             "last": 14,
             "bands": [[[0, 3, 6], [6, 6, 6]]],

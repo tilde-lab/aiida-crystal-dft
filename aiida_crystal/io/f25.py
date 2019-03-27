@@ -5,30 +5,17 @@ A parser for fort.25 bands and DOS files
 import numpy as np
 from pyparsing import *
 
+from aiida_crystal.io import _parse_string
+
 pc = pyparsing_common
 
 __all__ = ["Fort25"]
 
 
-def _parse_string(parser, string):
-    try:
-        parsed_data = parser.parseString(string)
-    except ParseException as pe:
-        # complete the error message
-        msg = "ERROR during parsing of line %d:" % pe.lineno
-        msg += '\n' + '-' * 40 + '\n'
-        msg += pe.line + '\n'
-        msg += ' ' * (pe.col - 1) + '^\n'
-        msg += '-' * 40 + '\n' + pe.msg
-        pe.msg = msg
-        raise
-    return parsed_data
-
-
 def band_parser():
     header = (pc.integer + Word(alphas) + 2 * pc.integer + 3 * pc.sci_real).setResultsName('header')
     e = (2 * pc.sci_real).setResultsName('energy')
-    k_path = (6 * pc.integer).setResultsName('path')
+    k_path = (6 * pc.signed_integer).setResultsName('path')
     bands = OneOrMore(pc.sci_real).setResultsName('data')
     return header + e + k_path + bands
 
@@ -51,7 +38,8 @@ class Fort25(object):
         # the resulting dictionary
         for part in self._parser.keys():
             data = [bloc for bloc in self._data if bloc[1:5] == part]
-            result[part] = self._parser[part](data)
+            if data:
+                result[part] = self._parser[part](data)
         return result
 
 
@@ -92,10 +80,10 @@ def _parse_dos(data):
         _, _, _, n, de, _, e_fermi = parsed_data["header"]
         e0, _ = parsed_data["energy"]
         if result["e"] is None:
-            result["e"] = np.linspace(e0, e0+de*(n-1), n)
+            result["e"] = np.linspace(e0, e0 + de * (n - 1), n)
             result["e_fermi"] = e_fermi
         else:
-            assert (e0, de, n) == (result["e"][0], result["e"][1]-result["e"][0], len(result["e"]))
+            assert (e0, de, n) == (result["e"][0], result["e"][1] - result["e"][0], len(result["e"]))
             assert result["e_fermi"] == e_fermi
         dos.append(np.array(parsed_data["data"].asList()))
     result["dos"] = np.vstack(dos)

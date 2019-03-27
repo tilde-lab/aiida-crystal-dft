@@ -4,29 +4,62 @@ An adapter for writing out .d3 file (for properties calculation)
 """
 from __future__ import print_function
 import six
+import pyparsing as pp
+from collections import defaultdict
 from aiida_crystal.validation import validate_with_json
+from aiida_crystal.utils.keywords import PROPERTIES_KEYWORDS
+pc = pp.pyparsing_common
+
+
+def _band_parser():
+    kw = pp.Keyword("BAND")
+    title = pp.Word(pp.alphas)('title')
+    settings = pp.Group(7 * pc.integer)('settings')
+    point = pp.Group(3 * pc.integer)
+    segment = pp.Group(2 * point)
+    return kw + title + settings + pp.OneOrMore(segment)('path')
 
 
 class D3(object):
     """A writer for .d3 file (input for properties calculation)"""
 
     def __init__(self, parameters=None):
-        self._parameters = None
+        self._parameters = {}
         if parameters is not None:
             self.use_parameters(parameters)
 
+    def read(self, file_name):
+        """Read .d3 parameters from file"""
+        if self._parameters:
+            raise ValueError("Attempting to read parameters to not empty D3 instance!")
+        with open(file_name) as f:
+            lines = f.readlines()
+        data = defaultdict(list)
+        kw = ""
+        for line in lines:
+            if line.strip() in PROPERTIES_KEYWORDS:
+                kw = line.strip()
+            data[kw].append(line)
+        bands = _band_parser().parseString(''.join(data['BAND']))
+        return {'band':
+            {
+                'title': bands['title'],
+                'shrink': bands['settings'][1]
+            }
+        }
+
     def _validate(self):
         """Scientific validation routine"""
-        from aiida.common.exceptions import ValidationError
         if self._parameters is None:
             raise ValueError("No ParameterData is given for .d3 input")
-        if ("band" in self._parameters) and isinstance(self._parameters['band']['bands'][0][0], six.string_types):
-            self._parameters['band']['shrink'] = 0
-        dos = self._parameters.get("dos", {})
-        if dos and "newk" not in self._parameters:
-            raise ValidationError("NEWK must be set for DOS calculation")
-        if dos and abs(dos["first"]) > abs(dos["last"]):
-            raise ValidationError("DOS input: first band must be below last")
+        if 'band' in self._parameters:
+            if isinstance(self._parameters['band']['bands'][0][0], six.string_types):
+                self._parameters['band']['shrink'] = 0
+
+        if 'dos' in self._parameters and 'projections_atoms' not in self._parameters['dos']:
+            self._parameters['dos']['projections_atoms'] = []
+        if 'dos' in self._parameters and 'projections_orbitals' not in self._parameters['dos']:
+            self._parameters['dos']['projections_orbitals'] = []
 
     def use_parameters(self, parameters):
         validate_with_json(parameters, name="d3")
@@ -53,7 +86,7 @@ class D3(object):
             "{}".format(band.get("title", "CRYSTAL RUN")),
             "{} {} {} {} {} {} {}".format(len(band["bands"]),
                                           band["shrink"],
-                                          band["kpoints"],
+                                          band["k_points"],
                                           band["first"],
                                           band["last"],
                                           int(band.get("store", True)),
@@ -73,7 +106,7 @@ class D3(object):
             return []
         lines = [
             "NEWK",
-            "{0[0]} {0[1]}".format(newk["kpoints"]),
+            "{0[0]} {0[1]}".format(newk["k_points"]),
             "{} {}".format(int(newk.get("fermi", True)), 0)  # 0 is the default for NPR
         ]
         return lines
@@ -82,11 +115,9 @@ class D3(object):
         dos = self._parameters.get("dos", None)
         if dos is None:
             return []
-        n_proj_at = len(dos["projections_atoms"]) if "projections_atoms" in dos else 0
-        n_proj_ao = len(dos["projections_orbitals"]) if "projections_orbitals" in dos else 0
         lines = [
             "DOSS",
-            "{} {} {} {} {} {} {}".format(n_proj_ao + n_proj_at,
+            "{} {} {} {} {} {} {}".format(len(dos["projections_atoms"]) + len(dos["projections_orbitals"]),
                                           dos["n_e"],
                                           dos["first"],
                                           dos["last"],
@@ -95,10 +126,6 @@ class D3(object):
                                           int(dos.get("print", False))
                                           ),
         ]
-        if n_proj_at:
-            lines += [("{} " * (len(proj_i) + 1)).format(-1 * len(proj_i), *proj_i) for proj_i in
-                      dos["projections_atoms"]]
-        if n_proj_ao:
-            lines += [("{} " * (len(proj_i) + 1)).format(len(proj_i), *proj_i) for proj_i in
-                      dos["projections_orbitals"]]
+        lines += [("{} " * (len(proj_i) + 1)).format(-1 * len(proj_i), *proj_i) for proj_i in dos["projections_atoms"]]
+        lines += [("{} " * (len(proj_i) + 1)).format(len(proj_i), *proj_i) for proj_i in dos["projections_orbitals"]]
         return lines

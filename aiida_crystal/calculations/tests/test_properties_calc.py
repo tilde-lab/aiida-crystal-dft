@@ -36,6 +36,19 @@ def test_submit(properties_calc):
     with SandboxFolder() as folder:
         subfolder, script_filename = properties_calc.submit_test(folder=folder)
         files = os.listdir(subfolder.abspath)
+        with open(subfolder.get_abs_path(properties_calc._DEFAULT_INPUT_FILE)) as f:
+            d3_content = f.read()
     assert script_filename in files
     assert properties_calc._WAVEFUNCTION_FILE in files
     assert properties_calc._DEFAULT_INPUT_FILE in files
+    assert d3_content == """BAND
+CRYSTAL RUN
+6 8 30 1 14 1 0
+0 0 0  4 0 4
+4 0 4  5 2 5
+3 3 6  0 0 0
+0 0 0  4 4 4
+4 4 4  4 2 6
+4 2 6  4 0 4
+END
+"""

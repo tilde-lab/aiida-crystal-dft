@@ -29,7 +29,7 @@
           "minimum": 0,
           "exclusiveMinimum": false
         },
-        "kpoints": {
+        "k_points": {
           "description": "Total number of k-points along the path",
           "type": "integer",
           "minimum": 2,
@@ -105,7 +105,7 @@
       },
       "required": [
         "shrink",
-        "kpoints",
+        "k_points",
         "first",
         "last",
         "bands"
@@ -115,7 +115,7 @@
       "description": "Hamiltonian eigenvectors calculation inputs",
       "type": "object",
       "properties": {
-        "kpoints": {
+        "k_points": {
           "description": "Monkhorst-Pack and Gilat shrinking factors for eigenvalues recalculation",
           "type": "array",
           "minItems": 2,

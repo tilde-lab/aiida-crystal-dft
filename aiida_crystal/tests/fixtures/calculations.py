@@ -23,13 +23,16 @@ def crystal_calc(test_crystal_code, crystal_calc_parameters, test_structure_data
 @pytest.fixture
 def crystal_calc_results(crystal_calc):
     from aiida.common.folders import SandboxFolder
+    from aiida.orm.data.folder import FolderData
     from aiida_crystal.tests import TEST_DIR
     out_files = [os.path.join(TEST_DIR, "output_files", "mgo_sto3g_external.{}".format(f))
                  for f in crystal_calc.retrieve_list]
     with SandboxFolder() as folder:
         for src, dst in zip(out_files, crystal_calc.retrieve_list):
             shutil.copy(src, os.path.join(folder.abspath, dst))
-        yield folder
+        data = FolderData()
+        data.replace_with_folder(folder.abspath)
+        yield data
 
 
 @pytest.fixture
@@ -46,20 +49,23 @@ def properties_calc(test_properties_code, properties_calc_parameters, test_wavef
 @pytest.fixture
 def properties_calc_results(properties_calc):
     from aiida.common.folders import SandboxFolder
+    from aiida.orm.data.folder import FolderData
     from aiida_crystal.tests import TEST_DIR
     out_files = [os.path.join(TEST_DIR, "output_files", "mgo_sto3g_external.{}".format(f))
                  for f in properties_calc.retrieve_list]
     with SandboxFolder() as folder:
         for src, dst in zip(out_files, properties_calc.retrieve_list):
             shutil.copy(src, os.path.join(folder.abspath, dst))
-        yield folder
+        data = FolderData()
+        data.replace_with_folder(folder.abspath)
+        yield data
 
 
 @pytest.fixture
 def crystal_calc_parameters():
     from aiida.orm.data.parameter import ParameterData
     return ParameterData(dict={
-        "title": "MgO Bulk",
+        "title": "Crystal calc",
         "scf": {
             "k_points": (8, 8)
         }
@@ -71,14 +77,18 @@ def properties_calc_parameters():
     from aiida.orm.data.parameter import ParameterData
     return ParameterData(dict={
         "band": {
-            "shrink": 12,
-            "kpoints": 30,
-            "first": 7,
+            "shrink": 8,
+            "k_points": 30,
+            "first": 1,
             "last": 14,
-            "bands": [["G", "Y"]]
+            "bands": [[[0, 0, 0], [4, 0, 4]],
+                      [[4, 0, 4], [5, 2, 5]],
+                      [[3, 3, 6], [0, 0, 0]],
+                      [[0, 0, 0], [4, 4, 4]],
+                      [[4, 4, 4], [4, 2, 6]],
+                      [[4, 2, 6], [4, 0, 4]]]
         }
     })
-
 
 @pytest.fixture
 def test_wavefunction():
@@ -96,6 +106,12 @@ def test_wavefunction():
 
 @pytest.fixture
 def test_ase_structure():
+    # LiCl
+    # return crystal(
+    #     symbols=['Cl', 'Li'],
+    #     basis=[[0.3333333333, 0.6666666667, 0.379], [0.3333333333, 0.6666666667, 0.0]],
+    #     spacegroup=186,
+    #     cellpar=[3.852, 3.852, 6.118, 90.0, 90.0, 120.0])
     # MgO
     return crystal(
         symbols=[12, 8],

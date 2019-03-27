@@ -15,9 +15,35 @@ def test_read_bands():
     result = parser.parse()
     assert result["BAND"]
     bands = result["BAND"]
-    assert bands["n_bands"] == 8
-    assert bands["n_k"] == [8, 3, 5, 6, 8]
-    assert bands["bands"].shape == (30, 8)
+    assert bands["n_bands"] == 14
+    assert bands["n_k"] == [7, 2, 8, 6, 5, 3]
+    assert bands["bands"].shape == (31, 14)
+
+
+def test_read_broken_path_bands():
+    file_name = os.path.join(TEST_DIR,
+                             "output_files",
+                             "lif_broken_band_path.fort.25")
+    parser = Fort25(file_name)
+    result = parser.parse()
+    assert result["BAND"]
+    bands = result["BAND"]
+    assert bands["n_bands"] == 25
+    assert bands["n_k"] == [7, 2, 8, 6, 5, 3]
+    assert bands["bands"].shape == (31, 25)
+
+
+def test_read_negative_path_bands():
+    file_name = os.path.join(TEST_DIR,
+                             "output_files",
+                             "negative_band_path.fort.25")
+    parser = Fort25(file_name)
+    result = parser.parse()
+    assert result["BAND"]
+    bands = result["BAND"]
+    assert bands["n_bands"] == 86
+    assert bands["n_k"] == [8, 5]
+    assert bands["bands"].shape == (13, 86)
 
 
 def test_read_dos():
@@ -28,6 +54,6 @@ def test_read_dos():
     result = parser.parse()
     assert result["DOSS"]
     dos = result["DOSS"]
-    assert dos["e_fermi"] == -0.310052
-    assert len(dos["e"]) == 102
-    assert dos["dos"].shape == (3, 102)
+    assert dos["e_fermi"] == -0.146404
+    assert len(dos["e"]) == 302
+    assert dos["dos"].shape == (3, 302)
