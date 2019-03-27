@@ -15,7 +15,7 @@ __all__ = ["Fort25"]
 def band_parser():
     header = (pc.integer + Word(alphas) + 2 * pc.integer + 3 * pc.sci_real).setResultsName('header')
     e = (2 * pc.sci_real).setResultsName('energy')
-    k_path = (6 * pc.integer).setResultsName('path')
+    k_path = (6 * pc.signed_integer).setResultsName('path')
     bands = OneOrMore(pc.sci_real).setResultsName('data')
     return header + e + k_path + bands
 
