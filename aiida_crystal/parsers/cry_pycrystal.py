@@ -8,8 +8,7 @@ from __future__ import absolute_import
 from aiida.parsers.parser import Parser
 from aiida.parsers.exceptions import OutputParsingError
 from aiida.orm import CalculationFactory
-from aiida.orm.data.parameter import ParameterData
-from aiida.orm.data.singlefile import SinglefileData
+from aiida.orm import DataFactory
 from aiida_crystal.io.pycrystal import out
 from aiida_crystal.io.f34 import Fort34
 
@@ -21,6 +20,7 @@ class CrystalParser(Parser):
     _linkname_structure = "output_structure"
     _linkname_parameters = "output_parameters"
     _linkname_wavefunction = "output_wavefunction"
+    _linkname_trajectory = "output_trajectory"
 
     # pylint: disable=protected-access
     def __init__(self, calculation):
@@ -32,7 +32,9 @@ class CrystalParser(Parser):
                              'crystal.parallel'
                              ]
 
-        self.converged_structure = None
+        self.stdout_parser = None
+        self.converged_ionic = None
+        self.converged_electronic = None
 
         calc_cls = [CalculationFactory(entry_point) for entry_point in calc_entry_points]
 
@@ -89,6 +91,9 @@ class CrystalParser(Parser):
         self.add_node(self._linkname_wavefunction,
                       out_folder.get_abs_path("fort.9"),
                       self.parse_out_wavefunction)
+        self.add_node(self._linkname_trajectory,
+                      out_folder.get_abs_path(self._calc._OUTPUT_FILE_NAME),
+                      self.parse_out_trajectory)
         success = True
         return success, self._nodes
 
@@ -98,18 +103,29 @@ class CrystalParser(Parser):
             self._nodes.append((link_name, callback(file_name)))
 
     def parse_stdout(self, file_name):
-        parser = out.OutFileParser(file_name)
-        params = parser.get_parameters()
-        # raise flag if structure is good
-        self.converged_structure = params['converged_ionic']
-        return ParameterData(dict=params)
+        self.stdout_parser = out.OutFileParser(file_name)
+        params = self.stdout_parser.get_parameters()
+        # raise flag if structure (atomic and electronic) is good
+        self.converged_electronic = params['converged_electronic']
+        self.converged_ionic = params['converged_ionic']
+        return DataFactory('parameter')(dict=params)
 
     def parse_out_structure(self, file_name):
-        if not self.converged_structure:
+        if not self.converged_ionic:
             return None
         parser = Fort34().read(file_name)
         return parser.to_aiida()
 
-    @classmethod
-    def parse_out_wavefunction(cls, file_name):
-        return SinglefileData(file=file_name)
+    def parse_out_wavefunction(self, file_name):
+        if not self.converged_electronic:
+            return None
+        return DataFactory('singlefile')(file=file_name)
+
+    def parse_out_trajectory(self, _):
+        ase_structs = self.stdout_parser.get_trajectory()
+        if not ase_structs:
+            return None
+        structs = [DataFactory('structure')(ase=struct) for struct in ase_structs]
+        traj = DataFactory('array.trajectory')()
+        traj.set_structurelist(structs)
+        return traj

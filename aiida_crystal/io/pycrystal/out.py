@@ -1,7 +1,6 @@
 """
 Pycrystal-based CRYSTAL output parser
 """
-
 from pycrystal import CRYSTOUT
 
 
@@ -40,3 +39,6 @@ class OutFileParser(object):
         }
         # Parameters from pycrystal parsing result as given in pwscf output-parameters
         return out_params
+
+    def get_trajectory(self):
+        return self.info['structures']

@@ -23,3 +23,8 @@ def test_crystal_parser(crystal_calc, crystal_calc_results):
     assert isinstance(nodes[parser._linkname_structure], DataFactory("structure"))
     ase_struct = nodes[parser._linkname_structure].get_ase()
     assert 8 in ase_struct.get_atomic_numbers()
+    # output trajectory tests
+    assert parser._linkname_trajectory in nodes
+    assert isinstance(nodes[parser._linkname_trajectory], DataFactory("array.trajectory"))
+    assert nodes[parser._linkname_trajectory].numsteps == 13
+
