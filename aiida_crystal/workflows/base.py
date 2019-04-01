@@ -4,8 +4,9 @@
 from aiida.orm import CalculationFactory
 from aiida.orm.code import Code
 from aiida.common.extendeddicts import AttributeDict
+from aiida.common.links import LinkType
 from aiida.work.workchain import WorkChain, append_
-from aiida_crystal.aiida_compatibility import get_data_class
+from aiida_crystal.aiida_compatibility import get_data_class, get_data_node
 from aiida_crystal.data.basis_set import get_basissets_from_structure
 from aiida_crystal.utils.kpoints import get_shrink_kpoints_path
 from aiida_crystal.utils.dos import get_dos_projections_atoms
@@ -25,16 +26,20 @@ class BaseCrystalWorkChain(WorkChain):
         spec.input('structure', valid_type=get_data_class('structure'), required=True)
         spec.input('parameters', valid_type=get_data_class('parameter'), required=True)
         spec.input('basis_family', valid_type=get_data_class('str'))
+        spec.input('clean_workdir', valid_type=get_data_class('bool'),
+                   required=False, default=get_data_node('bool', True))
         spec.input('options', valid_type=get_data_class('parameter'), required=True, help="Calculation options")
         # define workchain routine
         spec.outline(cls.init_calculation,
                      cls.run_calculation,
-                     cls.retrieve_results)
+                     cls.retrieve_results,
+                     cls.finalize)
         # define outputs
         spec.output('output_structure', valid_type=get_data_class('structure'), required=False)
         spec.output('primitive_structure', valid_type=get_data_class('structure'), required=False)
         spec.output('output_parameters', valid_type=get_data_class('parameter'), required=False)
         spec.output('output_wavefunction', valid_type=get_data_class('singlefile'), required=False)
+        spec.output('output_trajectory', valid_type=get_data_class('array.trajectory'), required=False)
 
     def init_calculation(self):
         """Create input dictionary for the calculation, deal with restart (later?)"""
@@ -76,10 +81,23 @@ class BaseCrystalWorkChain(WorkChain):
                                                                      last_calc.pk))
 
             if name in last_calc.out:
-                node = last_calc.out[name]
                 self.out(name, last_calc.out[name])
-                # self.report("attaching the node {}<{}> as '{}'".format(node.__class__.__name__, node.pk, name))
         return
+
+    def finalize(self):
+        """Finalize calculation, clean remote directory if needed (adapted from aiida-vasp)"""
+        if not self.inputs.clean_workdir:
+            return
+        cleaned_calcs = []
+        for calculation in self.calc.get_outputs(linktype=LinkType.CALL):
+            try:
+                # noinspection PyProtectedMember
+                calculation.out.remote_folder._clean()
+                cleaned_calcs.append(calculation)
+            except BaseException:
+                pass
+        if cleaned_calcs:
+            self.report('cleaned remote folders of calculations: {}'.format(' '.join(map(str, cleaned_calcs))))
 
 
 class BasePropertiesWorkChain(WorkChain):
