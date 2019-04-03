@@ -137,9 +137,62 @@
               }
             }
           }
+        },
+        "elastic": {
+          "description": "elastic constants calculation",
+          "type": [
+            "object",
+            "boolean"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "description": "a kind of elastic calculations needed",
+              "type": "string",
+              "enum": [
+                "ELASTCON",
+                "PIEZOCON",
+                "PHOTOELA",
+                "ELAPIEZO"
+              ]
+            },
+            "convergence": {
+              "description": "optimisation convergence criteria",
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "TOLDEG": {
+                  "description": "RMS of the gradient",
+                  "type": "number",
+                  "minimum": 0,
+                  "exclusiveMinimum": true
+                },
+                "TOLDEX": {
+                  "description": "RMS of the displacement",
+                  "type": "number",
+                  "minimum": 0,
+                  "exclusiveMinimum": true
+                },
+                "TOLDEE": {
+                  "description": "total energy difference between two steps",
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "MAXCYCLE": {
+                  "description": "max number of optimization steps",
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "FINALRUN": {
+                  "description": "run final Wf single point scf with optimized geometry",
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 4
+                }
+          }
         }
       }
-    },
+    }}},
     "basis_set": {
       "title": "Block 2",
       "description": "Basis sets input and control",

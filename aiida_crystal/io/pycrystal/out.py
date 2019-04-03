@@ -35,8 +35,40 @@ class OutFileParser(object):
             'number_of_symmetries': self.info['n_symops'],
             'parser_info': 'pycrystal 1.0.0.3',
             'parser_warnings': self.info['warns'],
-            'scf_iterations': self.info['ncycles']
+            'scf_iterations': self.info['ncycles'],
+            'phonons': None
         }
+        # add phonon data from pycrystal output
+        if self.info["phonons"]["ph_eigvecs"] is not None:
+            out_params['phonons'] = {
+                'dfp_displacements': self.info["phonons"]["dfp_disps"],   # What is this?
+                'dfp_magnitude': self.info["phonons"]["dfp_magnitude"],   # What is this?
+                'dielectric_tensor': self.info["phonons"]["dielectric_tensor"],
+                'is_mode_active_ir': [mode == 'A' for mode in self.info['phonons']['ir_active']],
+                'is_mode_active_raman': [mode == 'A' for mode in self.info['phonons']['raman_active']],
+                'irreducible_representations': self.info['phonons']['irreps'],
+                'modes_freqs': self.info["phonons"]["modes"],
+                'modes_freqs_units': 'cm**(-1)',
+                'eigenvectors': self.info["phonons"]["ph_eigvecs"],
+                'k_degeneracy': self.info['phonons']['ph_k_degeneracy'],
+                'thermodynamics': {
+                    'thermal_contribution_to_vibrational_energy': self.info['phonons']['td']['et'],
+                    'PV': self.info['phonons']['td']['pv'],
+                    'temperature': self.info['phonons']['td']['t'],
+                    'pressure': self.info['phonons']['td']['p'],
+                    'TS': self.info['phonons']['td']['ts'],
+                    'entropy': self.info['phonons']['td']['S'],
+                    'heat_capacity': self.info['phonons']['td']['C'],
+                    'temperature_units': 'K',
+                    'pressure_units': 'MPa',
+                    'energy_units': 'eV/cell',
+                    'entropy_units': 'J/(mol*K)',
+                    'heat_capacity_units': 'J/(mol*K)'
+                },
+                'zero_point_energy': self.info['phonons']['zpe'],
+                'zero_point_energy_units': 'eV/cell'
+            }
+
         # Parameters from pycrystal parsing result as given in pwscf output-parameters
         return out_params
 
