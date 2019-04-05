@@ -25,14 +25,24 @@ def crystal_calc_results(crystal_calc):
     from aiida.common.folders import SandboxFolder
     from aiida.orm.data.folder import FolderData
     from aiida_crystal.tests import TEST_DIR
-    out_files = [os.path.join(TEST_DIR, "output_files", "mgo_sto3g_external.{}".format(f))
-                 for f in crystal_calc.retrieve_list]
-    with SandboxFolder() as folder:
-        for src, dst in zip(out_files, crystal_calc.retrieve_list):
-            shutil.copy(src, os.path.join(folder.abspath, dst))
-        data = FolderData()
-        data.replace_with_folder(folder.abspath)
-        yield data
+
+    def get_results(files=None):
+        if files is None:
+            files = {}
+        default_prefix = "mgo_sto3g_external"
+        out_files = []
+        for f in crystal_calc.retrieve_list:
+            if f in files.keys():
+                out_files.append(os.path.join(TEST_DIR, "output_files", "{}.{}".format(files[f], f)))
+            else:
+                out_files.append(os.path.join(TEST_DIR, "output_files", "{}.{}".format(default_prefix, f)))
+        with SandboxFolder() as folder:
+            for src, dst in zip(out_files, crystal_calc.retrieve_list):
+                shutil.copy(src, os.path.join(folder.abspath, dst))
+            data = FolderData()
+            data.replace_with_folder(folder.abspath)
+            yield data
+    return get_results
 
 
 @pytest.fixture
