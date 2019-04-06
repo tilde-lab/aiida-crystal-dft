@@ -36,7 +36,8 @@ class OutFileParser(object):
             'parser_info': 'pycrystal 1.0.0.3',
             'parser_warnings': self.info['warns'],
             'scf_iterations': self.info['ncycles'],
-            'phonons': None
+            'phonons': None,
+            'elastic': None,
         }
         # add phonon data from pycrystal output
         if self.info["phonons"]["ph_eigvecs"] is not None:
@@ -68,7 +69,23 @@ class OutFileParser(object):
                 'zero_point_energy': self.info['phonons']['zpe'],
                 'zero_point_energy_units': 'eV/cell'
             }
-
+        # add elastic results to out parameters
+        if self.info['elastic']['K'] is not None:
+            out_params['elastic'] = {
+                'elastic_constants': self.info['elastic']['elastic_constants'],
+                'elastic_moduli': self.info['elastic']['elastic_moduli'],
+                'elastic_constants_units': 'GPa',
+                'elastic_moduli_units': 'TPa**(-1)',
+                'bulk_modulus_voigt': self.info['elastic']['K_V'],
+                'shear_modulus_voigt': self.info['elastic']['G_V'],
+                'bulk_modulus_reuss': self.info['elastic']['K_R'],
+                'shear_modulus_reuss': self.info['elastic']['G_R'],
+                'bulk_modulus': self.info['elastic']['K'],
+                'shear_modulus': self.info['elastic']['G'],
+                'young_modulus': self.info['elastic']['E'],
+                'poisson_ratio': self.info['elastic']['v'],
+                'effective_moduli_units': 'GPa'
+            }
         # Parameters from pycrystal parsing result as given in pwscf output-parameters
         return out_params
 

@@ -44,3 +44,17 @@ def test_crystal_raman_parser(crystal_calc, crystal_calc_results):
     assert nodes[parser._linkname_parameters].dict.energy == -7473.993352557831
     assert nodes[parser._linkname_parameters].dict.phonons['zero_point_energy'] == 0.09020363263183974
     assert nodes[parser._linkname_parameters].dict.phonons['thermodynamics']['temperature'][0] == 298.15
+
+
+def test_crystal_elastic_parser(crystal_calc, crystal_calc_results):
+    from aiida.orm import DataFactory
+    from aiida_crystal.parsers.cry_pycrystal import CrystalParser
+    parser = CrystalParser(crystal_calc)
+    calc_results = next(crystal_calc_results(files={'crystal.out': 'mgo_sto3g_elastic'}))
+    assert crystal_calc._DEFAULT_OUTPUT_FILE in calc_results.get_folder_list()
+    _, nodes = parser.parse_with_retrieved({"retrieved": calc_results})
+    nodes = dict(nodes)
+    # output parameter tests
+    assert parser._linkname_parameters in nodes
+    assert isinstance(nodes[parser._linkname_parameters], DataFactory("parameter"))
+    assert nodes[parser._linkname_parameters].dict.elastic['bulk_modulus'] == 470.57
