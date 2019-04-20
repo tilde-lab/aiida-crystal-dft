@@ -60,4 +60,5 @@ class RunCryWorkChain(WorkChain):
         return self.to_context(properties=properties_run)
 
     def retrieve_results(self):
+        self.out_many(self.exposed_outputs(self.ctx.crystal, BaseCrystalWorkChain))
         self.out_many(self.exposed_outputs(self.ctx.properties, BasePropertiesWorkChain))

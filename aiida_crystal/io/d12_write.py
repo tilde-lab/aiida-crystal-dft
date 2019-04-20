@@ -167,7 +167,24 @@ def _geometry_block(outstr, indict, atom_props):
             outstr += "{}\n".format(keyword)
         outstr += format_value(indict, ["geometry", "optimise", "convergence"])
         outstr += "ENDOPT\n"
-
+    if "frequency" in indict.get("geometry", {}):
+        freq_dict = indict["geometry"]["frequency"]
+        outstr += "FREQCALC\n"
+        for keyword in freq_dict.get("info_print", []):
+            outstr += "{}\n".format(keyword)
+        if "ir" in freq_dict and freq_dict["ir"]:
+            outstr += "INTENS\n"
+            outstr += format_value(freq_dict, ["ir", "technique"])
+        if "raman" in freq_dict and freq_dict["raman"]:
+            outstr += "INTRAMAN\n"
+            outstr += "INTCPHF\n"
+            outstr += "END\n"
+        outstr += "ENDFREQ\n"
+    if "elastic" in indict.get("geometry", {}):
+        ela_dict = indict["geometry"]["elastic"]
+        outstr += '{}\n'.format(ela_dict['type'])
+        outstr += format_value(indict, ["geometry", "elastic", "convergence"])
+        outstr += 'END\n'
     # Geometry End
     outstr += "END\n"
     return outstr
