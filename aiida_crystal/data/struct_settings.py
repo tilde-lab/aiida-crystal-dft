@@ -7,7 +7,8 @@ from aiida.common.exceptions import ValidationError
 from aiida.common.extendeddicts import AttributeDict
 from aiida.common.utils import classproperty
 from aiida.orm import Data
-from aiida_crystal.io.geometry import CRYSTAL_TYPE_MAP, CENTERING_CODE_MAP
+from aiida_crystal.io.geometry import CENTERING_CODE_MAP
+from aiida_crystal.utils.geometry import CRYSTAL_TYPE_MAP
 from aiida_crystal.validation import validate_with_dict
 from jsonschema import ValidationError as SchemeError
 

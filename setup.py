@@ -5,7 +5,7 @@ A setup script
 
 import json
 from setuptools import setup, find_packages
-# from importlib import import_module
+from aiida_crystal import __version__
 
 if __name__ == '__main__':
     # Provide static information in setup.json
@@ -14,7 +14,7 @@ if __name__ == '__main__':
         kwargs = json.load(info)
     setup(
         packages=find_packages(),
-        # version=import_module('aiida_crystal').__version__,
+        version=__version__,
         long_description=open('README.md').read(),
         long_description_content_type='text/markdown',
         **kwargs)

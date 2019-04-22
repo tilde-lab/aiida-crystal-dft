@@ -137,6 +137,103 @@
               }
             }
           }
+        },
+        "frequency": {
+          "description": "Calculation of vibration frequencies",
+          "type": [
+            "object",
+            "boolean"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "info_print": {
+              "description": "keywords for printing",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "uniqueItems": true,
+                "enum": [
+                  "IR",
+                  "RAMAN",
+                  "ALL",
+                  "IRREP"
+                ]
+              }
+            },
+            "ir": {
+              "description": "IR intensities calculation",
+              "type": [
+                "object",
+                "boolean"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "description": "Technique for calculating IR intensities",
+                  "type": "string",
+                  "enum": [
+                    "INTPOL",
+                    "INTLOC",
+                    "INTCPHF"
+                  ]
+                }
+              }
+            },
+            "raman": {
+              "description": "Raman intensities calculation",
+              "type": "boolean"
+            }
+          }
+        },
+        "elastic": {
+          "description": "elastic constants calculation",
+          "type": [
+            "object",
+            "boolean"
+          ],
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "description": "a type of elastic calculations needed",
+              "type": "string",
+              "enum": [
+                "ELASTCON",
+                "PIEZOCON",
+                "PHOTOELA",
+                "ELAPIEZO"
+              ]
+            },
+            "convergence": {
+              "description": "optimisation convergence criteria",
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "TOLDEG": {
+                  "description": "RMS of the gradient",
+                  "type": "number",
+                  "minimum": 0,
+                  "exclusiveMinimum": true
+                },
+                "TOLDEX": {
+                  "description": "RMS of the displacement",
+                  "type": "number",
+                  "minimum": 0,
+                  "exclusiveMinimum": true
+                },
+                "TOLDEE": {
+                  "description": "total energy difference between two steps",
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "MAXCYCLE": {
+                  "description": "max number of optimization steps",
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          }
         }
       }
     },

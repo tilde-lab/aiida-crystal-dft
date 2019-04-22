@@ -9,7 +9,7 @@ from aiida_crystal.aiida_compatibility import dbenv
 
 def mpds():
     """Using mpds_client library"""
-    client = MPDSDataRetrieval(api_key='mNNpIcYMGgSF9LXbwfieyYSlQ7DMdPTuac4DrfRn4pgFv7PO')
+    client = MPDSDataRetrieval(api_key='XXXX')
 
     answer = client.get_data(
         {"elements": "K", "classes": "binary", "props": "atomic structure"},
@@ -31,7 +31,7 @@ def mpds():
 def main():
     """A function retrieving data from MPDS"""
     from aiida.tools.dbimporters import DbImporterFactory
-    importer = DbImporterFactory('mpds')(api_key='mNNpIcYMGgSF9LXbwfieyYSlQ7DMdPTuac4DrfRn4pgFv7PO')
+    importer = DbImporterFactory('mpds')(api_key='XXXX')
     results = importer.query({"elements": "K",
                               "classes": "binary",
                               "props": "atomic structure"})
@@ -44,7 +44,7 @@ def example():
     import httplib2
     import json
 
-    api_key = "mNNpIcYMGgSF9LXbwfieyYSlQ7DMdPTuac4DrfRn4pgFv7PO"
+    api_key = "XXXX"
     endpoint = "https://api.mpds.io/v0/download/facet"
     search = {
         "elements": "K",

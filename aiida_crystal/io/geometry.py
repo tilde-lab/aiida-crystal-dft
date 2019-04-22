@@ -24,8 +24,11 @@ File Format
 """
 from spglib import spglib
 import numpy as np
+
+from aiida_crystal.utils.geometry import get_crystal_system, CRYSTAL_TYPE_MAP, get_centering_code
 from aiida_crystal.validation import validate_with_json
 from aiida_crystal.utils import ATOMIC_SYMBOL2NUM, ATOMIC_NUM2SYMBOL
+from aiida_crystal.utils.geometry import cart2frac
 
 SYMMETRY_PROGRAM = "spglib"
 SYMMETRY_VERSION = ".".join([str(i) for i in spglib.get_version()])
@@ -36,14 +39,6 @@ try:
 except ImportError:
     import pathlib2 as pathlib
 
-CRYSTAL_TYPE_MAP = {
-    1: 'triclinic',
-    2: 'monoclinic',
-    3: 'orthorhombic',
-    4: 'tetragonal',
-    5: 'hexagonal',
-    6: 'cubic'
-}
 _DIMENSIONALITY = {
     0: [False, False, False],
     1: [True, False, False],
@@ -128,95 +123,6 @@ def read_gui_file(fpath, cryversion=17):
     return structdata
 
 
-def get_crystal_system(sg_number, as_number=False):
-    """Get the crystal system for the structure, e.g.,
-    (triclinic, orthorhombic, cubic, etc.) from the space group number
-
-    :param sg_number: the spacegroup number
-    :param as_number: return the system as a number (recognized by CRYSTAL) or a str
-    :return: Crystal system for structure or None if system cannot be detected.
-    """
-    def f(i, j):
-        return i <= sg_number <= j
-    cs = {
-        "triclinic": (1, 2),
-        "monoclinic": (3, 15),
-        "orthorhombic": (16, 74),
-        "tetragonal": (75, 142),
-        "trigonal": (143, 167),
-        "hexagonal": (168, 194),
-        "cubic": (195, 230)
-    }
-
-    crystal_system = None
-
-    for k, val in cs.items():
-        if f(*val):
-            crystal_system = k
-            break
-
-    if crystal_system is None:
-        raise ValueError(
-            "could not find crystal system of space group number: {}".format(
-                sg_number))
-
-    if as_number:
-        crystal_system = {v: k
-                          for k, v in CRYSTAL_TYPE_MAP.items()}[crystal_system]
-
-    return crystal_system
-
-
-def get_lattice_type(sg_number):
-    """Get the lattice for the structure, e.g., (triclinic,
-    orthorhombic, cubic, etc.).This is the same than the
-    crystal system with the exception of the hexagonal/rhombohedral
-    lattice
-
-    :param sg_number: space group number
-    :return: Lattice type for structure or None if type cannot be detected.
-
-    """
-    system = get_crystal_system(sg_number)
-    if sg_number in [146, 148, 155, 160, 161, 166, 167]:
-        return "rhombohedral"
-    if system == "trigonal":
-        return "hexagonal"
-
-    return system
-
-
-def get_centering_code(sg_number, sg_symbol):
-    """get crystal centering codes, to convert from primitive to conventional
-
-    :param sg_number: the space group number
-    :param sg_symbol: the space group symbol
-    :return: CRYSTAL centering code
-    """
-    lattice_type = get_lattice_type(sg_number)
-
-    if "P" in sg_symbol or lattice_type == "hexagonal":
-        return 1
-    if lattice_type == "rhombohedral":
-        # can also be P_R (if a_length == c_length in conventional cell),
-        # but crystal doesn't appear to use that anyway
-        return 1
-    if "I" in sg_symbol:
-        return 6
-    if "F" in sg_symbol:
-        return 5
-    if "C" in sg_symbol:
-        crystal_system = get_crystal_system(sg_number, as_number=False)
-        if crystal_system == "monoclinic":
-            return 4  # TODO this is P_C but don't know what code it is, maybe 3?
-            # [[1.0, -1.0, 0.0], [1.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-        return 4
-    # elif "A" in sg_symbol:
-    #     return 2  # TODO check this is always correct (not in original function)
-
-    return 1
-
-
 def frac2cart(lattice, fcoords):
     """a function that takes the cell parameters, in angstrom, and a list of fractional coordinates
     and returns the structure in cartesian coordinates
@@ -228,30 +134,6 @@ def frac2cart(lattice, fcoords):
         z = i[0] * lattice[0][2] + i[1] * lattice[1][2] + i[2] * lattice[2][2]
         ccoords.append([x, y, z])
     return ccoords
-
-
-def cart2frac(lattice, ccoords):
-    """a function that takes the cell parameters, in angstrom, and a list of Cartesian coordinates
-    and returns the structure in fractional coordinates
-    """
-    det3 = np.linalg.det
-
-    latt_tr = np.transpose(lattice)
-
-    fcoords = []
-    det_latt_tr = np.linalg.det(latt_tr)
-    for i in ccoords:
-        a = (det3([[i[0], latt_tr[0][1], latt_tr[0][2]], [
-            i[1], latt_tr[1][1], latt_tr[1][2]
-        ], [i[2], latt_tr[2][1], latt_tr[2][2]]])) / det_latt_tr
-        b = (det3([[latt_tr[0][0], i[0], latt_tr[0][2]], [
-            latt_tr[1][0], i[1], latt_tr[1][2]
-        ], [latt_tr[2][0], i[2], latt_tr[2][2]]])) / det_latt_tr
-        c = (det3([[latt_tr[0][0], latt_tr[0][1], i[0]], [
-            latt_tr[1][0], latt_tr[1][1], i[1]
-        ], [latt_tr[2][0], latt_tr[2][1], i[2]]])) / det_latt_tr
-        fcoords.append([a, b, c])
-    return fcoords
 
 
 def _operation_frac_to_cart(lattice, rot, trans):
@@ -394,9 +276,8 @@ def compute_symmetry_3d(structdata, standardize, primitive, idealize, symprec,
     angletol = -1 if angletol is None else angletol
 
     # first create the cell to pass to spglib
-    lattice = structdata["lattice"]
-    ccoords = structdata["ccoords"]
-
+    lattice = np.array(structdata["lattice"])
+    ccoords = np.array(structdata["ccoords"])
     # spglib only uses the atomic numbers to demark inequivalent sites
     inequivalent_sites = (np.array(structdata["atomic_numbers"]) * 1000 +
                           np.array(structdata["equivalent"])).tolist()
@@ -409,7 +290,7 @@ def compute_symmetry_3d(structdata, standardize, primitive, idealize, symprec,
     else:
         inequivalent_to_kind = None
 
-    fcoords = cart2frac(lattice, ccoords)
+    fcoords = cart2frac(ccoords, lattice)
     cell = [lattice, fcoords, inequivalent_sites]
     cell = tuple(cell)
 
@@ -428,7 +309,6 @@ def compute_symmetry_3d(structdata, standardize, primitive, idealize, symprec,
         fcoords = cell[1]
         ccoords = frac2cart(lattice, fcoords)
         inequivalent_sites = cell[2].tolist()
-
     # find symmetry
     # TODO can we get only the symmetry operators accepted by CRYSTAL?
     symm_dataset = spglib.get_symmetry_dataset(

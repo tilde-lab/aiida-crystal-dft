@@ -1,5 +1,5 @@
 """
-test input schema
+test d12 schema
 """
 import pytest
 from aiida_crystal.validation import validate_with_json

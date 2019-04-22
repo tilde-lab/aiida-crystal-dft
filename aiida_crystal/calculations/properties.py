@@ -2,24 +2,19 @@
 A plugin to create a properties files from CRYSTAL17 output
 """
 
-import six
+import shutil
+from aiida.common.datastructures import CalcInfo, CodeInfo
 from aiida.common.utils import classproperty
-from aiida.orm import DataFactory
 from aiida.orm.calculation.job import JobCalculation
-from aiida_crystal.validation import read_schema
-from aiida_crystal.data.basis_set import get_basissets_from_structure
-from aiida_crystal.io.geometry import structure_to_dict
-from aiida_crystal.io.d12_write import write_input
-from aiida_crystal.utils import unflatten_dict, ATOMIC_NUM2SYMBOL
-
-
-ParameterData = DataFactory("parameters")
+from aiida.orm.data.parameter import ParameterData
+from aiida.orm.data.singlefile import SinglefileData
+from aiida.common.exceptions import ValidationError, InputValidationError
+from aiida_crystal.io.d3 import D3
 
 
 class PropertiesCalculation(JobCalculation):
     """
-    AiiDA calculation plugin wrapping the runcry17 executable.
-
+    AiiDA calculation plugin wrapping the properties executable.
     """
 
     def _init_internal_params(self):  # pylint: disable=useless-super-delegation
@@ -31,77 +26,123 @@ class PropertiesCalculation(JobCalculation):
 
         # default input and output files
         self._DEFAULT_INPUT_FILE = 'main.d3'
-        self._DEFAULT_EXTERNAL_FILE = 'fort.34'
-        self._DEFAULT_OUTPUT_FILE = 'main.out'
+        self._DEFAULT_OUTPUT_FILE = 'properties.out'
+        self._WAVEFUNCTION_FILE = 'fort.9'
+        self._PROPERTIES_FILE = 'fort.25'
+
+        self.retrieve_list = [self._PROPERTIES_FILE]
 
         # parser entry point defined in setup.json
-        self._default_parser = 'crystal.basic'
+        self._default_parser = 'crystal.properties'
 
     @classproperty
-    def settings_schema(cls):
-        """get a copy of the settings schema"""
-        return read_schema("settings")
-
-    @classproperty
-    def input_schema(cls):
-        """get a copy of the settings schema"""
-        return read_schema("inputd12")
-
-    # pylint: disable=too-many-arguments
-    @classmethod
-    def prepare_and_validate(cls,
-                             param_dict,
-                             structure,
-                             settings,
-                             basis_family=None,
-                             flattened=False):
-        """ prepare and validate the inputs to the calculation
-
-        :param param_dict: dict giving data to create the input .d12 file
-        :param structure: the StructureData
-        :param settings: StructSettingsData giving symmetry operations, etc
-        :param basis_family: string of the BasisSetFamily to use
-        :param flattened: whether the input dictionary is flattened
-        :return: parameters
+    def _use_methods(cls):
         """
-        if flattened:
-            param_dict = unflatten_dict(param_dict)
-        # validate structure and settings
-        struct_dict = structure_to_dict(structure)
-        # validate parameters
-        atom_props = cls._create_atom_props(struct_dict["kinds"],
-                                            settings.data)
-        write_input(param_dict, ["test_basis"], atom_props)
-        # validate basis sets
-        if basis_family:
-            get_basissets_from_structure(
-                structure, basis_family, by_kind=False)
+        Add use_* methods for calculations.
 
-        return ParameterData(dict=param_dict)
-
-    @classmethod
-    def _get_linkname_basisset_prefix(cls):
+        Code below enables the usage
+        my_calculation.use_parameters(my_parameters)
         """
-        The prefix for the name of the link used for each pseudo before the kind name
-        """
-        return "basis_"
+        use_dict = JobCalculation._use_methods
+        use_dict.update({
+            "wavefunction": {
+                'valid_types': SinglefileData,
+                'additional_parameter': None,
+                'linkname': 'wavefunction',
+                'docstring': "Wavefunction fort.9 file"
+            },
+            "parameters": {
+                'valid_types': ParameterData,
+                'additional_parameter': None,
+                'linkname': 'parameters',
+                'docstring': "Parameters for .d3 input file creation"
+            },
+            "settings": {
+                'valid_types': ParameterData,
+                'additional_parameter': None,
+                'linkname': 'settings',
+                'docstring': "Calculation settings"
+            },
+        })
+        return use_dict
 
-    @classmethod
-    def get_linkname_basisset(cls, element):
-        """
-        The name of the link used for the basis set for atomic element 'element'.
-        It appends the basis name to the basisset_prefix, as returned by the
-        _get_linkname_basisset_prefix() method.
+    def _validate_input(self, input_dict):
+        """Input validation; returns the dict of validated data"""
+        validated_dict = {}
 
-        :param element: a string for the atomic element for which we want to get the link name
-        """
-        if not isinstance(element, six.string_types):
-            raise TypeError(
-                "The parameter 'element' of _get_linkname_basisset can "
-                "only be an string: {}".format(element))
-        if element not in ATOMIC_NUM2SYMBOL.values():
-            raise TypeError(
-                "The parameter 'symbol' of _get_linkname_basisset can "
-                "must be a known atomic element: {}".format(element))
+        try:
+            validated_dict['code'] = input_dict.pop(self.get_linkname('code'))
+        except KeyError:
+            raise InputValidationError("No code specified for this "
+                                       "calculation")
 
-        return "{}{}".format(cls._get_linkname_basisset_prefix(), element)
+        try:
+            validated_dict['wavefunction'] = input_dict.pop(self.get_linkname('wavefunction'))
+        except KeyError:
+            raise InputValidationError("No wavefunction specified for this "
+                                       "calculation")
+        if not isinstance(validated_dict['wavefunction'], SinglefileData):
+            raise InputValidationError("wavefunction not of type "
+                                       "SinglefileData: {}".format(validated_dict['wavefunction']))
+
+        try:
+            validated_dict['parameters'] = input_dict.pop(self.get_linkname('parameters'))
+        except KeyError:
+            raise InputValidationError("No parameters specified for this "
+                                       "calculation")
+        if not isinstance(validated_dict['parameters'], ParameterData):
+            raise InputValidationError("parameters not of type "
+                                       "ParameterData: {}".format(validated_dict['parameters']))
+        # settings are optional
+        validated_dict['settings'] = input_dict.pop(self.get_linkname('settings'), None)
+        if validated_dict['settings'] is not None:
+            if not isinstance(validated_dict['settings'], ParameterData):
+                raise InputValidationError(
+                    "settings not of type ParameterData: {}".format(validated_dict['settings']))
+
+        if input_dict:
+            raise ValidationError("Unknown inputs remained after validation: {}".format(input_dict))
+
+        return validated_dict
+
+    def _prepare_for_submission(self, temp_folder, input_dict):
+        """
+        Create input files.
+
+            :param temp_folder: aiida.common.folders.Folder subclass where
+                the plugin should put all its files.
+            :param input_dict: dictionary of the input nodes as they would
+                be returned by get_inputs_dict
+        """
+        validated_dict = self._validate_input(input_dict)
+        # create input files: d3
+        try:
+            d3_content = D3(validated_dict['parameters'].get_dict())
+        except (ValueError, NotImplementedError) as err:
+            raise InputValidationError(
+                "an input file could not be created from the parameters: {}".
+                format(err))
+        with open(temp_folder.get_abs_path(self._DEFAULT_INPUT_FILE), "w") as f:
+            d3_content.write(f)
+
+        # create input files: fort.9
+        shutil.copy(validated_dict["wavefunction"].get_file_abs_path(),
+                    temp_folder.get_abs_path(self._WAVEFUNCTION_FILE))
+
+        # Prepare CodeInfo object for aiida
+        codeinfo = CodeInfo()
+        codeinfo.code_uuid = validated_dict['code'].uuid
+        codeinfo.stdin_name = self._DEFAULT_INPUT_FILE
+        codeinfo.stdout_name = self._DEFAULT_OUTPUT_FILE
+        codeinfo.withmpi = False
+
+        # Prepare CalcInfo object for aiida
+        calcinfo = CalcInfo()
+        calcinfo.uuid = self.uuid
+        calcinfo.codes_info = [codeinfo]
+        calcinfo.local_copy_list = []
+        calcinfo.remote_copy_list = []
+        calcinfo.retrieve_list = self.retrieve_list
+        calcinfo.local_copy_list = []
+
+        return calcinfo

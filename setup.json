@@ -1,9 +1,9 @@
 {
     "name": "aiida-crystal",
-    "author": "Chris Sewell",
-    "author_email": "chrisj_sewell@hotmail.com",
-    "description": "AiiDA plugin for running the CRYSTAL17 code",
-    "url": "https://github.com/chrisjsewell/aiida-crystal17",
+    "author": "Andrey Sobolev, based on aiida-crystal17 plugin by Chris Sewell",
+    "author_email": "as@tilde.pro",
+    "description": "Yet another AiiDA plugin for CRYSTAL code",
+    "url": "https://github.com/tilde-lab/aiida-crystal",
     "license": "MIT",
     "classifiers": [
         "Programming Language :: Python",
@@ -13,40 +13,43 @@
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Scientific/Engineering :: Physics"
     ],
-    "version": "0.1a1",
     "entry_points": {
         "aiida.data": [
             "crystal.basisset = aiida_crystal.data.basis_set:BasisSetData",
             "crystal.structsettings = aiida_crystal.data.struct_settings:StructSettingsData"
         ],
         "aiida.calculations": [
-            "crystal.basic = aiida_crystal.calculations.cry_basic:CryBasicCalculation",
+            "crystal.serial = aiida_crystal.calculations.serial:CrystalSerialCalculation",
+            "crystal.parallel = aiida_crystal.calculations.parallel:CrystalParallelCalculation",
+            "crystal.properties = aiida_crystal.calculations.properties:PropertiesCalculation",
             "crystal.main = aiida_crystal.calculations.cry_main:CryMainCalculation",
             "crystal.immigrant = aiida_crystal.calculations.cry_main_immigrant:CryMainImmigrantCalculation"
         ],
         "aiida.parsers": [
             "crystal.basic = aiida_crystal.parsers.cry_basic:CryBasicParser",
-            "crystal = aiida_crystal.parsers.cry_pycrystal:CrystalParser"
+            "crystal = aiida_crystal.parsers.cry_pycrystal:CrystalParser",
+            "crystal.properties = aiida_crystal.parsers.properties:PropertiesParser"
 
         ],
         "aiida.workflows": [
-            "crystal.sym3d = aiida_crystal.workflows.symmetrise_3d_struct:Symmetrise3DStructure"
+            "crystal.base = aiida_crystal.workflows.base:BaseCrystalWorkChain"
         ],
         "aiida.cmdline.data": [
-            "structsettings = aiida_crystal.cmndline.structsettings:structsettings",
-            "crystal-basis = aiida_crystal.cmndline.basis_set:basisset"
+            "structsettings = aiida_crystal.cli.structsettings:structsettings",
+            "crystal-basis = aiida_crystal.cli.basis_set:basisset"
         ]
     },
     "include_package_data": true,
     "setup_requires": ["reentry"],
     "reentry_register": true,
     "install_requires": [
-        "aiida-core>=1.0.0a4",
+        "aiida-core==1.0.0a4",
         "ejplugins==0.9.7",
+        "pymatgen==2018.4.20",
         "pycrystal @ git+https://github.com/tilde-lab/pycrystal.git",
         "ase<3.17",
-        "pymatgen==2018.5.3",
         "packaging",
+        "seekpath",
         "mpds_client",
         "tzlocal==2.0.0b1"
     ],
