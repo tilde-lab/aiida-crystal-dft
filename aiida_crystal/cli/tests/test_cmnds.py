@@ -2,42 +2,8 @@
 
 import os
 from click.testing import CliRunner
-from aiida_crystal.cli.structsettings import structsettings
 from aiida_crystal.cli.basis_set import basisset
 from aiida_crystal.tests import TEST_DIR
-
-
-def test_settings_show(new_database):
-
-    from aiida.orm import DataFactory
-    setting_cls = DataFactory('crystal.structsettings')
-
-    symmdata = {
-        "operations": [[1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]],
-        "space_group": 1,
-        "centring_code": 2,
-        "crystal_type": 3
-    }
-    settings_node = setting_cls(data=symmdata)
-    settings_node.store()
-
-    runner = CliRunner()
-    result = runner.invoke(structsettings, ['show', str(settings_node.pk)])
-
-    assert result.exit_code == 0
-
-    expected = """centring_code: 2
-crystal_type:  3
-num_symops:    1
-space_group:   1
-"""
-
-    assert expected in result.output
-
-    result2 = runner.invoke(structsettings,
-                            ['show', "-s", str(settings_node.pk)])
-
-    assert result2.exit_code == 0
 
 
 def test_basis_show(new_database):
