@@ -3,7 +3,7 @@
 from __future__ import print_function
 import numpy as np
 import spglib
-from ase.spacegroup import crystal
+from ase import Atoms
 from ase.data import chemical_symbols
 import pyparsing as pp
 from aiida_crystal.utils.geometry import get_crystal_system, get_centering_code
@@ -27,7 +27,8 @@ class Fort34(object):
 
     def __init__(self):
         """
-        A reader and writer of fort.34 (or instruct.gui) CRYSTAL input?output file
+        A reader and writer of fort.34 (or instruct.gui) CRYSTAL input/output file.
+        Stores geometry internally as conventional cell; converts to primitive before writing the file
         """
         self.dimensionality = None
         self.centring = None
@@ -62,16 +63,11 @@ class Fort34(object):
         positions = ase_struct.get_scaled_positions()
         atomic_numbers = ase_struct.get_atomic_numbers()
         cell = (abc, positions, atomic_numbers)
-        cell = spglib.standardize_cell(cell, to_primitive=True, no_idealize=False)
-        self.abc, positions, atomic_numbers = cell
+        # get conventional cell
+        cell = spglib.standardize_cell(cell, to_primitive=False, no_idealize=False)
+        self.abc, self.positions, self.atomic_numbers = cell
         # symmetries related stuff
         dataset = spglib.get_symmetry_dataset(cell)
-        # leave only symmetrically inequivalent atoms
-        inequiv_atoms = np.unique(dataset['equivalent_atoms'])
-        positions = positions[inequiv_atoms]
-        self.atomic_numbers = atomic_numbers[inequiv_atoms]
-        # convert positions from fractional to cartesian
-        self.positions = np.dot(self.abc.T, positions.T).T
         self.space_group = dataset['number']
         self.crystal_type = get_crystal_system(self.space_group, as_number=True)
         self.centring = get_centering_code(self.space_group, dataset['international'])
@@ -89,10 +85,11 @@ class Fort34(object):
 
     def to_ase(self):
         """Return conventional unit cell in ase format"""
-        return crystal(symbols=[chemical_symbols[n] for n in self.atomic_numbers],
-                       basis=self.positions,
-                       spacegroup=self.space_group,
-                       cell=self.abc)
+        # cell here should be conventional!
+        return Atoms(symbols=[chemical_symbols[n] for n in self.atomic_numbers],
+                     scaled_positions=self.positions,
+                     cell=self.abc,
+                     pbc=True)
 
     def to_aiida(self):
         """Return structure in aiida format"""
@@ -107,37 +104,59 @@ class Fort34(object):
         self.dimensionality, self.centring, self.crystal_type = parsed_data['header']
         if self.dimensionality != 3:
             raise NotImplementedError('Structure with dimensionality < 3 currently not supported')
-        self.abc = np.array(parsed_data['abc'].asList()).reshape((3, 3))
+        # primitive cell vectors and basis positions in cartesian coordinates
+        abc = np.array(parsed_data['abc'].asList()).reshape((3, 3))
+        positions = np.array([d[1:] for d in parsed_data['geometry']])
+        # convert positions to fractional
+        positions = np.dot(np.linalg.inv(abc).T, positions.T).T
+        atomic_numbers = [d[0] for d in parsed_data['geometry']]
+        # convert to conventional cell
+        cell = (abc, positions, atomic_numbers)
+        cell = spglib.standardize_cell(cell, to_primitive=False, no_idealize=False)
+        self.abc, self.positions, self.atomic_numbers = cell
+        # get symmetry operations
         self.n_symops = parsed_data['n_symops']
         self.symops = np.array(parsed_data['symops'].asList()).reshape(self.n_symops * 4, 3)
-        self.atomic_numbers = [d[0] for d in parsed_data['geometry']]
-        self.positions = [d[1:] for d in parsed_data['geometry']]
         rotations = np.zeros((self.n_symops, 3, 3))
         for i in range(3):
             rotations[:, i] = self.symops[i::4]
         # convert symmetry operations from cartesian to fractional
-        rotations = np.dot(np.dot(np.linalg.inv(self.abc.T), rotations), self.abc.T)
+        rotations = np.dot(np.dot(np.linalg.inv(abc.T), rotations), abc.T)
         # have to round rotations matrix as it is used to find symmetry group
         rotations = np.round(np.swapaxes(rotations, 0, 1), 9)
-        translations = np.dot(self.symops[3::4], np.linalg.inv(self.abc))
+        translations = np.dot(self.symops[3::4], np.linalg.inv(abc))
         hall = spglib.get_hall_number_from_symmetry(rotations, translations)
         self.space_group = int(spglib.get_spacegroup_type(hall)['number'])
         return self
 
     def __str__(self):
+        # convert geometry to primitive and find inequivalent atoms
+        cell = self.abc, self.positions, self.atomic_numbers
+        cell = spglib.standardize_cell(cell, to_primitive=True, no_idealize=False)
+        abc, positions, atomic_numbers = cell
+        # symmetries related stuff
+        dataset = spglib.get_symmetry_dataset(cell)
+        # leave only symmetrically inequivalent atoms
+        inequiv_atoms = np.unique(dataset['equivalent_atoms'])
+        positions = positions[inequiv_atoms]
+        atomic_numbers = atomic_numbers[inequiv_atoms]
+        # convert positions from fractional to cartesian
+        positions = np.dot(self.abc.T, positions.T).T
+
+        # make a list of lines
         f34_lines = ["{0} {1} {2}".format(self.dimensionality,
                                           self.centring,
                                           self.crystal_type)]
         f34_lines += ["{0[0]:17.9E} {0[1]:17.9E} {0[2]:17.9E}".format(
-            np.round(vec, 9) + 0.) for vec in self.abc]
+            np.round(vec, 9) + 0.) for vec in abc]
         # symmetry operation part
         f34_lines.append(str(self.n_symops))
         f34_lines += ["{0[0]:17.9E} {0[1]:17.9E} {0[2]:17.9E}".format(
             np.round(line, 9) + 0.) for line in self.symops]
         # atoms part
-        f34_lines.append(str(len(self.atomic_numbers)))
+        f34_lines.append(str(len(atomic_numbers)))
         f34_lines += ["{0:3} {1[0]:17.9E} {1[1]:17.9E} {1[2]:17.9E}".format(anum, pos)
-                      for anum, pos in zip(self.atomic_numbers, self.positions)]
+                      for anum, pos in zip(atomic_numbers, positions)]
 
         return "\n".join(f34_lines)
 
