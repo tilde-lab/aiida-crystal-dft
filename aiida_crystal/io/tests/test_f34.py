@@ -12,8 +12,8 @@ def test_from_ase(aiida_profile, test_ase_structure):
     assert reader.space_group == 225
     assert reader.crystal_type == 6
     assert reader.centring == 5
-    assert reader.abc[0, 1] == 2.105
-    assert len(reader.positions) == 2
+    assert reader.abc[0, 0] == 4.21
+    assert len(reader.positions) == 8
     assert reader.atomic_numbers[0] == 12
 
 
@@ -23,8 +23,8 @@ def test_from_aiida(aiida_profile, test_structure_data):
     assert reader.space_group == 225
     assert reader.crystal_type == 6
     assert reader.centring == 5
-    assert reader.abc[0, 1] == 2.105
-    assert len(reader.positions) == 2
+    assert reader.abc[0, 0] == 4.21
+    assert len(reader.positions) == 8
     assert reader.atomic_numbers[0] == 12
 
 
