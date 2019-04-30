@@ -22,7 +22,7 @@ def test_crystal_wc_run(test_crystal_code, crystal_calc_parameters, test_structu
     })
     run(BaseCrystalWorkChain, **inputs)
 
-
+@pytest.mark.skip
 def test_props_wc_run(test_properties_code, properties_calc_parameters, test_wavefunction):
     from aiida_crystal.workflows.base import BasePropertiesWorkChain
     from aiida.orm import DataFactory

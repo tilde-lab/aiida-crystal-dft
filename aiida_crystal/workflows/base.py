@@ -89,7 +89,7 @@ class BaseCrystalWorkChain(WorkChain):
         if not self.inputs.clean_workdir:
             return
         cleaned_calcs = []
-        for calculation in self.calc.get_outputs(linktype=LinkType.CALL):
+        for calculation in self.calc.get_outputs(link_type=LinkType.CALL):
             try:
                 # noinspection PyProtectedMember
                 calculation.out.remote_folder._clean()

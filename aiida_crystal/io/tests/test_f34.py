@@ -37,10 +37,10 @@ def test_from_to_ase(aiida_profile, test_ase_structure):
     assert(len(test_ase_structure) == len(result_struct))
 
 
-def test_geom_str(aiida_profile, test_structure_data):
-    from aiida_crystal.io.f34 import Fort34
-    reader = Fort34().from_aiida(test_structure_data)
-    print(reader)
+# def test_geom_str(aiida_profile, test_structure_data):
+#     from aiida_crystal.io.f34 import Fort34
+#     reader = Fort34().from_aiida(test_structure_data)
+#     print(reader)
 
 
 def test_read():

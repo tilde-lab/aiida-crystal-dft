@@ -28,7 +28,9 @@ class Fort34(object):
     def __init__(self):
         """
         A reader and writer of fort.34 (or instruct.gui) CRYSTAL input/output file.
-        Stores geometry internally as conventional cell; converts to primitive before writing the file
+        Stores geometry internally as conventional cell; rotations are stored for primitive cell (otherwise we can not
+        get symmetry number properly).
+        converts to primitive before writing the file
         """
         self.dimensionality = None
         self.centring = None
@@ -67,7 +69,7 @@ class Fort34(object):
         cell = spglib.standardize_cell(cell, to_primitive=False, no_idealize=False)
         self.abc, self.positions, self.atomic_numbers = cell
         # symmetries related stuff
-        dataset = spglib.get_symmetry_dataset(cell)
+        dataset = spglib.get_symmetry_dataset(spglib.find_primitive(cell))
         self.space_group = dataset['number']
         self.crystal_type = get_crystal_system(self.space_group, as_number=True)
         self.centring = get_centering_code(self.space_group, dataset['international'])
@@ -141,7 +143,17 @@ class Fort34(object):
         positions = positions[inequiv_atoms]
         atomic_numbers = atomic_numbers[inequiv_atoms]
         # convert positions from fractional to cartesian
-        positions = np.dot(self.abc.T, positions.T).T
+        positions = np.dot(abc.T, positions.T).T
+        # convert symmetry operations from fractional to cartesian
+        rotations = np.dot(abc.T, np.dot(dataset["rotations"], np.linalg.inv(abc.T)))
+        rotations = np.swapaxes(rotations, 0, 1)
+        translations = np.dot(dataset["translations"], abc)
+        n_symops = len(dataset["translations"])
+        symops = np.zeros((n_symops * 4, 3), dtype=float)
+        symops[0::4] = rotations[:, 0]
+        symops[1::4] = rotations[:, 1]
+        symops[2::4] = rotations[:, 2]
+        symops[3::4] = translations
 
         # make a list of lines
         f34_lines = ["{0} {1} {2}".format(self.dimensionality,
@@ -150,9 +162,9 @@ class Fort34(object):
         f34_lines += ["{0[0]:17.9E} {0[1]:17.9E} {0[2]:17.9E}".format(
             np.round(vec, 9) + 0.) for vec in abc]
         # symmetry operation part
-        f34_lines.append(str(self.n_symops))
+        f34_lines.append(str(n_symops))
         f34_lines += ["{0[0]:17.9E} {0[1]:17.9E} {0[2]:17.9E}".format(
-            np.round(line, 9) + 0.) for line in self.symops]
+            np.round(line, 9) + 0.) for line in symops]
         # atoms part
         f34_lines.append(str(len(atomic_numbers)))
         f34_lines += ["{0:3} {1[0]:17.9E} {1[1]:17.9E} {1[2]:17.9E}".format(anum, pos)
