@@ -16,7 +16,8 @@
     "entry_points": {
         "aiida.data": [
             "crystal.basisset = aiida_crystal.data.basis_set:BasisSetData",
-            "crystal.structsettings = aiida_crystal.data.struct_settings:StructSettingsData"
+            "crystal.basis = aiida_crystal.data.basis:CrystalBasisData",
+            "crystal.basis_family = aiida_crystal.data.basis_family:CrystalBasisFamilyData"
         ],
         "aiida.calculations": [
             "crystal.serial = aiida_crystal.calculations.serial:CrystalSerialCalculation",
