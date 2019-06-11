@@ -3,7 +3,7 @@
 A collection of pyparsing-based block parsers
 """
 
-import pyparsing as pp
+import aiida_crystal.utils.pyparsing as pp
 
 pc = pp.pyparsing_common
 

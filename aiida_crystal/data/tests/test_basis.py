@@ -27,3 +27,20 @@ def test_ecp_basis(aiida_profile):
     basis = CrystalBasisData.from_file(file_name)
     assert basis.element == "Ag"
     assert not basis.all_electron
+    print(basis.content)
+    assert basis.content == """247 5
+HAYWSC
+0 1 3 8.0 1.0
+4.802614   -1.435200   -0.793690
+4.451282   2.087100   0.716450
+1.540464   -1.067800   0.708010
+0 1 1 1.0 1.0
+0.599610   1.000000   1.000000
+0 1 1 0.0 1.0
+0.187060   1.000000   1.000000
+0 3 3 10.0 1.0
+3.391000   0.122831
+1.599000   0.417171
+0.628200   0.453388
+0 3 1 0.0 1.0
+0.207900   1.000000"""

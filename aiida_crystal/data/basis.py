@@ -40,6 +40,24 @@ class CrystalBasisData(ParameterData):
     def all_electron(self):
         return "ecp" not in self.get_dict()
 
+    @property
+    def content(self):
+        basis = self.get_dict()
+        s = ["{} {}".format(*basis['header']), ]
+        if 'ecp' in basis:
+            s.append(basis['ecp'][0])
+            # INPUT ecp goes here
+            if len(basis['ecp']) > 1:
+                s.append('{} {} {} {} {} {} {}'.format(*basis['ecp'][1]))
+                s += ['{} {} {}'.format(*x) for x in basis['ecp'][2]]
+        for shell in basis['bs']:
+            s.append('{} {} {} {} {}'.format(*shell[0]))
+            if len(shell) > 1:
+                # either 2 or 3 numbers represent each exponent
+                exp = "   ".join(["{:.6f}"]*len(shell[1]))
+                s += [exp.format(*x) for x in shell[1:]]
+        return '\n'.join(s)
+
     @classmethod
     def from_md5(cls, md5):
         """
