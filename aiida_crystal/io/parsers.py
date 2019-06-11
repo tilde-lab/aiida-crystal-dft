@@ -34,4 +34,4 @@ def gto_basis_parser():
     bs_part = pp.OneOrMore(pp.Group(pp.Group(3 * pc.integer + 2 * pc.real) +
                                     pp.ZeroOrMore(pp.Group((3 * pc.real + pp.Suppress(pp.LineEnd())) ^
                                                            (2 * pc.real + pp.Suppress(pp.LineEnd()))))))
-    return header('header') + pp.Optional(ecp_part('ecp')) + bs_part('bs')
+    return pp.SkipTo(header) + header('header') + pp.Optional(ecp_part('ecp')) + bs_part('bs')
