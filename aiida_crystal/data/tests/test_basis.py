@@ -14,7 +14,6 @@ def test_trivial_basis(aiida_profile):
     basis = CrystalBasisData.from_file(file_name)
     assert basis.get_dict()['header'] == [12, 3]
     assert basis.element == "Mg"
-    basis.store()
     basis2 = CrystalBasisData.from_file(file_name)
     assert basis.uuid == basis2.uuid
     assert basis2.element == "Mg"
