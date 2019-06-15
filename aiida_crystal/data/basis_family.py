@@ -3,8 +3,8 @@
 """
 A module describing the CRYSTAL basis family (Str on steroids)
 """
-
-from aiida.orm import Group
+from ase.data import atomic_numbers
+from aiida.orm import Group, DataFactory
 from aiida.orm.data import Data
 from aiida_crystal.aiida_compatibility import get_automatic_user
 from aiida_crystal.data.basis import CrystalBasisData
@@ -18,6 +18,7 @@ BASIS_FAMILY_KWDS = [
 ]
 
 BASIS_FAMILY_TYPE = 'crystal.basis_family'
+
 
 class CrystalBasisFamilyData(Data):
 
@@ -73,6 +74,22 @@ class CrystalBasisFamilyData(Data):
         group.add_nodes([basis for basis in basis_sets if basis.element in elements_to_add])
         return elements_to_add
 
+    def get(self, element):
+        """If basis family is not predefined, return the basis set corresponding to element"""
+        if self.predefined:
+            raise TypeError('Cannot retrieve basis sets from predefined basis family')
+        for basis in self.group.nodes:
+            if basis.element == element:
+                return basis
+        raise ValueError('No basis for element {} found in family {}'.format(element, self.name))
+
+    @property
+    def group(self):
+        _group, _ = Group.get_or_create(name=self.name,
+                                        type_string=BASIS_FAMILY_TYPE,
+                                        user=get_automatic_user())
+        return _group
+
     @property
     def name(self):
         return self.get_attr("name", default=None)
@@ -91,6 +108,17 @@ class CrystalBasisFamilyData(Data):
             raise ValueError("Found another {} instance in db with different uuid".format(self.__class__.__name__))
         self.name = name
 
+    def set_structure(self, structure):
+        if not isinstance(structure, DataFactory('structure')):
+            raise TypeError('Structure must be set with StructureData object in basis family')
+        if not self.predefined:
+            # check if all elements have their bases in the family
+            composition = structure.get_composition()
+            elements_in_group = set([basis.element for basis in self.group.nodes])
+            if not all([el in elements_in_group for el in composition]):
+                raise ValueError('Basis sets for some elements present in the structure not found in family ')
+        self.structure = structure
+
     @property
     def predefined(self):
         return self.name in BASIS_FAMILY_KWDS
@@ -101,8 +129,13 @@ class CrystalBasisFamilyData(Data):
         """
         if self.predefined:
             return "BASISSET\n{}\n".format(self.name)
-        else:
-            raise NotImplementedError
+        if not hasattr(self, 'structure'):
+            raise AttributeError('Structure is needed to be set for the basis family')
+        composition = self.structure.get_composition()
+        basis_strings = [self.get(element).content for element in sorted(composition.keys(),
+                                                                         key=lambda k: atomic_numbers[k])]
+        basis_strings.append("99 0")
+        return "\n".join(basis_strings)
 
     def store(self, with_transaction=True, use_cache=None):
         return super(CrystalBasisFamilyData, self).store(with_transaction=with_transaction,
