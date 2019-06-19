@@ -8,15 +8,14 @@ from ase.spacegroup import crystal
 
 
 @pytest.fixture
-def crystal_calc(test_crystal_code, crystal_calc_parameters, test_structure_data, test_basis):
+def crystal_calc(test_crystal_code, crystal_calc_parameters, test_structure_data, test_basis_family_predefined):
     from aiida_crystal.calculations.serial import CrystalSerialCalculation
     calc = CrystalSerialCalculation(resources={"num_machines": 1, "num_mpiprocs_per_machine": 1})
     calc.use_code(test_crystal_code)
     calc.set_computer(test_crystal_code.get_computer())
     calc.use_structure(test_structure_data)
     calc.use_parameters(crystal_calc_parameters)
-    calc.use_basis(test_basis['Mg'], 'Mg')
-    calc.use_basis(test_basis['O'], 'O')
+    calc.use_basis_family(test_basis_family_predefined)
     return calc
 
 

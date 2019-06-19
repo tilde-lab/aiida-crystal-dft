@@ -11,6 +11,7 @@ from aiida.orm.data.structure import StructureData
 from aiida.common.utils import classproperty
 from aiida.common.exceptions import (InputValidationError, ValidationError)
 from aiida_crystal.data.basis_set import BasisSetData
+from aiida_crystal.data.basis_family import CrystalBasisFamilyData
 
 
 class CrystalCommonCalculation(JobCalculation):
@@ -75,7 +76,12 @@ class CrystalCommonCalculation(JobCalculation):
                 'linkname': cls._get_linkname_basis,
                 'docstring': "Basis, one for each element"
             },
-
+            "basis_family": {
+                'valid_types': CrystalBasisFamilyData,
+                'additional_parameter': None,
+                'linkname': 'basis_family',
+                'docstring': "Basis family"
+            },
         })
         return use_dict
 
@@ -114,16 +120,30 @@ class CrystalCommonCalculation(JobCalculation):
                 raise InputValidationError(
                     "settings not of type ParameterData: {}".format(validated_dict['settings']))
 
+        # basis family input
+        basis_present = False
+        validated_dict['basis_family'] = inputdict.pop(self.get_linkname('basis_family'), None)
+        if validated_dict['basis_family'] is not None:
+            basis_present = True
+            if not isinstance(validated_dict['basis_family'], CrystalBasisFamilyData):
+                raise InputValidationError(
+                    "basis_family not of type CrystalBasisFamilyData: {}".format(validated_dict['basis_family']))
+
         basis_inputs = [_ for _ in inputdict if _.startswith(self._BASIS_PREFIX)]
         basis_dict = {}
-        if not basis_inputs:
+
+        if (not basis_present) and (not basis_inputs):
             raise InputValidationError('No basis sets specified for calculation!')
         for basis_name in basis_inputs:
+            if basis_present:
+                raise ValueError("Either basis or basis family (not both) must be present in calculation inputs")
+
             _, symbol = basis_name.split('_')
             if symbol not in chemical_symbols:
                 raise InputValidationError('Basis set provided for element not in periodic table: {}'.format(symbol))
             basis = inputdict.pop(basis_name)
             basis_dict[symbol] = basis
+            basis_present = True
         validated_dict['basis'] = basis_dict
 
         if inputdict:

@@ -8,7 +8,7 @@ import pytest
 
 
 @pytest.fixture
-def test_basis(aiida_profile):
+def test_basis_set_old(aiida_profile):
     from aiida.common.exceptions import NotExistent
     from aiida_crystal.tests import TEST_DIR
     from aiida_crystal.data.basis_set import BasisSetData
@@ -24,3 +24,10 @@ def test_basis(aiida_profile):
             extension=".basis")
 
     return BasisSetData.get_basis_group_map('sto-3g')
+
+
+@pytest.fixture
+def test_basis_family_predefined(aiida_profile):
+    from aiida_crystal.data.basis_family import CrystalBasisFamilyData
+    basis_family, _ = CrystalBasisFamilyData.get_or_create('STO-3G')
+    return basis_family

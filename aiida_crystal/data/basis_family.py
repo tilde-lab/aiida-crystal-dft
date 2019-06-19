@@ -74,7 +74,7 @@ class CrystalBasisFamilyData(Data):
         group.add_nodes([basis for basis in basis_sets if basis.element in elements_to_add])
         return elements_to_add
 
-    def get(self, element):
+    def get_basis(self, element):
         """If basis family is not predefined, return the basis set corresponding to element"""
         if self.predefined:
             raise TypeError('Cannot retrieve basis sets from predefined basis family')
@@ -132,7 +132,7 @@ class CrystalBasisFamilyData(Data):
         if not hasattr(self, 'structure'):
             raise AttributeError('Structure is needed to be set for the basis family')
         composition = self.structure.get_composition()
-        basis_strings = [self.get(element).content for element in sorted(composition.keys(),
+        basis_strings = [self.get_basis(element).content for element in sorted(composition.keys(),
                                                                          key=lambda k: atomic_numbers[k])]
         basis_strings.append("99 0")
         return "\n".join(basis_strings)
