@@ -140,3 +140,24 @@ class CrystalBasisFamilyData(Data):
     def store(self, with_transaction=True, use_cache=None):
         return super(CrystalBasisFamilyData, self).store(with_transaction=with_transaction,
                                                          use_cache=use_cache)
+
+    @classmethod
+    def create_predefined(cls):
+        """Create predefined basis families"""
+        created = []
+        for name in BASIS_FAMILY_KWDS:
+            _, flag = cls.get_or_create(name)
+            if flag:
+                created.append(name)
+        return created
+
+    @classmethod
+    def upload(cls, name, path, extension='basis', description=None):
+        """
+        Upload a basis family
+        :param name: a name of the basis family (should not coincide with predefined)
+        :param path: a path with basis files
+        :param extension: a extension of basis files
+        :param description: an (optional) description of basis family
+        :return: numbers of files found and uploaded
+        """

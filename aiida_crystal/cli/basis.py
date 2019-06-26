@@ -17,24 +17,34 @@ def basis_set():
 @options.PATH(help='Path to a folder containing the Basis Set files')
 @click.option('--ext', default="basis", help="the file extension to filter by")
 @options.FAMILY_NAME()
-def uploadfamily(path, ext, name, description, stop_if_existing, dry_run):
+@options.DESCRIPTION()
+def uploadfamily(path, ext, name, description):
     """Upload a family of CRYSTAL Basis Set files."""
 
-    basis_data_cls = get_data_class('crystal.basisset')
+    basis_family_cls = get_data_class('crystal.basis_family')
     with cli_spinner():
-        nfiles, num_uploaded = basis_data_cls.upload_basisset_family(
-            path,
+        nfiles, num_uploaded = basis_family_cls.upload(
             name,
-            description,
-            stop_if_existing=stop_if_existing,
+            path,
             extension=".{}".format(ext),
-            dry_run=dry_run)
+            description=description
+            )
 
     click.echo(
         'Basis Set files found and added to family: {}, of those {} were newly uploaded'.
         format(nfiles, num_uploaded))
-    if dry_run:
-        click.echo('No files were uploaded due to --dry-run.')
+
+
+@basis_set.command()
+def createpredefined():
+    """Create predefined basis families"""
+    basis_family_cls = get_data_class('crystal.basis_family')
+    with cli_spinner():
+        created = basis_family_cls.create_predefined()
+    msg = 'Created {} predefined basis families'.format(len(created))
+    if created:
+        msg += ':\n{}'.format(', '.join(created))
+    click.echo(msg)
 
 
 @basis_set.command()
@@ -47,7 +57,7 @@ def uploadfamily(path, ext, name, description, stop_if_existing, dry_run):
 def listfamilies(element, with_description, list_pks):
     """List available families of CRYSTAL Basis Set files."""
 
-    basis_data_cls = get_data_class('crystal.basisset')
+    basis_data_cls = get_data_class('crystal.basis_family')
     groups = basis_data_cls.get_basis_groups(filter_elements=element)
 
     table = [['Family', 'Num Basis Sets']]
