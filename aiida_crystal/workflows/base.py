@@ -25,7 +25,7 @@ class BaseCrystalWorkChain(WorkChain):
         spec.input('code', valid_type=Code)
         spec.input('structure', valid_type=get_data_class('structure'), required=True)
         spec.input('parameters', valid_type=get_data_class('parameter'), required=True)
-        spec.input('basis_family', valid_type=get_data_class('str'))
+        spec.input('basis_family', valid_type=get_data_class('crystal.basis_family'), required=True)
         spec.input('clean_workdir', valid_type=get_data_class('bool'),
                    required=False, default=get_data_node('bool', True))
         spec.input('options', valid_type=get_data_class('parameter'), required=True, help="Calculation options")
