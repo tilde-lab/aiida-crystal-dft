@@ -10,9 +10,17 @@ from aiida_crystal.tests import TEST_DIR
 def test_predefined_basis_family(new_database):
     runner = CliRunner()
     result1 = runner.invoke(basis_set, ['createpredefined'])
-    assert 'STO-3G, STO-6G, POB-DZVP, POB-DZVPP, POB-TZVP' in result1.output
+    assert 'STO-6G, POB-DZVP, POB-DZVPP, POB-TZVP' in result1.output
     result2 = runner.invoke(basis_set, ['createpredefined'])
     assert 'Created 0 predefined basis families' in result2.output
+
+
+def test_upload_to_basis_family(new_database):
+    path = os.path.join(TEST_DIR, "input_files", "311g")
+    runner = CliRunner()
+    result = runner.invoke(basis_set, [
+        'uploadfamily', '--path', path, '--name', 'TEST'])
+    assert result.exit_code == 0
 
 
 def test_basis_show(new_database):

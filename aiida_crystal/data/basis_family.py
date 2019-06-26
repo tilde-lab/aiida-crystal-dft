@@ -3,6 +3,7 @@
 """
 A module describing the CRYSTAL basis family (Str on steroids)
 """
+import os
 from ase.data import atomic_numbers
 from aiida.orm import Group, DataFactory
 from aiida.orm.data import Data
@@ -133,7 +134,7 @@ class CrystalBasisFamilyData(Data):
             raise AttributeError('Structure is needed to be set for the basis family')
         composition = self.structure.get_composition()
         basis_strings = [self.get_basis(element).content for element in sorted(composition.keys(),
-                                                                         key=lambda k: atomic_numbers[k])]
+                                                                               key=lambda k: atomic_numbers[k])]
         basis_strings.append("99 0")
         return "\n".join(basis_strings)
 
@@ -159,5 +160,20 @@ class CrystalBasisFamilyData(Data):
         :param path: a path with basis files
         :param extension: a extension of basis files
         :param description: an (optional) description of basis family
-        :return: numbers of files found and uploaded
+        :return: numbers of files found; flag showing if group is created; the set of elements for which a basis set
+        was uploaded
         """
+        if name in BASIS_FAMILY_KWDS:
+            raise NameError('{} is in the list of predefined basis families'.format(name))
+        files = [
+            os.path.realpath(os.path.join(path, i))
+            for i in os.listdir(path)
+            if os.path.isfile(os.path.join(path, i))
+            and i.lower().endswith(extension)
+        ]
+        bases = [CrystalBasisData.from_file(file_name) for file_name in files]
+        group, created = cls.get_or_create(name)
+        if description is not None:
+            group.description = description
+        added = group.add(bases)
+        return len(files), created, added

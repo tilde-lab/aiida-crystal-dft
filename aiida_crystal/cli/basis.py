@@ -23,16 +23,18 @@ def uploadfamily(path, ext, name, description):
 
     basis_family_cls = get_data_class('crystal.basis_family')
     with cli_spinner():
-        nfiles, num_uploaded = basis_family_cls.upload(
+        nfiles, created, uploaded = basis_family_cls.upload(
             name,
             path,
             extension=".{}".format(ext),
             description=description
             )
 
-    click.echo(
-        'Basis Set files found and added to family: {}, of those {} were newly uploaded'.
-        format(nfiles, num_uploaded))
+    msg = 'Basis set files found: {}, out of them uploaded: {}'.format(nfiles, len(uploaded))
+    if uploaded:
+        msg += ' (for elements: {})'.format(', '.join(sorted(list(uploaded))))
+    msg += ' to {}basis family {}'.format('newly created ' if created else '', name)
+    click.echo(msg)
 
 
 @basis_set.command()
