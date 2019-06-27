@@ -206,6 +206,4 @@ def _basis_set_block(outstr, indict, basis, atom_props):
 
     # Basis Sets Optional Keywords
     outstr += format_value(indict, ["basis_set"])
-    # Basis Sets End
-    outstr += "END\n"
     return outstr
