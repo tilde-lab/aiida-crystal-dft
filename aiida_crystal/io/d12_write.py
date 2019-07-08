@@ -205,6 +205,8 @@ def _basis_set_block(outstr, indict, basis, atom_props):
         outstr += "GHOSTS\n"
         outstr += "{}\n".format(len(ghosts))
         outstr += " ".join([str(a) for a in sorted(ghosts)]) + " \n"
+        # GHOSTS and CHEMOD need its own END
+        outstr += "END\n"
 
     # Basis Sets Optional Keywords
     outstr += format_value(indict, ["basis_set"])

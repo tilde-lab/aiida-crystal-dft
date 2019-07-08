@@ -187,6 +187,7 @@ def test_input_with_atom_props():
     basis_set1 = Basis("basis_set1")
     basis_set2 = Basis("basis_set2")
     outstr = write_input(indict, [basis_set1, basis_set2], atomprops)
+    print(outstr)
 
     expected = """CRYSTAL run
 EXTERNAL
@@ -214,4 +215,5 @@ ATOMSPIN
 4 -1
 END
 """
-    assert outstr == expected
+    for out, exp in zip(outstr.split('\n'), expected.split('\n')):
+        assert out == exp
