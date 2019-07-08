@@ -3,7 +3,8 @@
 A collection of pyparsing-based block parsers
 """
 
-import pyparsing as pp
+import aiida_crystal.utils.pyparsing as pp
+
 pc = pp.pyparsing_common
 
 
@@ -13,3 +14,24 @@ def d12_geometry_parser():
     external = pp.Word(pp.alphas)('external')
 
     return title
+
+
+def gto_basis_parser():
+    """
+    Gaussian-type orbital basis parser with pyparsing
+    Basis structure in CRYSTAL is as follows:
+    NUM  NSHELLS
+    <ECP_PART>
+    <SHELL_PART>
+    <PRIMITIVE_PART>
+
+    :return: basis parser
+    """
+    header = 2 * pc.integer
+    ecp_part = pp.Word(pp.alphas) + \
+               pp.Optional(pp.Group(pc.real + 6 * pc.integer) +
+                           pp.Group(pp.OneOrMore(pp.Group(2 * pc.real + pc.integer))))
+    bs_part = pp.OneOrMore(pp.Group(pp.Group(3 * pc.integer + 2 * pc.real) +
+                                    pp.ZeroOrMore(pp.Group((3 * pc.real + pp.Suppress(pp.LineEnd())) ^
+                                                           (2 * pc.real + pp.Suppress(pp.LineEnd()))))))
+    return pp.SkipTo(header) + header('header') + pp.Optional(ecp_part('ecp')) + bs_part('bs')

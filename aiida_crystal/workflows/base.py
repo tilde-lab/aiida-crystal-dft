@@ -7,7 +7,6 @@ from aiida.common.extendeddicts import AttributeDict
 from aiida.common.links import LinkType
 from aiida.work.workchain import WorkChain, append_
 from aiida_crystal.aiida_compatibility import get_data_class, get_data_node
-from aiida_crystal.data.basis_set import get_basissets_from_structure
 from aiida_crystal.utils.kpoints import get_shrink_kpoints_path
 from aiida_crystal.utils.dos import get_dos_projections_atoms
 
@@ -25,7 +24,7 @@ class BaseCrystalWorkChain(WorkChain):
         spec.input('code', valid_type=Code)
         spec.input('structure', valid_type=get_data_class('structure'), required=True)
         spec.input('parameters', valid_type=get_data_class('parameter'), required=True)
-        spec.input('basis_family', valid_type=get_data_class('str'))
+        spec.input('basis_family', valid_type=get_data_class('crystal.basis_family'), required=True)
         spec.input('clean_workdir', valid_type=get_data_class('bool'),
                    required=False, default=get_data_node('bool', True))
         spec.input('options', valid_type=get_data_class('parameter'), required=True, help="Calculation options")
@@ -51,8 +50,7 @@ class BaseCrystalWorkChain(WorkChain):
         # set parameters
         self.ctx.inputs.parameters = self.inputs.parameters
         # set basis
-        self.ctx.inputs.basis = get_basissets_from_structure(self.inputs.structure,
-                                                             family_name=self.inputs.basis_family.value)
+        self.ctx.inputs.basis_family = self.inputs.basis_family
         # set settings
         if 'options' in self.inputs:
             self.ctx.inputs.options = self.inputs.options

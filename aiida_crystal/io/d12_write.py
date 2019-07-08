@@ -1,7 +1,6 @@
 """
 module to write CRYSTAL17 .d12 files
 """
-import six
 from aiida_crystal.utils import get_keys
 from aiida_crystal.validation import validate_with_json
 
@@ -42,23 +41,23 @@ def format_value(dct, keys):
     return "{}\n".format(value)
 
 
-def write_input(indict, basis_sets, atom_props=None):
+def write_input(indict, basis, atom_props=None):
     """write input of a validated input dictionary
 
     :param indict: dictionary of input
-    :param basis_sets: list of basis set strings or objects with `content` property
+    :param basis: a basis family or a list of basis sets
     :param atom_props: dictionary of atom ids with specific properties ("spin_alpha", "spin_beta", "unfixed", "ghosts")
     :return:
     """
+    from aiida_crystal.data.basis_family import CrystalBasisFamilyData
     # validation
     validate_with_json(indict)
-    if not basis_sets:
-        raise ValueError("there must be at least one basis set")
-    elif not (all([isinstance(b, six.string_types) for b in basis_sets])
-              or all([hasattr(b, "content") for b in basis_sets])):
-        raise ValueError(
-            "basis_sets must be either all strings or all objects with a `content` property"
-        )
+    if not basis:
+        raise ValueError("there must be a basis family or a list of basis sets present")
+    elif not (isinstance(basis, CrystalBasisFamilyData) or
+              (isinstance(basis, list) and all([hasattr(b, "content") for b in basis]))):
+        raise ValueError("basis must be a family or a list of basis sets")
+
     if atom_props is None:
         atom_props = {}
     if not set(atom_props.keys()).issubset(
@@ -82,7 +81,7 @@ def write_input(indict, basis_sets, atom_props=None):
 
     outstr = _geometry_block(outstr, indict, atom_props)
 
-    outstr = _basis_set_block(outstr, indict, basis_sets, atom_props)
+    outstr = _basis_set_block(outstr, indict, basis, atom_props)
 
     outstr = _hamiltonian_block(outstr, indict, atom_props)
 
@@ -185,28 +184,30 @@ def _geometry_block(outstr, indict, atom_props):
         outstr += '{}\n'.format(ela_dict['type'])
         outstr += format_value(indict, ["geometry", "elastic", "convergence"])
         outstr += 'END\n'
-    # Geometry End
-    outstr += "END\n"
+    # somehow it seems that if basis set is given by keyword the geometry block must not end with END
+    # thus ENDGEOM found its place in basis set block
     return outstr
 
 
-def _basis_set_block(outstr, indict, basis_sets, atom_props):
+def _basis_set_block(outstr, indict, basis, atom_props):
+    from aiida_crystal.data.basis_family import CrystalBasisFamilyData
     # Basis Sets
-    if isinstance(basis_sets[0], six.string_types):
-        outstr += "\n".join([basis_set.strip() for basis_set in basis_sets])
-    else:
-        outstr += "\n".join(
-            [basis_set.content.strip() for basis_set in basis_sets])
-    outstr += "\n99 0\n"
+    if isinstance(basis, CrystalBasisFamilyData):
+        outstr += basis.content
+    elif isinstance(basis, list):
+        # Geometry End
+        outstr += "END\n"
+        outstr += '\n'.join([b.content for b in basis])
+        outstr += '\n99 0\n'
     # GHOSTS
     ghosts = atom_props.get("ghosts", [])
     if ghosts:
         outstr += "GHOSTS\n"
         outstr += "{}\n".format(len(ghosts))
         outstr += " ".join([str(a) for a in sorted(ghosts)]) + " \n"
+        # GHOSTS and CHEMOD need its own END
+        outstr += "END\n"
 
     # Basis Sets Optional Keywords
     outstr += format_value(indict, ["basis_set"])
-    # Basis Sets End
-    outstr += "END\n"
     return outstr

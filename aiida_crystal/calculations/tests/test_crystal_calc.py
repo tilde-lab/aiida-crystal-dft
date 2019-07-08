@@ -14,7 +14,7 @@ def test_store_calc(crystal_calc):
     assert calc.inp.structure.pk is not None
 
 
-def test_validate_input(test_crystal_code, test_structure_data, crystal_calc_parameters, test_basis):
+def test_validate_input(test_crystal_code, test_structure_data, crystal_calc_parameters, test_basis_family_predefined):
     from aiida.common.exceptions import InputValidationError
     from aiida_crystal.calculations.serial import CrystalSerialCalculation
     calc = CrystalSerialCalculation()
@@ -29,12 +29,8 @@ def test_validate_input(test_crystal_code, test_structure_data, crystal_calc_par
     calc.use_parameters(crystal_calc_parameters)
     with pytest.raises(InputValidationError):
         calc._validate_input(calc.get_inputs_dict())
-    calc.use_basis(test_basis['Mg'], 'Mg')
-    calc.use_basis(test_basis['O'], 'O')
+    calc.use_basis_family(test_basis_family_predefined)
     assert calc._validate_input(calc.get_inputs_dict())
-    with pytest.raises(InputValidationError):
-        calc.use_basis(test_basis['O'], 'XXX')
-        calc._validate_input(calc.get_inputs_dict())
 
 
 def test_submit(crystal_calc):

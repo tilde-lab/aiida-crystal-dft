@@ -4,20 +4,17 @@ import tabulate
 from jsonextended import edict
 from click_spinner import spinner as cli_spinner
 from aiida import load_dbenv, is_dbenv_loaded
-from aiida_crystal.aiida_compatibility import cmp_load_verdi_data, get_data_class
+from aiida.cmdline.commands.cmd_data import verdi_data
+from aiida_crystal.aiida_compatibility import get_data_class
 from aiida_crystal.cli import options
 
-VERDI_DATA = cmp_load_verdi_data()
 
-# TODO add tests
-
-
-@VERDI_DATA.group('cry17-basis')
-def basisset():
+@verdi_data.group('cry17-basis')
+def basis_set():
     """Commandline interface for working with Crystal Basis Set Data"""
 
 
-@basisset.command()
+@basis_set.command()
 @click.option(
     '--content', '-c', is_flag=True, help="include full basis content")
 @click.argument('pk', type=int)
@@ -58,7 +55,7 @@ def try_grab_description(ctx, param, value):
 
 
 # pylint: disable=too-many-arguments
-@basisset.command()
+@basis_set.command()
 @options.PATH(help='Path to a folder containing the Basis Set files')
 @click.option('--ext', default="basis", help="the file extension to filter by")
 @options.FAMILY_NAME()
@@ -89,7 +86,7 @@ def uploadfamily(path, ext, name, description, stop_if_existing, dry_run):
         click.echo('No files were uploaded due to --dry-run.')
 
 
-@basisset.command()
+@basis_set.command()
 @click.option(
     '-e',
     '--element',

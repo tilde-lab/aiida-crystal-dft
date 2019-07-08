@@ -40,9 +40,12 @@ class CrystalSerialCalculation(CrystalCommonCalculation):
         validated_dict = self._validate_input(inputdict)
         # create input files: d12
         try:
+            # d12_filecontent = write_input(validated_dict['parameters'].get_dict(),
+            #                               list(validated_dict['basis'].values()), {})
+            validated_dict['basis_family'].set_structure(validated_dict['structure'])
             d12_filecontent = write_input(validated_dict['parameters'].get_dict(),
-                                          list(validated_dict['basis'].values()), {})
-        except (ValueError, NotImplementedError) as err:
+                                          validated_dict['basis_family'], {})
+        except (AttributeError, ValueError, NotImplementedError) as err:
             raise InputValidationError(
                 "an input file could not be created from the parameters: {}".
                 format(err))
