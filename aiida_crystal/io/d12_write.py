@@ -184,8 +184,8 @@ def _geometry_block(outstr, indict, atom_props):
         outstr += '{}\n'.format(ela_dict['type'])
         outstr += format_value(indict, ["geometry", "elastic", "convergence"])
         outstr += 'END\n'
-    # Geometry End
-    outstr += "END\n"
+    # somehow it seems that if basis set is given by keyword the geometry block must not end with END
+    # thus ENDGEOM found its place in basis set block
     return outstr
 
 
@@ -195,6 +195,8 @@ def _basis_set_block(outstr, indict, basis, atom_props):
     if isinstance(basis, CrystalBasisFamilyData):
         outstr += basis.content
     elif isinstance(basis, list):
+        # Geometry End
+        outstr += "END\n"
         outstr += '\n'.join([b.content for b in basis])
         outstr += '\n99 0\n'
     # GHOSTS
