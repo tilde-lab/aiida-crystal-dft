@@ -162,7 +162,7 @@ END
 
 
 def test_input_with_atom_props():
-    class Basis():
+    class Basis:
         def __init__(self, content):
             self.content = content
 
@@ -187,8 +187,6 @@ def test_input_with_atom_props():
     basis_set1 = Basis("basis_set1")
     basis_set2 = Basis("basis_set2")
     outstr = write_input(indict, [basis_set1, basis_set2], atomprops)
-    print(outstr)
-
     expected = """CRYSTAL run
 EXTERNAL
 OPTGEOM
