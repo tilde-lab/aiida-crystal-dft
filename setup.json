@@ -41,9 +41,8 @@
     "setup_requires": ["reentry"],
     "reentry_register": true,
     "install_requires": [
-        "aiida-core==1.0.0a4",
+        "aiida-core>=1.0.0b5",
         "pycrystal @ git+https://github.com/tilde-lab/pycrystal.git",
-        "ase<3.17",
         "packaging",
         "seekpath",
         "mpds_client",
