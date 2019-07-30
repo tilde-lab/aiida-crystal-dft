@@ -3,16 +3,16 @@ A plugin to create a properties files from CRYSTAL17 output
 """
 
 import shutil
-from aiida.common.datastructures import CalcInfo, CodeInfo
+from aiida.common import CalcInfo, CodeInfo
 from aiida.common.utils import classproperty
-from aiida.orm.calculation.job import JobCalculation
-from aiida.orm.data.parameter import ParameterData
-from aiida.orm.data.singlefile import SinglefileData
-from aiida.common.exceptions import ValidationError, InputValidationError
+from aiida.engine import CalcJob
+from aiida.orm import Dict
+from aiida.orm import SinglefileData
+from aiida.common import ValidationError, InputValidationError
 from aiida_crystal.io.d3 import D3
 
 
-class PropertiesCalculation(JobCalculation):
+class PropertiesCalculation(CalcJob):
     """
     AiiDA calculation plugin wrapping the properties executable.
     """
@@ -105,7 +105,7 @@ class PropertiesCalculation(JobCalculation):
 
         return validated_dict
 
-    def _prepare_for_submission(self, temp_folder, input_dict):
+    def prepare_for_submission(self, temp_folder, input_dict):
         """
         Create input files.
 

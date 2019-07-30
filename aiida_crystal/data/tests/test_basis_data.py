@@ -14,7 +14,7 @@ import aiida_crystal.tests.utils as tests
 def test_create_single(new_database, new_workdir):
     """A test creating single basis node"""
 
-    from aiida.orm import DataFactory
+    from aiida.plugins import DataFactory
 
     basis = DataFactory("crystal.basisset")(
         file=os.path.join(TEST_DIR, "input_files", "sto3g", 'sto3g_Mg.basis'))
@@ -104,7 +104,7 @@ def test_bases_from_struct(new_database, new_workdir):
     atoms[0].tag = 1
     atoms[1].tag = 1
 
-    from aiida.orm import DataFactory
+    from aiida.plugins import DataFactory
     struct = DataFactory("structure")(ase=atoms)
 
     from aiida_crystal.data.basis_set import get_basissets_by_kind

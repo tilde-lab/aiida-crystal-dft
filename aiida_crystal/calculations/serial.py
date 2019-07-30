@@ -6,8 +6,8 @@ Register calculations via the "aiida.calculations" entry point in setup.json.
 
 #  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 
-from aiida.common.datastructures import CalcInfo, CodeInfo
-from aiida.common.exceptions import InputValidationError
+from aiida.common import CalcInfo, CodeInfo
+from aiida.common import InputValidationError
 from aiida_crystal.calculations.common import CrystalCommonCalculation
 from aiida_crystal.io.d12_write import write_input
 from aiida_crystal.io.f34 import Fort34
@@ -28,7 +28,7 @@ class CrystalSerialCalculation(CrystalCommonCalculation):
             'fort.9'
         ]
 
-    def _prepare_for_submission(self, tempfolder, inputdict):
+    def prepare_for_submission(self, tempfolder, inputdict):
         """
         Create input files.
 

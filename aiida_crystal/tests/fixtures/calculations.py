@@ -22,7 +22,7 @@ def crystal_calc(test_crystal_code, crystal_calc_parameters, test_structure_data
 @pytest.fixture
 def crystal_calc_results(crystal_calc):
     from aiida.common.folders import SandboxFolder
-    from aiida.orm.data.folder import FolderData
+    from aiida.orm.nodes.data.folder import FolderData
     from aiida_crystal.tests import TEST_DIR
 
     def get_results(files=None):
@@ -58,7 +58,7 @@ def properties_calc(test_properties_code, properties_calc_parameters, test_wavef
 @pytest.fixture
 def properties_calc_results(properties_calc):
     from aiida.common.folders import SandboxFolder
-    from aiida.orm.data.folder import FolderData
+    from aiida.orm.nodes.data.folder import FolderData
     from aiida_crystal.tests import TEST_DIR
     out_files = [os.path.join(TEST_DIR, "output_files", "mgo_sto3g_external.{}".format(f))
                  for f in properties_calc.retrieve_list]
@@ -72,8 +72,8 @@ def properties_calc_results(properties_calc):
 
 @pytest.fixture
 def crystal_calc_parameters():
-    from aiida.orm.data.parameter import ParameterData
-    return ParameterData(dict={
+    from aiida.orm import Dict
+    return Dict(dict={
         "title": "Crystal calc",
         "scf": {
             "k_points": (8, 8)
@@ -83,8 +83,8 @@ def crystal_calc_parameters():
 
 @pytest.fixture
 def properties_calc_parameters():
-    from aiida.orm.data.parameter import ParameterData
-    return ParameterData(dict={
+    from aiida.orm import Dict
+    return Dict(dict={
         "band": {
             "shrink": 8,
             "k_points": 30,
@@ -101,7 +101,7 @@ def properties_calc_parameters():
 
 @pytest.fixture
 def test_wavefunction():
-    from aiida.orm.data.singlefile import SinglefileData
+    from aiida.orm import SinglefileData
     from aiida_crystal.tests import TEST_DIR
     file_name = os.path.join(TEST_DIR,
                              'output_files',
@@ -131,5 +131,5 @@ def test_ase_structure():
 
 @pytest.fixture
 def test_structure_data(aiida_profile, test_ase_structure):
-    from aiida.orm.data.structure import StructureData
+    from aiida.orm import StructureData
     return StructureData(ase=test_ase_structure)

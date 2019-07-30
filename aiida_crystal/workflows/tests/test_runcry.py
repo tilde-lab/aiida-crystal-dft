@@ -13,8 +13,8 @@ def test_props_wc_run(test_crystal_code,
                       test_structure_data,
                       test_basis):
     from aiida_crystal.workflows.runcry import RunCryWorkChain
-    from aiida.orm import DataFactory
-    from aiida.work import run
+    from aiida.plugins import DataFactory
+    from aiida.engine import run
     inputs = RunCryWorkChain.get_builder()
     inputs.crystal_code = test_crystal_code
     inputs.properties_code = test_properties_code

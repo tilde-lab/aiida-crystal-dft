@@ -15,7 +15,7 @@ def test_store_calc(crystal_calc):
 
 
 def test_validate_input(test_crystal_code, test_structure_data, crystal_calc_parameters, test_basis_family_predefined):
-    from aiida.common.exceptions import InputValidationError
+    from aiida.common import InputValidationError
     from aiida_crystal.calculations.serial import CrystalSerialCalculation
     calc = CrystalSerialCalculation()
     with pytest.raises(InputValidationError):

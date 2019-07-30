@@ -2,8 +2,8 @@
 
 import numpy as np
 from aiida.parsers.parser import Parser
-from aiida.parsers.exceptions import OutputParsingError
-from aiida.orm import CalculationFactory
+from aiida.common import OutputParsingError
+from aiida.plugins import CalculationFactory
 from aiida_crystal.io.f25 import Fort25
 from aiida_crystal.io.f9 import Fort9
 from aiida_crystal.utils.kpoints import construct_kpoints_path, get_explicit_kpoints_path
@@ -37,7 +37,7 @@ class PropertiesParser(Parser):
         self._nodes = []
 
     # pylint: disable=protected-access
-    def parse_with_retrieved(self, retrieved):
+    def parse(self, **kwargs):
         """
         Parse outputs, store results in database.
 
@@ -95,7 +95,7 @@ class PropertiesParser(Parser):
         if not bands:
             raise ValueError("Sorry, didn't find bands info in fort.25")
 
-        from aiida.orm import DataFactory
+        from aiida.plugins import DataFactory
         # to get BandsData node first we need to get k-points path and set KpointsData
         shrink = self._calc.inp.parameters.dict.band['shrink']
         path = bands["path"]
@@ -119,7 +119,7 @@ class PropertiesParser(Parser):
         if not data:
             raise ValueError("Sorry, didn't find dos info in fort.25")
 
-        from aiida.orm import DataFactory
+        from aiida.plugins import DataFactory
         array_data = DataFactory("array")()
         array_data.set_array("dos", np.vstack((data["e"], data["dos"])))
         return array_data

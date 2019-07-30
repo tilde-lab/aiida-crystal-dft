@@ -71,7 +71,7 @@ def get_computer(name=TEST_COMPUTER, workdir=None, configure=False):
     :return: The computer node
     :rtype: :py:class:`aiida.orm.Computer`
     """
-    from aiida.common.exceptions import NotExistent
+    from aiida.common import NotExistent
 
     from aiida.orm.backend import construct_backend
     backend = construct_backend()
@@ -117,7 +117,7 @@ def get_code(entry_point, computer):
     :rtype: :py:class:`aiida.orm.Code`
     """
     from aiida.orm import Code
-    from aiida.common.exceptions import NotExistent
+    from aiida.common import NotExistent
 
     exec_lookup = EXECUTABLES
 

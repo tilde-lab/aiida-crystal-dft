@@ -9,7 +9,7 @@ import pytest
 
 @pytest.fixture
 def test_basis_set_old(aiida_profile):
-    from aiida.common.exceptions import NotExistent
+    from aiida.common import NotExistent
     from aiida_crystal.tests import TEST_DIR
     from aiida_crystal.data.basis_set import BasisSetData
     upload_basisset_family = BasisSetData.upload_basisset_family

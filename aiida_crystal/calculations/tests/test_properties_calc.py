@@ -15,7 +15,7 @@ def test_store_calc(properties_calc):
 
 
 def test_validate_input(test_properties_code, properties_calc_parameters, test_wavefunction):
-    from aiida.common.exceptions import InputValidationError
+    from aiida.common import InputValidationError
     from aiida_crystal.calculations.properties import PropertiesCalculation
     calc = PropertiesCalculation()
     with pytest.raises(InputValidationError):

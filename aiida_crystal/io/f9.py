@@ -61,7 +61,7 @@ class Fort9(object):
 
     def get_structure(self):
         """Returns aiida StructureData"""
-        from aiida.orm import DataFactory
+        from aiida.plugins import DataFactory
         return DataFactory('structure')(ase=self.get_ase())
 
     def get_ao_number(self):

@@ -5,8 +5,8 @@ The module describes basis set as the subclass of ParameterData
 """
 import json
 from ase.data import chemical_symbols
-from aiida.orm.data.parameter import ParameterData
-from aiida.common.exceptions import UniquenessError
+from aiida.orm import Dict
+from aiida.common import UniquenessError
 from aiida_crystal.io.parsers import gto_basis_parser
 
 
@@ -21,7 +21,7 @@ def md5(d, enc='utf-8'):
     return md5_func(json.dumps(d).encode(enc)).hexdigest()
 
 
-class CrystalBasisData(ParameterData):
+class CrystalBasisData(Dict):
     """
     a data type to store CRYSTAL basis sets in ParameterData format
     """
@@ -94,6 +94,6 @@ class CrystalBasisData(ParameterData):
         md5_hash = md5(self.get_dict())
         if self.from_md5(md5_hash):
             raise UniquenessError("Basis with MD5 hash {} has already found in the database!".format(md5_hash))
-        self._set_attr("md5", md5_hash)
+        self.set_attribute("md5", md5_hash)
         return super(CrystalBasisData, self).store(with_transaction=with_transaction,
                                                    use_cache=use_cache)

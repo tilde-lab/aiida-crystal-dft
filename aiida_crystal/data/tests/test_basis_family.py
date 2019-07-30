@@ -4,7 +4,7 @@ from aiida_crystal.tests.fixtures import *
 
 
 def test_predefined_basis_family(aiida_profile):
-    from aiida.orm import DataFactory
+    from aiida.plugins import DataFactory
     bf, _ = DataFactory('crystal.basis_family').get_or_create('STO-3G')
     bf2, _ = DataFactory('crystal.basis_family').get_or_create('STO-3G')
     assert bf2.uuid == bf.uuid
@@ -18,7 +18,7 @@ def test_predefined_basis_family(aiida_profile):
 
 
 def test_basis_family(aiida_profile, test_structure_data):
-    from aiida.orm import DataFactory
+    from aiida.plugins import DataFactory
     from aiida_crystal.tests import TEST_DIR
     from aiida_crystal.data.basis import CrystalBasisData
     root_dir = os.path.join(TEST_DIR, "input_files", "sto3g")

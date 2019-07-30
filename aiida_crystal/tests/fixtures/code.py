@@ -6,7 +6,7 @@ import pytest
 
 @pytest.fixture
 def test_computer(aiida_profile, new_workdir):
-    from aiida.common.exceptions import NotExistent
+    from aiida.common import NotExistent
     try:
         computer = aiida_profile._backend.computers.get(name='localhost')
     except NotExistent:

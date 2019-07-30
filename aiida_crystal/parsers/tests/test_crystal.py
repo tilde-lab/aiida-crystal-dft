@@ -5,12 +5,12 @@ from aiida_crystal.tests.fixtures import *
 
 
 def test_crystal_parser(crystal_calc, crystal_calc_results):
-    from aiida.orm import DataFactory
+    from aiida.plugins import DataFactory
     from aiida_crystal.parsers.cry_pycrystal import CrystalParser
     parser = CrystalParser(crystal_calc)
     calc_results = next(crystal_calc_results())
     assert crystal_calc._DEFAULT_OUTPUT_FILE in calc_results.get_folder_list()
-    _, nodes = parser.parse_with_retrieved({"retrieved": calc_results})
+    _, nodes = parser.parse({"retrieved": calc_results})
     nodes = dict(nodes)
     # wavefunction tests
     assert parser._linkname_wavefunction in nodes
@@ -31,12 +31,12 @@ def test_crystal_parser(crystal_calc, crystal_calc_results):
 
 
 def test_crystal_raman_parser(crystal_calc, crystal_calc_results):
-    from aiida.orm import DataFactory
+    from aiida.plugins import DataFactory
     from aiida_crystal.parsers.cry_pycrystal import CrystalParser
     parser = CrystalParser(crystal_calc)
     calc_results = next(crystal_calc_results(files={'crystal.out': 'mgo_sto3g_raman'}))
     assert crystal_calc._DEFAULT_OUTPUT_FILE in calc_results.get_folder_list()
-    _, nodes = parser.parse_with_retrieved({"retrieved": calc_results})
+    _, nodes = parser.parse({"retrieved": calc_results})
     nodes = dict(nodes)
     # output parameter tests
     assert parser._linkname_parameters in nodes
@@ -47,12 +47,12 @@ def test_crystal_raman_parser(crystal_calc, crystal_calc_results):
 
 
 def test_crystal_elastic_parser(crystal_calc, crystal_calc_results):
-    from aiida.orm import DataFactory
+    from aiida.plugins import DataFactory
     from aiida_crystal.parsers.cry_pycrystal import CrystalParser
     parser = CrystalParser(crystal_calc)
     calc_results = next(crystal_calc_results(files={'crystal.out': 'mgo_sto3g_elastic'}))
     assert crystal_calc._DEFAULT_OUTPUT_FILE in calc_results.get_folder_list()
-    _, nodes = parser.parse_with_retrieved({"retrieved": calc_results})
+    _, nodes = parser.parse({"retrieved": calc_results})
     nodes = dict(nodes)
     # output parameter tests
     assert parser._linkname_parameters in nodes

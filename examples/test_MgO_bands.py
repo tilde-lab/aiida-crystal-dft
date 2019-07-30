@@ -2,16 +2,16 @@
 
 #  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 
-from aiida.orm import DataFactory, Code
+from aiida.plugins import DataFactory, Code
 from aiida.orm import load_node
-from aiida.orm.data.singlefile import SinglefileData
+from aiida.orm import SinglefileData
 
 ParameterData = DataFactory('parameter')
 # get code
 code = Code.get_from_string('properties@torquessh')
 
 # Prepare input parameters
-params = ParameterData(dict={
+params = Dict(dict={
     "band": {
         "shrink": 12,
         "k_points": 30,

@@ -1,8 +1,8 @@
 """
 A parallel version of CRYSTAL calculation
 """
-from aiida.common.datastructures import CalcInfo, CodeInfo
-from aiida.common.exceptions import InputValidationError
+from aiida.common import CalcInfo, CodeInfo
+from aiida.common import InputValidationError
 from aiida_crystal.calculations.common import CrystalCommonCalculation
 from aiida_crystal.io.d12_write import write_input
 from aiida_crystal.io.f34 import Fort34
@@ -23,7 +23,7 @@ class CrystalParallelCalculation(CrystalCommonCalculation):
             'fort.9'
         ]
 
-    def _prepare_for_submission(self, tempfolder, inputdict):
+    def prepare_for_submission(self, tempfolder, inputdict):
         """
         Create input files.
 

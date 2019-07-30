@@ -25,7 +25,7 @@ def test_upload_to_basis_family(new_database):
 
 def test_basis_show(new_database):
 
-    from aiida.orm import DataFactory
+    from aiida.plugins import DataFactory
     basis_cls = DataFactory('crystal.basisset')
     node, created = basis_cls.get_or_create(
         os.path.join(TEST_DIR, "input_files", "sto3g", 'sto3g_O.basis'))

@@ -1,11 +1,11 @@
 """ Base workflows for CRYSTAL code. These are meant to handle failures/restarts/etc...
 """
 
-from aiida.orm import CalculationFactory
-from aiida.orm.code import Code
+from aiida.plugins import CalculationFactory
+from aiida.orm import Code
 from aiida.common.extendeddicts import AttributeDict
 from aiida.common.links import LinkType
-from aiida.work.workchain import WorkChain, append_
+from aiida.engine import WorkChain, append_
 from aiida_crystal.aiida_compatibility import get_data_class, get_data_node
 from aiida_crystal.utils.kpoints import get_shrink_kpoints_path
 from aiida_crystal.utils.dos import get_dos_projections_atoms

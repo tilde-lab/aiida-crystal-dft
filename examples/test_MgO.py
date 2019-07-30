@@ -6,8 +6,8 @@ import os
 import json
 from mpds_client.retrieve_MPDS import MPDSDataRetrieval
 
-from aiida.orm import DataFactory, Code
-from aiida.common.exceptions import NotExistent
+from aiida.plugins import DataFactory, Code
+from aiida.common import NotExistent
 
 from aiida_crystal.tests import TEST_DIR
 from aiida_crystal.data.basis_set import BasisSetData
@@ -23,7 +23,7 @@ ParameterData = DataFactory('parameter')
 code = Code.get_from_string('crystal@torquessh')
 
 # Prepare input parameters
-params = ParameterData(dict=unflatten_dict({
+params = Dict(dict=unflatten_dict({
     "title": "MgO",
     "scf.k_points": (8, 8),
 }))

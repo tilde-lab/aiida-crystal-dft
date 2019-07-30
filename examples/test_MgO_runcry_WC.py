@@ -9,8 +9,8 @@ import os
 import json
 from mpds_client.retrieve_MPDS import MPDSDataRetrieval
 
-from aiida.orm import DataFactory, Code
-from aiida.work import submit
+from aiida.plugins import DataFactory, Code
+from aiida.engine import submit
 from aiida_crystal.workflows.runcry import RunCryWorkChain
 from aiida_crystal.tests import TEST_DIR
 

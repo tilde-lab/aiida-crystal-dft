@@ -116,7 +116,7 @@ def get_special_kpoints(symbol, sg_number):
 
 
 def get_kpoints_path(structure):
-    from aiida.orm import DataFactory
+    from aiida.plugins import DataFactory
     from aiida.tools import get_kpoints_path
     if isinstance(structure, DataFactory('structure')):
         result = get_kpoints_path(structure)["parameters"].get_dict()
@@ -126,7 +126,7 @@ def get_kpoints_path(structure):
 
 
 def get_explicit_kpoints_path(structure, path):
-    from aiida.orm import DataFactory
+    from aiida.plugins import DataFactory
     from aiida.tools import get_explicit_kpoints_path
     if isinstance(structure, DataFactory('structure')):
         return get_explicit_kpoints_path(structure, method="legacy", value=path)

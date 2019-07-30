@@ -5,8 +5,8 @@ A module describing the CRYSTAL basis family (Str on steroids)
 """
 import os
 from ase.data import atomic_numbers
-from aiida.orm import Group, DataFactory
-from aiida.orm.data import Data
+from aiida.plugins import Group, DataFactory
+from aiida.orm.nodes.data import Data
 from aiida_crystal.aiida_compatibility import get_automatic_user
 from aiida_crystal.data.basis import CrystalBasisData
 
@@ -97,7 +97,7 @@ class CrystalBasisFamilyData(Data):
 
     @name.setter
     def name(self, value):
-        self._set_attr("name", value)
+        self.set_attribute("name", value)
 
     def set_name(self, name):
         # check name for this instance

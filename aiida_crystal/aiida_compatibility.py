@@ -62,7 +62,7 @@ def run_get_node(process, inputs_dict):
     :type inputs_dict: dict
     :return: the calculation Node
     """
-    from aiida.work.launch import run_get_node  # pylint: disable=import-error
+    from aiida.engine.launch import run_get_node  # pylint: disable=import-error
     for key in ["_options", "_label", "_description"]:
         if key in inputs_dict:
             inputs_dict[key[1:]] = inputs_dict.pop(key)
@@ -102,8 +102,8 @@ def get_data_class(data_type):
     compatibility: also provide access to the orm.data.base members, which are loadable through the
     DataFactory as of 1.0.0-alpha only.
     """
-    from aiida.orm import DataFactory
-    from aiida.common.exceptions import MissingPluginError
+    from aiida.plugins import DataFactory
+    from aiida.common import MissingPluginError
     data_cls = None
     try:
         data_cls = DataFactory(data_type)
@@ -120,7 +120,7 @@ BASIC_DATA_TYPES = {'bool', 'float', 'int', 'list', 'str'}
 
 @dbenv
 def get_basic_data_pre_1_0(data_type):
-    from aiida.orm.data import base as base_data
+    from aiida.orm.nodes.data import base as base_data
     return getattr(base_data, data_type.capitalize())
 
 

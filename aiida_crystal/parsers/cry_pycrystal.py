@@ -6,9 +6,9 @@ Pycrystal-based parser for CRYSTAL AiiDA plugin
 from __future__ import absolute_import
 
 from aiida.parsers.parser import Parser
-from aiida.parsers.exceptions import OutputParsingError
-from aiida.orm import CalculationFactory
-from aiida.orm import DataFactory
+from aiida.common import OutputParsingError
+from aiida.plugins import CalculationFactory
+from aiida.plugins import DataFactory
 from aiida_crystal.io.pycrystal import out
 from aiida_crystal.io.f34 import Fort34
 
@@ -47,7 +47,7 @@ class CrystalParser(Parser):
         self._nodes = []
 
     # pylint: disable=protected-access
-    def parse_with_retrieved(self, retrieved):
+    def parse(self, **kwargs):
         """
         Parse outputs, store results in database.
 

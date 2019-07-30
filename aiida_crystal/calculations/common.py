@@ -5,16 +5,16 @@ Code shared between serial and parallel CRYSTAL calculations.
 
 from __future__ import absolute_import
 from ase.data import chemical_symbols
-from aiida.orm.calculation.job import JobCalculation
-from aiida.orm.data.parameter import ParameterData
-from aiida.orm.data.structure import StructureData
+from aiida.engine import CalcJob
+from aiida.orm import Dict
+from aiida.orm import StructureData
 from aiida.common.utils import classproperty
-from aiida.common.exceptions import (InputValidationError, ValidationError)
+from aiida.common import (InputValidationError, ValidationError)
 from aiida_crystal.data.basis_set import BasisSetData
 from aiida_crystal.data.basis_family import CrystalBasisFamilyData
 
 
-class CrystalCommonCalculation(JobCalculation):
+class CrystalCommonCalculation(CalcJob):
     """
     AiiDA calculation plugin for CRYSTAL code. As there're two different executables for serial and
     parallel version, we should provide two Calculations, one for each executable version.

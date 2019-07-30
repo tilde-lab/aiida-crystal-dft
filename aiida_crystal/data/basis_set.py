@@ -10,7 +10,7 @@ import tempfile
 import six
 import yaml
 from aiida.common.utils import classproperty
-from aiida.orm.data import Data
+from aiida.orm.nodes.data import Data
 from aiida_crystal.utils import flatten_dict, unflatten_dict, ATOMIC_NUM2SYMBOL
 
 BASISGROUP_TYPE = 'data.basisset.family'
@@ -27,7 +27,7 @@ def get_basissets_from_structure(structure, family_name, by_kind=False):
     :raise aiida.common.exceptions.NotExistent: if no Basis Set for an element in the group is
        found in the group.
     """
-    from aiida.common.exceptions import NotExistent
+    from aiida.common import NotExistent
 
     family_bases = BasisSetData.get_basis_group_map(family_name)
     basis_list = {}
@@ -122,7 +122,7 @@ def _parse_first_line(line, fname):
     :param fname: the filename string
     :return: (atomic_number, basis_type, num_shells)
     """
-    from aiida.common.exceptions import ParsingError
+    from aiida.common import ParsingError
 
     # first line should contain the atomic number as the first argument
     first_line = line.strip().split()
@@ -236,7 +236,7 @@ def parse_basis(fname):
         1 0 3  2.  0.
         1 1 3  6.  0.
     """
-    from aiida.common.exceptions import ParsingError
+    from aiida.common import ParsingError
     meta_data = {}
 
     in_yaml = False
@@ -446,7 +446,7 @@ class BasisSetData(Data):
           is meant to be used ONLY if the outer calling function has already
           a transaction open!
         """
-        from aiida.common.exceptions import ValidationError
+        from aiida.common import ValidationError
 
         basis_abspath = self.get_file_abs_path()
         if not basis_abspath:
@@ -456,8 +456,8 @@ class BasisSetData(Data):
         md5sum = md5_from_string(content)
 
         for key, val in flatten_dict(metadata).items():
-            self._set_attr(key, val)
-        self._set_attr('md5', md5sum)
+            self.set_attribute(key, val)
+        self.set_attribute('md5', md5sum)
 
         return super(BasisSetData, self).store(
             with_transaction=with_transaction, use_cache=use_cache)
@@ -476,8 +476,8 @@ class BasisSetData(Data):
 
         # store the metadata and md5 in the database
         for key, val in flatten_dict(metadata).items():
-            self._set_attr(key, val)
-        self._set_attr('md5', md5sum)
+            self.set_attribute(key, val)
+        self.set_attribute('md5', md5sum)
 
         # store the rest of the file content as a file in the file repository
         filename = os.path.basename(filepath)
@@ -485,10 +485,10 @@ class BasisSetData(Data):
             with open(f.name, "w") as fobj:
                 fobj.writelines(content)
             self.add_path(f.name, filename)
-        self._set_attr('filename', filename)
+        self.set_attribute('filename', filename)
 
     def _validate(self):
-        from aiida.common.exceptions import ValidationError, ParsingError
+        from aiida.common import ValidationError, ParsingError
 
         super(BasisSetData, self)._validate()
 
@@ -569,7 +569,7 @@ class BasisSetData(Data):
         """
         Return an {element: basis} map for the BasisFamily group with the given name.
         """
-        from aiida.common.exceptions import MultipleObjectsError
+        from aiida.common import MultipleObjectsError
         family_bases = {}
         family = cls.get_basis_group(group_name)
         for node in family.nodes:
@@ -645,7 +645,7 @@ class BasisSetData(Data):
         """
         from aiida.common import aiidalogger
         from aiida.orm import Group
-        from aiida.common.exceptions import UniquenessError, NotExistent
+        from aiida.common import UniquenessError, NotExistent
         from aiida_crystal.aiida_compatibility import get_automatic_user
 
         automatic_user = get_automatic_user()
