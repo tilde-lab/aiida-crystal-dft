@@ -6,9 +6,7 @@ Code shared between serial and parallel CRYSTAL calculations.
 from __future__ import absolute_import
 from ase.data import chemical_symbols
 from aiida.engine import CalcJob
-from aiida.orm import Dict
-from aiida.orm import StructureData
-from aiida.common.utils import classproperty
+from aiida.orm import Dict, Code, StructureData
 from aiida.common import (InputValidationError, ValidationError)
 from aiida_crystal.data.basis_set import BasisSetData
 from aiida_crystal.data.basis_family import CrystalBasisFamilyData
@@ -26,6 +24,17 @@ class CrystalCommonCalculation(CalcJob):
     _OUTPUT_FILE_NAME = 'crystal.out'
     _BASIS_PREFIX = 'basis_'
 
+    @classmethod
+    def define(cls, spec):
+        """ Define input and output ports
+        """
+        super(CrystalCommonCalculation, cls).define(spec)
+        spec.input('code', valid_type=Code)
+        spec.input('structure', valid_type=StructureData, required=True)
+        spec.input('parameters', valid_type=Dict, required=True)
+        spec.input_namespace('basis', valid_type=BasisSetData, required=False, dynamic=True)
+        spec.input('basis_family', valid_type=CrystalBasisFamilyData, required=False)
+
     def _init_internal_params(self):
         """
         Init internal parameters at class load time
@@ -41,49 +50,6 @@ class CrystalCommonCalculation(CalcJob):
 
         # output files
         self._DEFAULT_OUTPUT_FILE = self._OUTPUT_FILE_NAME
-
-    @classproperty
-    def _use_methods(cls):
-        """
-        Add use_* methods for calculations.
-
-        Code below enables the usage
-        my_calculation.use_parameters(my_parameters)
-        """
-        use_dict = JobCalculation._use_methods
-        use_dict.update({
-            "structure": {
-                'valid_types': StructureData,
-                'additional_parameter': None,
-                'linkname': 'structure',
-                'docstring': "Input structure (for fort.34 file)"
-            },
-            "parameters": {
-                'valid_types': ParameterData,
-                'additional_parameter': None,
-                'linkname': 'parameters',
-                'docstring': "Parameters for .d12 input file creation"
-            },
-            "settings": {
-                'valid_types': ParameterData,
-                'additional_parameter': None,
-                'linkname': 'settings',
-                'docstring': "Calculation settings"
-            },
-            "basis": {
-                'valid_types': BasisSetData,
-                'additional_parameter': "element",
-                'linkname': cls._get_linkname_basis,
-                'docstring': "Basis, one for each element"
-            },
-            "basis_family": {
-                'valid_types': CrystalBasisFamilyData,
-                'additional_parameter': None,
-                'linkname': 'basis_family',
-                'docstring': "Basis family"
-            },
-        })
-        return use_dict
 
     def _validate_input(self, inputdict):
         """Input validation; returns the dict of validated data"""
@@ -109,14 +75,14 @@ class CrystalCommonCalculation(CalcJob):
         except KeyError:
             raise InputValidationError("No parameters specified for this "
                                        "calculation")
-        if not isinstance(validated_dict['parameters'], ParameterData):
+        if not isinstance(validated_dict['parameters'], Dict):
             raise InputValidationError("parameters not of type "
                                        "ParameterData: {}".format(validated_dict['parameters']))
 
         # settings are optional
         validated_dict['settings'] = inputdict.pop(self.get_linkname('settings'), None)
         if validated_dict['settings'] is not None:
-            if not isinstance(validated_dict['settings'], ParameterData):
+            if not isinstance(validated_dict['settings'], Dict):
                 raise InputValidationError(
                     "settings not of type ParameterData: {}".format(validated_dict['settings']))
 

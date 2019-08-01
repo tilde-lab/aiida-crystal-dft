@@ -6,18 +6,18 @@ import pytest
 
 @pytest.fixture
 def test_computer(aiida_profile, new_workdir):
+    from aiida.orm import Computer
     from aiida.common import NotExistent
     try:
-        computer = aiida_profile._backend.computers.get(name='localhost')
+        computer = Computer.objects.get(name='localhost')
     except NotExistent:
-        computer = aiida_profile._backend.computers.create(
+        computer = Computer(
                 name='localhost',
                 description='localhost computer set up by aiida_crystal tests',
                 hostname='localhost',
                 workdir=new_workdir,
                 transport_type='local',
-                scheduler_type='direct',
-                enabled_state=True)
+                scheduler_type='direct')
     return computer
 
 

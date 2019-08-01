@@ -9,13 +9,16 @@ from ase.spacegroup import crystal
 
 @pytest.fixture
 def crystal_calc(test_crystal_code, crystal_calc_parameters, test_structure_data, test_basis_family_predefined):
+    from aiida.common.extendeddicts import AttributeDict
     from aiida_crystal.calculations.serial import CrystalSerialCalculation
-    calc = CrystalSerialCalculation(resources={"num_machines": 1, "num_mpiprocs_per_machine": 1})
-    calc.use_code(test_crystal_code)
-    calc.set_computer(test_crystal_code.get_computer())
-    calc.use_structure(test_structure_data)
-    calc.use_parameters(crystal_calc_parameters)
-    calc.use_basis_family(test_basis_family_predefined)
+    inputs = AttributeDict()
+    inputs.metadata = AttributeDict({'options': {'resources': {"num_machines": 1, "num_mpiprocs_per_machine": 1}}})
+    inputs.code = test_crystal_code
+    # calc.set_computer(test_crystal_code.get_computer())
+    inputs.structure = test_structure_data
+    inputs.parameters = crystal_calc_parameters
+    inputs.basis_family = test_basis_family_predefined
+    calc = CrystalSerialCalculation(inputs)
     return calc
 
 

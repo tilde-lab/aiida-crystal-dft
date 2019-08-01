@@ -5,8 +5,8 @@ A module describing the CRYSTAL basis family (Str on steroids)
 """
 import os
 from ase.data import atomic_numbers
-from aiida.plugins import Group, DataFactory
-from aiida.orm.nodes.data import Data
+from aiida.orm import Group, Data
+from aiida.plugins import DataFactory
 from aiida_crystal.aiida_compatibility import get_automatic_user
 from aiida_crystal.data.basis import CrystalBasisData
 
@@ -48,14 +48,16 @@ class CrystalBasisFamilyData(Data):
             if basis_sets is not None:
                 raise ValueError("{} is a predefined basis family in CRYSTAL; can't add basis sets to it".format(name))
         # if the name is not found and is not predefined
-        instance = cls(name=name).store()
+        instance = cls()
+        instance.set_name(name=name)
+        instance.store()
         if basis_sets is not None:
             instance.add(basis_sets)
         return instance, True
 
     def add(self, basis_sets):
         """Adds basis sets to family"""
-        group, group_created = Group.get_or_create(name=self.name,
+        group, group_created = Group.Collection.get_or_create(name=self.name,
                                                    type_string=BASIS_FAMILY_TYPE,
                                                    user=get_automatic_user())
         # validate basis sets
@@ -93,7 +95,7 @@ class CrystalBasisFamilyData(Data):
 
     @property
     def name(self):
-        return self.get_attr("name", default=None)
+        return self.get_attribute("name", default=None)
 
     @name.setter
     def name(self, value):
