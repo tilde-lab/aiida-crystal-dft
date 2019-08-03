@@ -4,10 +4,10 @@
 from aiida_crystal.tests.fixtures import *
 
 
-def test_crystal_parser(crystal_calc, crystal_calc_results):
+def test_crystal_parser(crystal_calc_node):
     from aiida.plugins import DataFactory
     from aiida_crystal.parsers.cry_pycrystal import CrystalParser
-    parser = CrystalParser(crystal_calc)
+    parser = CrystalParser(crystal_calc_node)
     calc_results = next(crystal_calc_results())
     assert crystal_calc._DEFAULT_OUTPUT_FILE in calc_results.get_folder_list()
     _, nodes = parser.parse({"retrieved": calc_results})

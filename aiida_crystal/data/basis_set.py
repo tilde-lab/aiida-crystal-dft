@@ -417,9 +417,12 @@ class BasisSetData(Data):
         basissets = cls.from_md5(md5sum)
         if not basissets:
             if store_basis:
-                instance = cls(file=filepath).store()
+                instance = cls()
+                instance.set_file(filepath)
+                instance.store()
             else:
-                instance = cls(file=filepath)
+                instance = cls()
+                instance.set_file(filepath)
             return instance, True
         if len(basissets) > 1 and not use_first:
             raise ValueError("More than one copy of a basis set "
@@ -643,7 +646,7 @@ class BasisSetData(Data):
         :param extension: the filename extension to look for
         :param dry_run: If True, do not change the database.
         """
-        from aiida.common import aiidalogger
+        from aiida.common import AIIDA_LOGGER as aiidalogger
         from aiida.orm import Group
         from aiida.common import UniquenessError, NotExistent
         from aiida_crystal.aiida_compatibility import get_automatic_user

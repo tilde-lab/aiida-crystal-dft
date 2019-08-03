@@ -12,9 +12,12 @@ def crystal_calc(test_crystal_code, crystal_calc_parameters, test_structure_data
     from aiida.common.extendeddicts import AttributeDict
     from aiida_crystal.calculations.serial import CrystalSerialCalculation
     inputs = AttributeDict()
-    inputs.metadata = AttributeDict({'options': {'resources': {"num_machines": 1, "num_mpiprocs_per_machine": 1}}})
+    inputs.metadata = AttributeDict({'options':
+                                         {'resources':
+                                              {"num_machines": 1, "num_mpiprocs_per_machine": 1}
+                                          }
+                                     })
     inputs.code = test_crystal_code
-    # calc.set_computer(test_crystal_code.get_computer())
     inputs.structure = test_structure_data
     inputs.parameters = crystal_calc_parameters
     inputs.basis_family = test_basis_family_predefined
@@ -46,6 +49,24 @@ def crystal_calc_results(crystal_calc):
             yield data
     return get_results
 
+
+@pytest.fixture
+def crystal_calc_node(crystal_calc, crystal_calc_results):
+    """Returns CalcJobNode corresponding to CrystalCalc CalcJob"""
+    from aiida.orm import CalcJobNode
+    from aiida.common.links import LinkType
+    computer = crystal_calc.inputs.code.get_remote_computer()
+    process_type = 'aiida.calculations:{}'.format('crystal.serial')
+    node = CalcJobNode(computer=computer, process_type=process_type)
+    node.set_attribute('input_filename', 'INPUT')
+    node.set_attribute('output_filename', '_scheduler-stderr.txt')
+    node.set_attribute('error_filename', '_scheduler-stderr.txt')
+    node.set_option('resources', {'num_machines': 1, 'num_mpiprocs_per_machine': 1})
+    node.add_incoming(crystal_calc.inputs.code, link_type=LinkType.INPUT_CALC, link_label='code')
+    node.add_incoming(crystal_calc.inputs.structure, link_type=LinkType.INPUT_CALC, link_label='structure')
+    node.add_incoming(crystal_calc.inputs.parameters, link_type=LinkType.INPUT_CALC, link_label='parameters')
+    node.add_incoming(crystal_calc.inputs.basis_family, link_type=LinkType.INPUT_CALC, link_label='basis_family')
+    return node
 
 @pytest.fixture
 def properties_calc(test_properties_code, properties_calc_parameters, test_wavefunction):
@@ -102,6 +123,7 @@ def properties_calc_parameters():
         }
     })
 
+
 @pytest.fixture
 def test_wavefunction():
     from aiida.orm import SinglefileData
@@ -112,7 +134,8 @@ def test_wavefunction():
     temp_dir = tempfile.gettempdir()
     expected = os.path.join(temp_dir, "fort.9")
     shutil.copy(file_name, expected)
-    yield SinglefileData(file=expected)
+    with open(expected, 'rb') as f:
+        yield SinglefileData(file=f)
     os.remove(expected)
 
 

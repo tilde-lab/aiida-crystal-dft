@@ -24,7 +24,7 @@ def test_get_special_kpoints(sg_num, sg_symbol, kpoints):
 def test_get_kpoints_path(test_structure_data):
     points, path = get_kpoints_path(test_structure_data)
     assert "GAMMA" in points
-    assert ["GAMMA", "L"] in path
+    assert ("GAMMA", "L") in path
 
 
 def test_get_shrink_kpoints_path(test_structure_data):
