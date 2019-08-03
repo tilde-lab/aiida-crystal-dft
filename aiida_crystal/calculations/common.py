@@ -7,7 +7,7 @@ from __future__ import absolute_import
 from ase.data import chemical_symbols
 from aiida.engine import CalcJob
 from aiida.orm import Dict, Code, StructureData
-from aiida.common import (InputValidationError, ValidationError)
+from aiida.common import InputValidationError
 from aiida_crystal.data.basis_set import BasisSetData
 from aiida_crystal.data.basis_family import CrystalBasisFamilyData
 
@@ -56,13 +56,13 @@ class CrystalCommonCalculation(CalcJob):
         validated_dict = {}
 
         try:
-            validated_dict['code'] = inputdict.pop(self.get_linkname('code'))
+            validated_dict['code'] = inputdict.pop('code')
         except KeyError:
             raise InputValidationError("No code specified for this "
                                        "calculation")
 
         try:
-            validated_dict['structure'] = inputdict.pop(self.get_linkname('structure'))
+            validated_dict['structure'] = inputdict.pop('structure')
         except KeyError:
             raise InputValidationError("No structure specified for this "
                                        "calculation")
@@ -71,7 +71,7 @@ class CrystalCommonCalculation(CalcJob):
                                        "StructureData: {}".format(validated_dict['structure']))
 
         try:
-            validated_dict['parameters'] = inputdict.pop(self.get_linkname('parameters'))
+            validated_dict['parameters'] = inputdict.pop('parameters')
         except KeyError:
             raise InputValidationError("No parameters specified for this "
                                        "calculation")
@@ -80,7 +80,7 @@ class CrystalCommonCalculation(CalcJob):
                                        "ParameterData: {}".format(validated_dict['parameters']))
 
         # settings are optional
-        validated_dict['settings'] = inputdict.pop(self.get_linkname('settings'), None)
+        validated_dict['settings'] = inputdict.pop('settings', None)
         if validated_dict['settings'] is not None:
             if not isinstance(validated_dict['settings'], Dict):
                 raise InputValidationError(
@@ -88,7 +88,7 @@ class CrystalCommonCalculation(CalcJob):
 
         # basis family input
         basis_present = False
-        validated_dict['basis_family'] = inputdict.pop(self.get_linkname('basis_family'), None)
+        validated_dict['basis_family'] = inputdict.pop('basis_family', None)
         if validated_dict['basis_family'] is not None:
             basis_present = True
             if not isinstance(validated_dict['basis_family'], CrystalBasisFamilyData):
@@ -112,8 +112,8 @@ class CrystalCommonCalculation(CalcJob):
             basis_present = True
         validated_dict['basis'] = basis_dict
 
-        if inputdict:
-            raise ValidationError("Unknown inputs remained after validation: {}".format(inputdict))
+        # if inputdict:
+        #     raise ValidationError("Unknown inputs remained after validation: {}".format(inputdict))
 
         return validated_dict
 
