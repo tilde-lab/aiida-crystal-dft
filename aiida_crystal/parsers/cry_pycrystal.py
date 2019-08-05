@@ -23,11 +23,11 @@ class CrystalParser(Parser):
     _linkname_trajectory = "output_trajectory"
 
     # pylint: disable=protected-access
-    def __init__(self, calculation):
+    def __init__(self, calc_node):
         """
         Initialize Parser instance
         """
-        super(CrystalParser, self).__init__(calculation)
+        super(CrystalParser, self).__init__(calc_node)
         calc_entry_points = ['crystal.serial',
                              'crystal.parallel'
                              ]
@@ -35,24 +35,21 @@ class CrystalParser(Parser):
         self.stdout_parser = None
         self.converged_ionic = None
         self.converged_electronic = None
-
-        calc_cls = [CalculationFactory(entry_point) for entry_point in calc_entry_points]
-
+        calc_cls = [CalculationFactory(entry_point).get_name() for entry_point in calc_entry_points]
         # check for valid input
-        if not isinstance(calculation, tuple(calc_cls)):
+        if self.node.process_label not in calc_cls:
             raise OutputParsingError("{}: Unexpected calculation type to parse: {}".format(
                 self.__class__.__name__,
-                calculation.__class__.__name__
+                calc_node.__class__.__name__
             ))
         self._nodes = []
 
     # pylint: disable=protected-access
-    def parse(self, **kwargs):
+    def parse(self, retrieved_temporary_folder=None, **kwargs):
         """
         Parse outputs, store results in database.
 
-        :param retrieved: a dictionary of retrieved nodes, where
-          the key is the link name
+        :param retrieved_temporary_folder: absolute path to the temporary folder on disk
         :returns: a tuple with two values ``(bool, node_list)``,
           where:
 
@@ -64,15 +61,13 @@ class CrystalParser(Parser):
         node_list = []
 
         # Check that the retrieved folder is there
-        try:
-            out_folder = retrieved[self._calc._get_linkname_retrieved()]
-        except KeyError:
+        if retrieved_temporary_folder is None:
             self.logger.error("No retrieved folder found")
             return success, node_list
 
         # Check the folder content is as expected
         # out_folder is of type FolderData here
-        list_of_files = out_folder.get_folder_list()
+        list_of_files = retrieved_temporary_folder.get_folder_list()
         output_files = self._calc.retrieve_list
         # Note: set(A) <= set(B) checks whether A is a subset
         if set(output_files) <= set(list_of_files):

@@ -34,12 +34,10 @@ def test_validate_input(test_crystal_code, test_structure_data, crystal_calc_par
     assert CrystalSerialCalculation(inputs)
 
 
-def test_submit(crystal_calc):
+def test_prepare_for_submission(crystal_calc):
     from aiida.common.folders import SandboxFolder
     # crystal_calc.store_all()
     with SandboxFolder() as folder:
-        subfolder, script_filename = crystal_calc.prepare_for_submission(folder=folder)
-        files = os.listdir(subfolder.abspath)
-    assert script_filename in files
-    assert crystal_calc._GEOMETRY_FILE_NAME in files
-    assert crystal_calc._DEFAULT_INPUT_FILE in files
+        calcinfo = crystal_calc.prepare_for_submission(folder=folder)
+    assert crystal_calc._GEOMETRY_FILE_NAME in calcinfo['retrieve_list']
+    assert crystal_calc._OUTPUT_FILE_NAME in calcinfo['retrieve_list']

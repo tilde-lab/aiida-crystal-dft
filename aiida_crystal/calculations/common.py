@@ -3,7 +3,7 @@ AiiDA CRYSTAL calculation plugin.
 Code shared between serial and parallel CRYSTAL calculations.
 """
 
-from __future__ import absolute_import
+import six
 from ase.data import chemical_symbols
 from aiida.engine import CalcJob
 from aiida.orm import Dict, Code, StructureData
@@ -34,57 +34,14 @@ class CrystalCommonCalculation(CalcJob):
         spec.input('parameters', valid_type=Dict, required=True)
         spec.input_namespace('basis', valid_type=BasisSetData, required=False, dynamic=True)
         spec.input('basis_family', valid_type=CrystalBasisFamilyData, required=False)
+        # input, output files and parser name
+        spec.input('metadata.options.input_filename', valid_type=six.string_types, default=cls._INPUT_FILE_NAME)
+        spec.input('metadata.options.output_filename', valid_type=six.string_types, default=cls._OUTPUT_FILE_NAME)
+        spec.input('metadata.options.parser_name', valid_type=six.string_types, default='crystal')
 
-    def _init_internal_params(self):
-        """
-        Init internal parameters at class load time
-        """
-        # reuse base class function
-        super(CrystalCommonCalculation, self)._init_internal_params()
-
-        # parser entry point defined in setup.json
-        self._default_parser = 'crystal'
-
-        # input files
-        self._DEFAULT_INPUT_FILE = self._INPUT_FILE_NAME
-
-        # output files
-        self._DEFAULT_OUTPUT_FILE = self._OUTPUT_FILE_NAME
-
-    def _validate_input(self, inputdict):
+    def _validate_basis_input(self, inputdict):
         """Input validation; returns the dict of validated data"""
         validated_dict = {}
-
-        try:
-            validated_dict['code'] = inputdict.pop('code')
-        except KeyError:
-            raise InputValidationError("No code specified for this "
-                                       "calculation")
-
-        try:
-            validated_dict['structure'] = inputdict.pop('structure')
-        except KeyError:
-            raise InputValidationError("No structure specified for this "
-                                       "calculation")
-        if not isinstance(validated_dict['structure'], StructureData):
-            raise InputValidationError("structure not of type "
-                                       "StructureData: {}".format(validated_dict['structure']))
-
-        try:
-            validated_dict['parameters'] = inputdict.pop('parameters')
-        except KeyError:
-            raise InputValidationError("No parameters specified for this "
-                                       "calculation")
-        if not isinstance(validated_dict['parameters'], Dict):
-            raise InputValidationError("parameters not of type "
-                                       "ParameterData: {}".format(validated_dict['parameters']))
-
-        # settings are optional
-        validated_dict['settings'] = inputdict.pop('settings', None)
-        if validated_dict['settings'] is not None:
-            if not isinstance(validated_dict['settings'], Dict):
-                raise InputValidationError(
-                    "settings not of type ParameterData: {}".format(validated_dict['settings']))
 
         # basis family input
         basis_present = False
@@ -117,7 +74,7 @@ class CrystalCommonCalculation(CalcJob):
 
         return validated_dict
 
-    @classmethod
-    def _get_linkname_basis(cls, element):
-        """Returns a link name for basis, one for each element"""
-        return "{}{}".format(cls._BASIS_PREFIX, element)
+    # @classmethod
+    # def _get_linkname_basis(cls, element):
+    #     """Returns a link name for basis, one for each element"""
+    #     return "{}{}".format(cls._BASIS_PREFIX, element)

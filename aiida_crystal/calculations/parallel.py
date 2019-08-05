@@ -32,7 +32,7 @@ class CrystalParallelCalculation(CrystalCommonCalculation):
             :param inputdict: dictionary of the input nodes as they would
                 be returned by get_inputs_dict
         """
-        validated_dict = self._validate_input(inputdict)
+        validated_dict = self._validate_basis_input(inputdict)
 
         # create input files: d12
         try:
