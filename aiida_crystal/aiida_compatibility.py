@@ -71,30 +71,10 @@ def run_get_node(process, inputs_dict):
     return calcnode
 
 
-def load_dbenv_if_not_loaded(**kwargs):
-    """Load dbenv if necessary, run spinner meanwhile to show command hasn't crashed."""
-    from aiida.backends.utils import load_dbenv, is_dbenv_loaded
-    if not is_dbenv_loaded():
-        load_dbenv(**kwargs)
-
-
-def dbenv(function):
-    """A function decorator that loads the dbenv if necessary before running the function."""
-
-    @wraps(function)
-    def decorated_function(*args, **kwargs):
-        """Load dbenv if not yet loaded, then run the original function."""
-        load_dbenv_if_not_loaded()
-        return function(*args, **kwargs)
-
-    return decorated_function
-
-
 def get_data_node(data_type, *args, **kwargs):
     return get_data_class(data_type)(*args, **kwargs)
 
 
-@dbenv
 def get_data_class(data_type):
     """
     Provide access to the orm.data classes with deferred dbenv loading.
@@ -103,28 +83,13 @@ def get_data_class(data_type):
     DataFactory as of 1.0.0-alpha only.
     """
     from aiida.plugins import DataFactory
-    from aiida.common import MissingPluginError
-    data_cls = None
-    try:
-        data_cls = DataFactory(data_type)
-    except MissingPluginError as err:
-        if data_type in BASIC_DATA_TYPES:
-            data_cls = get_basic_data_pre_1_0(data_type)
-        else:
-            raise err
+    data_cls = DataFactory(data_type)
     return data_cls
 
 
 BASIC_DATA_TYPES = {'bool', 'float', 'int', 'list', 'str'}
 
 
-@dbenv
-def get_basic_data_pre_1_0(data_type):
-    from aiida.orm.nodes.data import base as base_data
-    return getattr(base_data, data_type.capitalize())
-
-
-@dbenv
 def get_automatic_user():
     try:
         from aiida.backends.utils import get_automatic_user
@@ -153,12 +118,3 @@ def get_calc_log(calcnode):
                            json.dumps(get_log_messages(calcnode), default=json_default, indent=2))
     return log_string
 
-# @dbenv
-# def backend_obj_users():
-#     """Test if aiida accesses users through backend object."""
-#     backend_obj_flag = False
-#     try:
-#         from aiida.backends.utils import get_automatic_user  # pylint: disable=unused-variable,no-name-in-module
-#     except ImportError:
-#         backend_obj_flag = True
-#     return backend_obj_flag

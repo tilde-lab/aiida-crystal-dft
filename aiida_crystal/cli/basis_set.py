@@ -3,7 +3,6 @@ import click
 import tabulate
 from jsonextended import edict
 from click_spinner import spinner as cli_spinner
-from aiida import load_dbenv, is_dbenv_loaded
 from aiida.cmdline.commands.cmd_data import verdi_data
 from aiida_crystal.aiida_compatibility import get_data_class
 from aiida_crystal.cli import options
@@ -20,10 +19,7 @@ def basis_set():
 @click.argument('pk', type=int)
 def show(pk, content):
     """show the contents of a basis set"""
-    if not is_dbenv_loaded():
-        load_dbenv()
     from aiida.orm import load_node
-
     node = load_node(pk)
 
     if not isinstance(node, get_data_class('crystal.basisset')):

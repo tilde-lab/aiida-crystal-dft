@@ -85,7 +85,7 @@ class CrystalBasisData(Dict):
         bases = cls.from_md5(md5_hash)
         if bases:
             return bases[0]
-        return cls(dict=basis).store(use_cache=True)
+        return cls(dict=basis.asDict()).store(use_cache=True)
 
     def store(self, with_transaction=True, use_cache=None):
         # check if the dictionary has needed keys (may be it's incomplete?)
