@@ -23,6 +23,13 @@ BASIS_FAMILY_TYPE = 'crystal.basis_family'
 
 class CrystalBasisFamilyData(Data):
 
+    def __init__(self, **kwargs):
+        """The Data class for CRYSTAL basis family"""
+        name = kwargs.pop('name', None)
+        super(CrystalBasisFamilyData, self).__init__(**kwargs)
+        if name is not None:
+            self.set_name(name)
+
     @classmethod
     def _get(cls, name):
         # check if we can find the basis family
@@ -57,9 +64,9 @@ class CrystalBasisFamilyData(Data):
 
     def add(self, basis_sets):
         """Adds basis sets to family"""
-        group, group_created = Group.Collection.get_or_create(name=self.name,
-                                                   type_string=BASIS_FAMILY_TYPE,
-                                                   user=get_automatic_user())
+        group, group_created = Group.objects.get_or_create(label=self.name,
+                                                           type_string=BASIS_FAMILY_TYPE,
+                                                           user=get_automatic_user())
         # validate basis sets
         if not all([isinstance(basis, CrystalBasisData) for basis in basis_sets]):
             raise TypeError('Basis sets not of type CrystalBasisData can not be added to basis family {}'.
@@ -88,9 +95,9 @@ class CrystalBasisFamilyData(Data):
 
     @property
     def group(self):
-        _group, _ = Group.get_or_create(name=self.name,
-                                        type_string=BASIS_FAMILY_TYPE,
-                                        user=get_automatic_user())
+        _group, _ = Group.objects.get_or_create(label=self.name,
+                                                type_string=BASIS_FAMILY_TYPE,
+                                                user=get_automatic_user())
         return _group
 
     @property

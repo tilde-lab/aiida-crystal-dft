@@ -91,14 +91,8 @@ BASIC_DATA_TYPES = {'bool', 'float', 'int', 'list', 'str'}
 
 
 def get_automatic_user():
-    try:
-        from aiida.backends.utils import get_automatic_user
-        automatic_user = get_automatic_user()
-    except ImportError:
-        from aiida.orm.backend import construct_backend
-        backend = construct_backend()
-        automatic_user = backend.users.get_automatic_user()
-    return automatic_user
+    from aiida.orm import User
+    return User.objects.get_default()
 
 
 def json_default(o):

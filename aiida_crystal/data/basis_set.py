@@ -332,20 +332,26 @@ class BasisSetData(Data):
         1 1 3  6.  0.
 
     """
+    def __init__(self, **kwargs):
+        """The Data class for old CRYSTAL basis set"""
+        filepath = kwargs.pop('file', None)
+        super(BasisSetData, self).__init__(**kwargs)
+        if filepath is not None:
+            self.set_file(filepath)
 
     @property
     def filename(self):
         """
         Returns the name of the file stored
         """
-        return self.get_attr('filename')
+        return self.get_attribute('filename')
 
     def get_file_abs_path(self):
         """
         Return the absolute path to the file in the repository
         """
-        return os.path.join(self._get_folder_pathsubfolder.abspath,
-                            self.filename)
+        with self.open(self.filename) as f:
+            return f.name
 
     @property
     def md5sum(self):
@@ -353,7 +359,7 @@ class BasisSetData(Data):
 
         :return:
         """
-        return self.get_attr('md5', None)
+        return self.get_attribute('md5', None)
 
     @classmethod
     def from_md5(cls, md5):
@@ -374,7 +380,7 @@ class BasisSetData(Data):
 
         :return: metadata dict
         """
-        return unflatten_dict({k: v for k, v in self.iterattrs()})
+        return unflatten_dict({k: v for k, v in self.attributes_items()})
 
     @property
     def content(self):
@@ -390,7 +396,7 @@ class BasisSetData(Data):
     @property
     def element(self):
         """return the element symbol associated with the basis set"""
-        return self.get_attr('element', None)
+        return self.get_attribute('element', None)
 
     @classmethod
     def get_or_create(cls, filepath, use_first=False, store_basis=True):
@@ -470,7 +476,7 @@ class BasisSetData(Data):
         pre-parse the file to store the attributes and content separately.
         """
         # to keep things simple, we only allow one file to ever be set for one class instance
-        if "filename" in list(self.iterattrs()):
+        if "filename" in self.attributes:
             raise ValueError(
                 "a file has already been set for this BasisSetData instance")
 
@@ -487,7 +493,7 @@ class BasisSetData(Data):
         with tempfile.NamedTemporaryFile() as f:
             with open(f.name, "w") as fobj:
                 fobj.writelines(content)
-            self.add_path(f.name, filename)
+            self.put_object_from_file(f.name, filename)
         self.set_attribute('filename', filename)
 
     def _validate(self):
@@ -500,7 +506,7 @@ class BasisSetData(Data):
         except AttributeError:
             raise ValidationError("attribute 'filename' not set.")
 
-        if [filename] != self.get_folder_list():
+        if [filename] != self._repository.list_object_names():
             raise ValidationError("The list of files in the folder does not "
                                   "match the 'filename' attribute. "
                                   "_filename='{}', content: {}".format(
@@ -524,12 +530,12 @@ class BasisSetData(Data):
                                   "file {}".format(basis_abspath))
 
         try:
-            attr_element = self.get_attr('element')
+            attr_element = self.get_attribute('element')
         except AttributeError:
             raise ValidationError("attribute 'element' not set.")
 
         try:
-            attr_md5 = self.get_attr('md5')
+            attr_md5 = self.get_attribute('md5')
         except AttributeError:
             raise ValidationError("attribute 'md5' not set.")
 
@@ -553,7 +559,7 @@ class BasisSetData(Data):
         from aiida.orm import Group
 
         return [
-            _.name for _ in Group.query(
+            _.name for _ in Group.objects.query(
                 nodes=self, type_string=self.basisfamily_type_string)
         ]
 
@@ -565,7 +571,7 @@ class BasisSetData(Data):
         from aiida.orm import Group
 
         return Group.get(
-            name=group_name, type_string=cls.basisfamily_type_string)
+            label=group_name, type_string=cls.basisfamily_type_string)
 
     @classmethod
     def get_basis_group_map(cls, group_name):
@@ -668,11 +674,11 @@ class BasisSetData(Data):
         nfiles = len(files)
 
         try:
-            group = Group.get(name=group_name, type_string=BASISGROUP_TYPE)
+            group = Group.objects.get(label=group_name, type_string=BASISGROUP_TYPE)
             group_created = False
         except NotExistent:
             group = Group(
-                name=group_name,
+                label=group_name,
                 type_string=BASISGROUP_TYPE,
                 user=automatic_user)
             group_created = True
@@ -730,7 +736,7 @@ class BasisSetData(Data):
 
         # Add elements to the group all together
         if not dry_run:
-            group.add_nodes(basis for basis, created in basis_and_created)
+            group.add_nodes([basis for basis, created in basis_and_created])
 
         nuploaded = len([_ for _, created in basis_and_created if created])
 

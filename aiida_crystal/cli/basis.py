@@ -20,7 +20,6 @@ def basis_set():
 @options.DESCRIPTION()
 def uploadfamily(path, ext, name, description):
     """Upload a family of CRYSTAL Basis Set files."""
-
     basis_family_cls = get_data_class('crystal.basis_family')
     with cli_spinner():
         nfiles, created, uploaded = basis_family_cls.upload(
