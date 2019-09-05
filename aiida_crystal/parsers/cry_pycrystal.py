@@ -27,22 +27,22 @@ class CrystalParser(Parser):
         """
         Initialize Parser instance
         """
-        super(CrystalParser, self).__init__(calc_node)
+        # check for valid calculation node class
         calc_entry_points = ['crystal.serial',
                              'crystal.parallel'
                              ]
-
-        self.stdout_parser = None
-        self.converged_ionic = None
-        self.converged_electronic = None
         calc_cls = [CalculationFactory(entry_point).get_name() for entry_point in calc_entry_points]
-        # check for valid input
-        if self.node.process_label not in calc_cls:
+        if calc_node.process_label not in calc_cls:
             raise OutputParsingError("{}: Unexpected calculation type to parse: {}".format(
                 self.__class__.__name__,
                 calc_node.__class__.__name__
             ))
+
+        self.stdout_parser = None
+        self.converged_ionic = None
+        self.converged_electronic = None
         self._nodes = []
+        super(CrystalParser, self).__init__(calc_node)
 
     # pylint: disable=protected-access
     def parse(self, retrieved_temporary_folder=None, **kwargs):
@@ -65,50 +65,42 @@ class CrystalParser(Parser):
             self.logger.error("No retrieved folder found")
             return success, node_list
 
-        # Check the folder content is as expected
-        # out_folder is of type FolderData here
-        list_of_files = retrieved_temporary_folder.get_folder_list()
-        output_files = self._calc.retrieve_list
-        # Note: set(A) <= set(B) checks whether A is a subset
-        if set(output_files) <= set(list_of_files):
-            pass
-        else:
-            self.logger.error("Not all expected output files {} were found".
-                              format(output_files))
-
         # parameters should be parsed first, as the results
-        self.add_node(self._linkname_parameters,
-                      out_folder.get_abs_path(self._calc._OUTPUT_FILE_NAME),
-                      self.parse_stdout)
-        self.add_node(self._linkname_structure,
-                      out_folder.get_abs_path(self._calc._GEOMETRY_FILE_NAME),
-                      self.parse_out_structure)
-        self.add_node(self._linkname_wavefunction,
-                      out_folder.get_abs_path("fort.9"),
-                      self.parse_out_wavefunction)
-        self.add_node(self._linkname_trajectory,
-                      out_folder.get_abs_path(self._calc._OUTPUT_FILE_NAME),
-                      self.parse_out_trajectory)
+        with retrieved_temporary_folder.open(self.node.get_option('output_filename')) as f:
+            self.add_node(self._linkname_parameters, f, self.parse_stdout)
+        with retrieved_temporary_folder.open('fort.9') as f:
+            self.add_node(self._linkname_wavefunction, f, self.parse_out_wavefunction)
+        with retrieved_temporary_folder.open('fort.34') as f:
+            self.add_node(self._linkname_structure, f, self.parse_out_structure)
+        with retrieved_temporary_folder.open(self.node.get_option('output_filename')) as f:
+            self.add_node(self._linkname_trajectory, f, self.parse_out_trajectory)
+
         success = True
         return success, self._nodes
 
-    def add_node(self, link_name, file_name, callback):
-        parse_result = callback(file_name)
+    def add_node(self, link_name, f, callback):
+        """
+        Add output nodes from parse functions
+        :param link_name: output node link
+        :param f: output file handle
+        :param callback: callback function
+        """
+        parse_result = callback(f)
         if parse_result is not None:
-            self._nodes.append((link_name, callback(file_name)))
+            self._nodes.append((link_name, parse_result))
 
-    def parse_stdout(self, file_name):
-        self.stdout_parser = out.OutFileParser(file_name)
+    def parse_stdout(self, f):
+        self.stdout_parser = out.OutFileParser(f)
         params = self.stdout_parser.get_parameters()
         # raise flag if structure (atomic and electronic) is good
         self.converged_electronic = params['converged_electronic']
         self.converged_ionic = params['converged_ionic']
         return DataFactory('parameter')(dict=params)
 
-    def parse_out_structure(self, file_name):
+    def parse_out_structure(self, f):
         if not self.converged_ionic:
             return None
-        parser = Fort34().read(file_name)
+        parser = Fort34().read(f)
         return parser.to_aiida()
 
     def parse_out_wavefunction(self, file_name):

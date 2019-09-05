@@ -6,7 +6,12 @@ from pycrystal import CRYSTOUT
 
 class OutFileParser(object):
 
-    def __init__(self, file_name):
+    def __init__(self, file):
+        if not isinstance(file, str):
+            file_name = file.name
+            file.close()
+        else:
+            file_name = file
         if not CRYSTOUT.acceptable(file_name):
             raise FileNotFoundError("{} is not a valid CRYSTAL output file".format(file_name))
         result = CRYSTOUT(file_name)

@@ -98,10 +98,13 @@ class Fort34(object):
         from aiida.plugins import DataFactory
         return DataFactory('structure')(ase=self.to_ase())
 
-    def read(self, file_name):
+    def read(self, file):
         """Read and parse fort.34 file"""
-        with open(file_name) as f:
-            data = f.read()
+        if isinstance(file, str):
+            with open(file) as f:
+                data = f.read()
+        else:
+            data = file.read
         parsed_data = _parse_string(f34_parser(), data)
         self.dimensionality, self.centring, self.crystal_type = parsed_data['header']
         if self.dimensionality != 3:

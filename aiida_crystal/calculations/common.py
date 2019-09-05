@@ -38,6 +38,8 @@ class CrystalCommonCalculation(CalcJob):
         spec.input('metadata.options.input_filename', valid_type=six.string_types, default=cls._INPUT_FILE_NAME)
         spec.input('metadata.options.output_filename', valid_type=six.string_types, default=cls._OUTPUT_FILE_NAME)
         spec.input('metadata.options.parser_name', valid_type=six.string_types, default='crystal')
+        # exit codes
+        spec.exit_code(100, 'ERROR_NO_RETRIEVED_FOLDER', message='The retrieved folder data node could not be accessed')
 
     def _validate_basis_input(self, inputdict):
         """Input validation; returns the dict of validated data"""
