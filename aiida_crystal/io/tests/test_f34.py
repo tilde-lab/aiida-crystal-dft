@@ -55,7 +55,8 @@ def test_read():
     assert reader.space_group == 225
     file_name = os.path.join(TEST_DIR,
                              'output_files',
-                             'mgo_sto3g_external.fort.34')
+                             'mgo_sto3g',
+                             'fort.34')
     reader = Fort34().read(file_name)
     assert reader.centring == 5
     assert reader.n_symops == 48

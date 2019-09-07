@@ -5,7 +5,7 @@ from aiida_crystal.tests.fixtures import *
 
 
 def test_store_calc(crystal_calc_node):
-    calc = crystal_calc_node
+    calc = crystal_calc_node()
     calc.store()
     assert calc.pk is not None
     assert calc.inputs.code.pk is not None

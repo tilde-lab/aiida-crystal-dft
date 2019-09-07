@@ -10,7 +10,8 @@ from aiida_crystal.io.f25 import Fort25
 def test_read_bands():
     file_name = os.path.join(TEST_DIR,
                              "output_files",
-                             "mgo_sto3g_external.fort.25")
+                             "mgo_sto3g",
+                             "fort.25")
     parser = Fort25(file_name)
     result = parser.parse()
     assert result["BAND"]
@@ -49,7 +50,8 @@ def test_read_negative_path_bands():
 def test_read_dos():
     file_name = os.path.join(TEST_DIR,
                              "output_files",
-                             "mgo_sto3g_external.fort.25")
+                             "mgo_sto3g",
+                             "fort.25")
     parser = Fort25(file_name)
     result = parser.parse()
     assert result["DOSS"]

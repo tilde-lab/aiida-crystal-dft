@@ -4,10 +4,9 @@
 from aiida_crystal.tests.fixtures import *
 
 
-def test_store_calc(properties_calc):
-    calc = properties_calc
-    calc.set_resources({"num_machines": 1, "num_mpiprocs_per_machine": 1})
-    calc.store_all()
+def test_store_calc(properties_calc_node):
+    calc = properties_calc_node()
+    calc.store()
     assert calc.pk is not None
     assert calc.inp.code.pk is not None
     assert calc.inp.parameters.pk is not None

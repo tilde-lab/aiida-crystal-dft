@@ -26,7 +26,7 @@ def crystal_calc(test_crystal_code, crystal_calc_parameters, test_structure_data
 
 
 @pytest.fixture
-def crystal_calc_results(crystal_calc):
+def calc_results():
     from aiida.orm import FolderData
     from aiida_crystal.tests import TEST_DIR
 
@@ -44,6 +44,7 @@ def crystal_calc_results(crystal_calc):
         root_dir = os.path.join(TEST_DIR, 'output_files', prefix)
         for entry in os.listdir(root_dir):
             if os.path.isfile(os.path.join(root_dir, entry)):
+                # non-default file location
                 if entry in files:
                     file_dir = os.path.join(TEST_DIR, 'output_files', files[entry])
                     with open(os.path.join(file_dir, entry), 'rb') as f:
@@ -57,7 +58,7 @@ def crystal_calc_results(crystal_calc):
 
 
 @pytest.fixture
-def crystal_calc_node(crystal_calc, crystal_calc_results):
+def crystal_calc_node(crystal_calc, calc_results):
     """Returns CalcJobNode corresponding to CrystalCalc CalcJob"""
     from aiida.orm import CalcJobNode
     from aiida.common.links import LinkType
@@ -75,7 +76,7 @@ def crystal_calc_node(crystal_calc, crystal_calc_results):
         node.add_incoming(crystal_calc.inputs.parameters, link_type=LinkType.INPUT_CALC, link_label='parameters')
         node.add_incoming(crystal_calc.inputs.basis_family, link_type=LinkType.INPUT_CALC, link_label='basis_family')
         node.store()
-        retrieved = crystal_calc_results(files)
+        retrieved = calc_results(files)
         retrieved.add_incoming(node, link_type=LinkType.CREATE, link_label='retrieved')
         retrieved.store()
         return node
@@ -100,34 +101,28 @@ def properties_calc(test_properties_code, properties_calc_parameters, test_wavef
 
 
 @pytest.fixture
-def properties_calc_results(properties_calc):
-    from aiida.common.folders import SandboxFolder
-    from aiida.orm.nodes.data.folder import FolderData
-    from aiida_crystal.tests import TEST_DIR
-    out_files = [os.path.join(TEST_DIR, "output_files", "mgo_sto3g_external.{}".format(f))
-                 for f in properties_calc.retrieve_list]
-    with SandboxFolder() as folder:
-        for src, dst in zip(out_files, properties_calc.retrieve_list):
-            shutil.copy(src, os.path.join(folder.abspath, dst))
-        data = FolderData()
-        data.replace_with_folder(folder.abspath)
-        yield data
-
-
-def properties_calc_node(properties_calc, properties_calc_results):
+def properties_calc_node(properties_calc, calc_results):
     """Returns CalcJobNode corresponding to PropertiesCalc CalcJob"""
     from aiida.orm import CalcJobNode
     from aiida.common.links import LinkType
     computer = properties_calc.inputs.code.get_remote_computer()
     process_type = 'aiida.calculations:{}'.format('properties')
-    node = CalcJobNode(computer=computer, process_type=process_type)
-    node.set_option('resources', {'num_machines': 1, 'num_mpiprocs_per_machine': 1})
-    node.set_attribute('input_filename', 'INPUT')
-    node.set_attribute('output_filename', '_scheduler-stderr.txt')
-    node.set_attribute('error_filename', '_scheduler-stderr.txt')
-    node.add_incoming(properties_calc.inputs.code, link_type=LinkType.INPUT_CALC, link_label='code')
-    node.add_incoming(properties_calc.inputs.parameters, link_type=LinkType.INPUT_CALC, link_label='parameters')
-    node.add_incoming(properties_calc.inputs.wavefunction, link_type=LinkType.INPUT_CALC, link_label='wavefunction')
+
+    def get_calcnode(files=None):
+        node = CalcJobNode(computer=computer, process_type=process_type)
+        node.set_option('resources', {'num_machines': 1, 'num_mpiprocs_per_machine': 1})
+        node.set_attribute('input_filename', 'INPUT')
+        node.set_attribute('output_filename', '_scheduler-stderr.txt')
+        node.set_attribute('error_filename', '_scheduler-stderr.txt')
+        node.add_incoming(properties_calc.inputs.code, link_type=LinkType.INPUT_CALC, link_label='code')
+        node.add_incoming(properties_calc.inputs.parameters, link_type=LinkType.INPUT_CALC, link_label='parameters')
+        node.add_incoming(properties_calc.inputs.wavefunction, link_type=LinkType.INPUT_CALC, link_label='wavefunction')
+        node.store()
+        retrieved = calc_results(files)
+        retrieved.add_incoming(node, link_type=LinkType.CREATE, link_label='retrieved')
+        retrieved.store()
+        return node
+    return get_calcnode
 
 
 @pytest.fixture
@@ -166,7 +161,8 @@ def test_wavefunction():
     from aiida_crystal.tests import TEST_DIR
     file_name = os.path.join(TEST_DIR,
                              'output_files',
-                             'mgo_sto3g_external.fort.9')
+                             'mgo_sto3g',
+                             'fort.9')
     temp_dir = tempfile.gettempdir()
     expected = os.path.join(temp_dir, "fort.9")
     shutil.copy(file_name, expected)

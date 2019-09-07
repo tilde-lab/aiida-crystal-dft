@@ -10,25 +10,17 @@ from aiida_crystal.io.f9 import Fort9
 
 file_name = os.path.join(TEST_DIR,
                          "output_files",
-                         "mgo_sto3g_external.fort.9")
-
-
-@pytest.fixture(scope="module")
-def rename_file():
-    expected = os.path.join(os.path.dirname(file_name),
-                            "fort.9")
-    shutil.copy(file_name, expected)
-    yield expected
-    os.remove(expected)
+                         "mgo_sto3g",
+                         "fort.9")
 
 
 def test_fail():
     with pytest.raises(ValueError):
-        Fort9(file_name)
+        Fort9("invalid_file_name.9")
 
 
-def test_pass(rename_file):
-    parser = Fort9(rename_file)
+def test_pass():
+    parser = Fort9(file_name)
     cell, positions, numbers = parser.get_cell()
     assert cell.shape == (3, 3)
     assert positions.shape == (2, 3)

@@ -10,7 +10,7 @@ from aiida_crystal.tests import TEST_DIR
 
 def test_out():
     """A test of parsing out file"""
-    out_file = os.path.join(TEST_DIR, 'output_files', 'mgo_sto3g_opt.crystal.out')
+    out_file = os.path.join(TEST_DIR, 'output_files', 'mgo_sto3g', 'opt', 'crystal.out')
     parser = OutFileParser(out_file)
     res = parser.get_parameters()
     # from pprint import pprint
