@@ -30,11 +30,28 @@ def crystal_calc_results(crystal_calc):
     from aiida.orm import FolderData
     from aiida_crystal.tests import TEST_DIR
 
-    def get_results(prefix=None):
-        if prefix is None:
-            prefix = "mgo_sto3g"
+    def get_results(files=None, prefix="mgo_sto3g"):
+        """
+        Return a FolderData with the results of the calculation
+        :param files: a dictionary corresponding files to directories
+        :param prefix: a folder with all output files for the test calculation
+        :return: a FolderData instance
+        """
         data = FolderData()
-        data.put_object_from_tree(os.path.join(TEST_DIR, 'output_files', prefix))
+        if files is None:
+            files = {}
+        # copy files from prefix
+        root_dir = os.path.join(TEST_DIR, 'output_files', prefix)
+        for entry in os.listdir(root_dir):
+            if os.path.isfile(os.path.join(root_dir, entry)):
+                if entry in files:
+                    file_dir = os.path.join(TEST_DIR, 'output_files', files[entry])
+                    with open(os.path.join(file_dir, entry), 'rb') as f:
+                        data.put_object_from_filelike(f, entry, mode='wb')
+                    continue
+                # default file location
+                with open(os.path.join(root_dir, entry), 'rb') as f:
+                    data.put_object_from_filelike(f, entry, mode='wb')
         return data
     return get_results
 
@@ -42,25 +59,27 @@ def crystal_calc_results(crystal_calc):
 @pytest.fixture
 def crystal_calc_node(crystal_calc, crystal_calc_results):
     """Returns CalcJobNode corresponding to CrystalCalc CalcJob"""
-    from aiida.orm import CalcJobNode, FolderData
+    from aiida.orm import CalcJobNode
     from aiida.common.links import LinkType
-    computer = crystal_calc.inputs.code.get_remote_computer()
-    process_type = 'aiida.calculations:{}'.format('crystal.serial')
-    node = CalcJobNode(computer=computer, process_type=process_type)
-    node.set_process_label('CrystalSerialCalculation')
-    node.set_attribute('input_filename', 'INPUT')
-    node.set_attribute('output_filename', '_scheduler-stderr.txt')
-    node.set_attribute('error_filename', '_scheduler-stderr.txt')
-    node.set_option('resources', {'num_machines': 1, 'num_mpiprocs_per_machine': 1})
-    node.add_incoming(crystal_calc.inputs.code, link_type=LinkType.INPUT_CALC, link_label='code')
-    node.add_incoming(crystal_calc.inputs.structure, link_type=LinkType.INPUT_CALC, link_label='structure')
-    node.add_incoming(crystal_calc.inputs.parameters, link_type=LinkType.INPUT_CALC, link_label='parameters')
-    node.add_incoming(crystal_calc.inputs.basis_family, link_type=LinkType.INPUT_CALC, link_label='basis_family')
-    node.store()
-    retrieved = crystal_calc_results()
-    retrieved.add_incoming(node, link_type=LinkType.CREATE, link_label='retrieved')
-    retrieved.store()
-    return node
+
+    def get_calcnode(files=None):
+        computer = crystal_calc.inputs.code.get_remote_computer()
+        process_type = 'aiida.calculations:{}'.format('crystal.serial')
+        node = CalcJobNode(computer=computer, process_type=process_type)
+        node.set_process_label('CrystalSerialCalculation')
+        node.set_attribute('input_filename', 'INPUT')
+        node.set_attribute('output_filename', 'crystal.out')
+        node.set_option('resources', {'num_machines': 1, 'num_mpiprocs_per_machine': 1})
+        node.add_incoming(crystal_calc.inputs.code, link_type=LinkType.INPUT_CALC, link_label='code')
+        node.add_incoming(crystal_calc.inputs.structure, link_type=LinkType.INPUT_CALC, link_label='structure')
+        node.add_incoming(crystal_calc.inputs.parameters, link_type=LinkType.INPUT_CALC, link_label='parameters')
+        node.add_incoming(crystal_calc.inputs.basis_family, link_type=LinkType.INPUT_CALC, link_label='basis_family')
+        node.store()
+        retrieved = crystal_calc_results(files)
+        retrieved.add_incoming(node, link_type=LinkType.CREATE, link_label='retrieved')
+        retrieved.store()
+        return node
+    return get_calcnode
 
 
 @pytest.fixture

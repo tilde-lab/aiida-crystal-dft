@@ -104,7 +104,7 @@ class Fort34(object):
             with open(file) as f:
                 data = f.read()
         else:
-            data = file.read
+            data = file.read()
         parsed_data = _parse_string(f34_parser(), data)
         self.dimensionality, self.centring, self.crystal_type = parsed_data['header']
         if self.dimensionality != 3:

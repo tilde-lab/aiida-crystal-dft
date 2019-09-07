@@ -68,13 +68,12 @@ class CrystalParser(Parser):
         # parameters should be parsed first, as the results
         with retrieved_temporary_folder.open(self.node.get_option('output_filename')) as f:
             self.add_node(self._linkname_parameters, f, self.parse_stdout)
-        with retrieved_temporary_folder.open('fort.9') as f:
+        with retrieved_temporary_folder.open('fort.9', 'rb') as f:
             self.add_node(self._linkname_wavefunction, f, self.parse_out_wavefunction)
         with retrieved_temporary_folder.open('fort.34') as f:
             self.add_node(self._linkname_structure, f, self.parse_out_structure)
         with retrieved_temporary_folder.open(self.node.get_option('output_filename')) as f:
             self.add_node(self._linkname_trajectory, f, self.parse_out_trajectory)
-
         success = True
         return success, self._nodes
 
@@ -95,7 +94,7 @@ class CrystalParser(Parser):
         # raise flag if structure (atomic and electronic) is good
         self.converged_electronic = params['converged_electronic']
         self.converged_ionic = params['converged_ionic']
-        return DataFactory('parameter')(dict=params)
+        return DataFactory('dict')(dict=params)
 
     def parse_out_structure(self, f):
         if not self.converged_ionic:
@@ -103,10 +102,10 @@ class CrystalParser(Parser):
         parser = Fort34().read(f)
         return parser.to_aiida()
 
-    def parse_out_wavefunction(self, file_name):
+    def parse_out_wavefunction(self, f):
         if not self.converged_electronic:
             return None
-        return DataFactory('singlefile')(file=file_name)
+        return DataFactory('singlefile')(file=f)
 
     def parse_out_trajectory(self, _):
         ase_structs = self.stdout_parser.get_trajectory()
