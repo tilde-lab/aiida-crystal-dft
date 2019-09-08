@@ -102,7 +102,7 @@ def listfamilies(element, with_description, list_pks):
     if list_pks:
         table[0].append('Pks')
     for group in groups:
-        row = [group.name, len(group.nodes)]
+        row = [group.label, len(group.nodes)]
         if with_description:
             row.append(group.description)
         if list_pks:

@@ -610,19 +610,13 @@ class BasisSetData(Data):
         if user is not None:
             group_query_params['user'] = user
 
+        basis_groups = Group.objects.find(filters=group_query_params)
         if isinstance(filter_elements, six.string_types):
             filter_elements = [filter_elements]
-
         if filter_elements is not None:
             actual_filter_elements = {_.capitalize() for _ in filter_elements}
-
-            group_query_params['node_attributes'] = {
-                'element': actual_filter_elements
-            }
-
-        all_basis_groups = Group.query(**group_query_params)
-
-        groups = [(g.name, g) for g in all_basis_groups]
+            basis_groups = [g for g in basis_groups if actual_filter_elements.issubset({b.element for b in g.nodes})]
+        groups = [(g.label, g) for g in basis_groups]
         # Sort by name
         groups.sort()
         # Return the groups, without name

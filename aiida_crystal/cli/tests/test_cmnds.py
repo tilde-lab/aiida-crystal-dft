@@ -45,11 +45,9 @@ md5:           73a9c7315dc6edf6ab8bd4427a66f31c
 num_shells:    2
 year:          1999
 """
-
     assert expected in result.output
 
     result2 = runner.invoke(basis_set_old, ['show', '-c', str(node.pk)])
-
     assert result2.exit_code == 0
 
 
@@ -61,11 +59,8 @@ def test_basis_upload(new_database):
         'uploadfamily', '--path', path, '--name', 'sto3g', '--description',
         'STO3G'
     ])
-
     assert result.exit_code == 0
 
     result2 = runner.invoke(basis_set_old, ['listfamilies', '-d'])
-
     assert result2.exit_code == 0
-
     assert 'sto3g' in result2.output

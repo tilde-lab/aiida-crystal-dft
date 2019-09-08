@@ -56,15 +56,17 @@ def test_create_group(new_database, new_workdir):
     nfiles, nuploaded = upload_basisset_family(
         os.path.join(TEST_DIR, "input_files", "sto3g"), "sto3g",
         "group of sto3g basis sets")
+    assert (nfiles, nuploaded) == (3, 3)
 
+    nfiles, nuploaded = upload_basisset_family(
+        os.path.join(TEST_DIR, "input_files", "311g_ae"), "311g",
+        "group of 311g basis sets")
     assert (nfiles, nuploaded) == (3, 3)
 
     group = BasisSetData.get_basis_group("sto3g")
-
     assert group.description == "group of sto3g basis sets"
 
     groups = BasisSetData.get_basis_groups(filter_elements="O")
-    # print(groups)
     assert len(groups) == 1
 
     # try uploading the files to a second group
