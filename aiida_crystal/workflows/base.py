@@ -23,11 +23,11 @@ class BaseCrystalWorkChain(WorkChain):
         # define inputs
         spec.input('code', valid_type=Code)
         spec.input('structure', valid_type=get_data_class('structure'), required=True)
-        spec.input('parameters', valid_type=get_data_class('parameter'), required=True)
+        spec.input('parameters', valid_type=get_data_class('dict'), required=True)
         spec.input('basis_family', valid_type=get_data_class('crystal.basis_family'), required=True)
         spec.input('clean_workdir', valid_type=get_data_class('bool'),
                    required=False, default=get_data_node('bool', True))
-        spec.input('options', valid_type=get_data_class('parameter'), required=True, help="Calculation options")
+        spec.input('options', valid_type=get_data_class('dict'), required=True, help="Calculation options")
         # define workchain routine
         spec.outline(cls.init_calculation,
                      cls.run_calculation,
@@ -36,7 +36,7 @@ class BaseCrystalWorkChain(WorkChain):
         # define outputs
         spec.output('output_structure', valid_type=get_data_class('structure'), required=False)
         spec.output('primitive_structure', valid_type=get_data_class('structure'), required=False)
-        spec.output('output_parameters', valid_type=get_data_class('parameter'), required=False)
+        spec.output('output_parameters', valid_type=get_data_class('dict'), required=False)
         spec.output('output_wavefunction', valid_type=get_data_class('singlefile'), required=False)
         spec.output('output_trajectory', valid_type=get_data_class('array.trajectory'), required=False)
 
@@ -53,19 +53,19 @@ class BaseCrystalWorkChain(WorkChain):
         self.ctx.inputs.basis_family = self.inputs.basis_family
         # set settings
         if 'options' in self.inputs:
-            self.ctx.inputs.options = self.inputs.options
+            self.ctx.inputs.metadata = AttributeDict({'options': self.inputs.options.get_dict()})
 
     def run_calculation(self):
         """Run a calculation from self.ctx.inputs"""
-        options = self.ctx.inputs.pop('options').get_dict()
+        options = self.inputs.options.get_dict()
         # check if it's a serial or parallel calculation (as of now, pretty simple)
         if options['resources']['num_machines'] > 1 or options['resources']['num_mpiprocs_per_machine'] > 1:
             calculation = self._parallel_calculation
         else:
             calculation = self._serial_calculation
-        process = CalculationFactory(calculation).process()
+        process = CalculationFactory(calculation)
 
-        running = self.submit(process, options=options, **self.ctx.inputs)
+        running = self.submit(process, **self.ctx.inputs)
         return self.to_context(calculations=append_(running))
 
     def retrieve_results(self):
@@ -73,13 +73,13 @@ class BaseCrystalWorkChain(WorkChain):
         # return the results of the last calculation
         last_calc = self.ctx.calculations[-1]
         for name, port in self.spec().outputs.items():
-            if port.required and name not in last_calc.out:
+            if port.required and name not in last_calc.outputs:
                 self.report('the spec specifies the output {} as required '
                             'but was not an output of {}<{}>'.format(name, self._calculation.__name__,
                                                                      last_calc.pk))
 
-            if name in last_calc.out:
-                self.out(name, last_calc.out[name])
+            if name in last_calc.outputs:
+                self.out(name, last_calc.outputs[name])
         return
 
     def finalize(self):
@@ -87,10 +87,10 @@ class BaseCrystalWorkChain(WorkChain):
         if not self.inputs.clean_workdir:
             return
         cleaned_calcs = []
-        for calculation in self.calc.get_outputs(link_type=LinkType.CALL):
+        for calculation in self.ctx.calculations:
             try:
                 # noinspection PyProtectedMember
-                calculation.out.remote_folder._clean()
+                calculation.outputs.remote_folder._clean()
                 cleaned_calcs.append(calculation)
             except BaseException:
                 pass
@@ -109,8 +109,8 @@ class BasePropertiesWorkChain(WorkChain):
         # define inputs
         spec.input('code', valid_type=Code)
         spec.input('wavefunction', valid_type=get_data_class('singlefile'), required=True)
-        spec.input('parameters', valid_type=get_data_class('parameter'), required=True)
-        spec.input('options', valid_type=get_data_class('parameter'), required=True, help="Calculation options")
+        spec.input('parameters', valid_type=get_data_class('dict'), required=True)
+        spec.input('options', valid_type=get_data_class('dict'), required=True, help="Calculation options")
         # define workchain routine
         spec.outline(cls.init_calculation,
                      cls.run_calculation,
@@ -129,14 +129,15 @@ class BasePropertiesWorkChain(WorkChain):
         # set parameters, giving the defaults
         self.ctx.inputs.parameters = self._set_default_parameters(self.inputs.parameters)
         # set options
-        if 'options' in self.inputs:
-            self.ctx.inputs.options = self.inputs.options
+        self.ctx.inputs.metadata = AttributeDict({'options': self.inputs.options.get_dict()})
 
     def _set_default_parameters(self, parameters):
         """Set defaults to calculation parameters"""
         parameters_dict = parameters.get_dict()
         from aiida_crystal.io.f9 import Fort9
-        wf = Fort9(self.inputs.wavefunction.get_file_abs_path())
+        with self.inputs.wavefunction.open() as f:
+            file_name = f.name
+        wf = Fort9(file_name)
         if 'band' in parameters_dict:
             # automatic generation of k-point path
             if 'bands' not in parameters_dict['band']:
@@ -163,13 +164,12 @@ class BasePropertiesWorkChain(WorkChain):
                 parameters_dict['dos']['first'] = 1
             if 'last' not in parameters_dict['dos']:
                 parameters_dict['dos']['last'] = wf.get_ao_number()
-        return get_data_class('parameter')(dict=parameters_dict)
+        return get_data_class('dict')(dict=parameters_dict)
 
     def run_calculation(self):
         """Run a calculation from self.ctx.inputs"""
-        process = CalculationFactory(self._calculation).process()
-        options = self.ctx.inputs.pop('options')
-        running = self.submit(process, options=options.get_dict(), **self.ctx.inputs)
+        process = CalculationFactory(self._calculation)
+        running = self.submit(process, **self.ctx.inputs)
         return self.to_context(calculations=append_(running))
 
     def retrieve_results(self):
@@ -177,13 +177,13 @@ class BasePropertiesWorkChain(WorkChain):
         # return the results of the last calculation
         last_calc = self.ctx.calculations[-1]
         for name, port in self.spec().outputs.items():
-            if port.required and name not in last_calc.out:
+            if port.required and name not in last_calc.outputs:
                 self.report('the spec specifies the output {} as required '
                             'but was not an output of {}<{}>'.format(name, self._calculation.__name__,
                                                                      last_calc.pk))
 
-            if name in last_calc.out:
-                node = last_calc.out[name]
-                self.out(name, last_calc.out[name])
+            if name in last_calc.outputs:
+                node = last_calc.outputs[name]
+                self.out(name, last_calc.outputs[name])
                 # self.report("attaching the node {}<{}> as '{}'".format(node.__class__.__name__, node.pk, name))
         return
