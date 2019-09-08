@@ -16,33 +16,31 @@ class PropertiesParser(Parser):
     _linkname_bands = "output_bands"
     _linkname_dos = "output_dos"
     _linkname_input_parameters = "input_parameters"
-    _calc_entry_points = ('crystal.properties', )
 
     # pylint: disable=protected-access
-    def __init__(self, calculation):
+    def __init__(self, calc_node):
         """
         Initialize Parser instance
         """
-        super(PropertiesParser, self).__init__(calculation)
+        super(PropertiesParser, self).__init__(calc_node)
+        calc_entry_points = ('crystal.properties',)
 
-        calc_cls = [CalculationFactory(entry_point) for entry_point in self._calc_entry_points]
-
-        # check for valid input
-        if not isinstance(calculation, tuple(calc_cls)):
+        calc_cls = [CalculationFactory(entry_point).get_name() for entry_point in calc_entry_points]
+        if calc_node.process_label not in calc_cls:
             raise OutputParsingError("{}: Unexpected calculation type to parse: {}".format(
                 self.__class__.__name__,
-                calculation.__class__.__name__
+                calc_node.__class__.__name__
             ))
 
         self._nodes = []
+        super(PropertiesParser, self).__init__(calc_node)
 
     # pylint: disable=protected-access
-    def parse(self, **kwargs):
+    def parse(self, retrieved_temporary_folder=None, **kwargs):
         """
         Parse outputs, store results in database.
 
-        :param retrieved: a dictionary of retrieved nodes, where
-          the key is the link name
+        :param retrieved_temporary_folder: a FolderData returned from the calculation
         :returns: a tuple with two values ``(bool, node_list)``,
           where:
 
@@ -54,31 +52,22 @@ class PropertiesParser(Parser):
         node_list = []
 
         # Check that the retrieved folder is there
-        try:
-            out_folder = retrieved[self._calc._get_linkname_retrieved()]
-        except KeyError:
+        if retrieved_temporary_folder is None:
             self.logger.error("No retrieved folder found")
             return success, node_list
 
-        # Check the folder content is as expected
-        list_of_files = out_folder.get_folder_list()
-        output_files = self._calc.retrieve_list
-        # Note: set(A) <= set(B) checks whether A is a subset
-        if set(output_files) <= set(list_of_files):
-            pass
-        else:
-            self.logger.error("Not all expected output files {} were found".
-                              format(output_files))
+        # TODO: Check the folder content is as expected
 
         # parse file here
-        parser = Fort25(out_folder.get_abs_path("fort.25"))
-        result = parser.parse()
-        self.add_node(self._linkname_bands,
-                      result.get("BAND", None),
-                      self.parse_bands)
-        self.add_node(self._linkname_dos,
-                      result.get("DOSS", None),
-                      self.parse_dos)
+        with retrieved_temporary_folder.open("fort.25") as f:
+            parser = Fort25(f)
+            result = parser.parse()
+            self.add_node(self._linkname_bands,
+                          result.get("BAND", None),
+                          self.parse_bands)
+            self.add_node(self._linkname_dos,
+                          result.get("DOSS", None),
+                          self.parse_dos)
 
         success = True
         return success, self._nodes
@@ -97,11 +86,13 @@ class PropertiesParser(Parser):
 
         from aiida.plugins import DataFactory
         # to get BandsData node first we need to get k-points path and set KpointsData
-        shrink = self._calc.inp.parameters.dict.band['shrink']
+        shrink = self.node.inputs.parameters.dict.band['shrink']
         path = bands["path"]
         k_number = bands["n_k"]
         # for path construction we're getting geometry from fort.9
-        geometry_parser = Fort9(self._calc.inp.wavefunction.get_file_abs_path())
+        with self.node.inputs.wavefunction.open() as f:
+            fort9_name = f.name
+        geometry_parser = Fort9(fort9_name)
         cell = geometry_parser.get_cell(scale=True)
         path_description = construct_kpoints_path(cell, path, shrink, k_number)
         structure = DataFactory('structure')(ase=geometry_parser.get_ase())

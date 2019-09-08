@@ -3,7 +3,6 @@ A plugin to create a properties files from CRYSTAL17 output
 """
 
 import six
-import shutil
 from aiida.common import CalcInfo, CodeInfo, InputValidationError
 from aiida.engine import CalcJob
 from aiida.orm import Dict, Code, SinglefileData
@@ -49,12 +48,12 @@ class PropertiesCalculation(CalcJob):
             raise InputValidationError(
                 "an input file could not be created from the parameters: {}".
                 format(err))
-        with open(folder.open(self._INPUT_FILE_NAME), "w") as f:
+        with folder.open(self._INPUT_FILE_NAME, "w") as f:
             d3_content.write(f)
 
         # create input files: fort.9
-        shutil.copy(self.inputs.wavefunction.get_file_abs_path(),
-                    folder.get_abs_path(self._WAVEFUNCTION_FILE_NAME))
+        with self.inputs.wavefunction.open(mode="rb") as f:
+            folder.create_file_from_filelike(f, self._WAVEFUNCTION_FILE_NAME, mode="wb")
 
         # Prepare CodeInfo object for aiida
         codeinfo = CodeInfo()

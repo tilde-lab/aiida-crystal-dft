@@ -22,10 +22,13 @@ def band_parser():
 
 class Fort25(object):
 
-    def __init__(self, file_name):
+    def __init__(self, file):
         """A collection of parsers for various parts of fort.25 file."""
-        with open(file_name, 'r') as f:
-            self._data = f.read().split('-%-')
+        if isinstance(file, str):
+            with open(file, 'r') as f:
+                self._data = f.read().split('-%-')
+        else:
+            self._data = file.read().split('-%-')
         # parsers should be registered in the following dictionary
         self._parser = {
             "BAND": _parse_bands,

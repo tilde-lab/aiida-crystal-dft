@@ -8,38 +8,37 @@ def test_store_calc(properties_calc_node):
     calc = properties_calc_node()
     calc.store()
     assert calc.pk is not None
-    assert calc.inp.code.pk is not None
-    assert calc.inp.parameters.pk is not None
-    assert calc.inp.wavefunction.pk is not None
+    assert calc.inputs.code.pk is not None
+    assert calc.inputs.parameters.pk is not None
+    assert calc.inputs.wavefunction.pk is not None
 
 
 def test_validate_input(test_properties_code, properties_calc_parameters, test_wavefunction):
-    from aiida.common import InputValidationError
+    from aiida.common.extendeddicts import AttributeDict
     from aiida_crystal.calculations.properties import PropertiesCalculation
-    calc = PropertiesCalculation()
-    with pytest.raises(InputValidationError):
-        calc._validate_input(calc.get_inputs_dict())
-    calc.use_code(test_properties_code)
-    with pytest.raises(InputValidationError):
-        calc._validate_input(calc.get_inputs_dict())
-    calc.use_parameters(properties_calc_parameters)
-    with pytest.raises(InputValidationError):
-        calc._validate_input(calc.get_inputs_dict())
-    calc.use_wavefunction(test_wavefunction)
-    assert calc._validate_input(calc.get_inputs_dict())
+    inputs = AttributeDict()
+    with pytest.raises(ValueError):
+        PropertiesCalculation(inputs)
+    inputs.metadata = {'options': {'resources': {'tot_num_mpiprocs': 1, 'num_mpiprocs_per_machine': 1}}}
+    inputs.code = test_properties_code
+    with pytest.raises(ValueError):
+        PropertiesCalculation(inputs)
+    inputs.wavefunction = test_wavefunction
+    with pytest.raises(ValueError):
+        PropertiesCalculation(inputs)
+    inputs.parameters = properties_calc_parameters
+    assert PropertiesCalculation(inputs)
 
 
 def test_submit(properties_calc):
     from aiida.common.folders import SandboxFolder
-    properties_calc.store_all()
     with SandboxFolder() as folder:
-        subfolder, script_filename = properties_calc.submit_test(folder=folder)
-        files = os.listdir(subfolder.abspath)
-        with open(subfolder.get_abs_path(properties_calc._DEFAULT_INPUT_FILE)) as f:
+        calcinfo = properties_calc.prepare_for_submission(folder=folder)
+        assert properties_calc._PROPERTIES_FILE_NAME in calcinfo['retrieve_list']
+        assert properties_calc._WAVEFUNCTION_FILE_NAME in folder.get_content_list()
+        assert properties_calc._INPUT_FILE_NAME in folder.get_content_list()
+        with folder.open(properties_calc._INPUT_FILE_NAME) as f:
             d3_content = f.read()
-    assert script_filename in files
-    assert properties_calc._WAVEFUNCTION_FILE in files
-    assert properties_calc._DEFAULT_INPUT_FILE in files
     assert d3_content == """BAND
 CRYSTAL RUN
 6 8 30 1 14 1 0

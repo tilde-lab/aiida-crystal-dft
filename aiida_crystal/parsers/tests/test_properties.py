@@ -6,12 +6,12 @@
 from aiida_crystal.tests.fixtures import *
 
 
-def test_properties_parser(properties_calc, properties_calc_results):
+def test_properties_parser(properties_calc_node):
     from aiida.plugins import DataFactory
     from aiida_crystal.parsers.properties import PropertiesParser
-    parser = PropertiesParser(properties_calc)
-    assert properties_calc._PROPERTIES_FILE in properties_calc_results.get_folder_list()
-    _, nodes = parser.parse({"retrieved": properties_calc_results})
+    calc_node = properties_calc_node()
+    parser = PropertiesParser(calc_node)
+    _, nodes = parser.parse(retrieved_temporary_folder=calc_node.outputs.retrieved)
     nodes = dict(nodes)
     assert nodes
     # bands tests

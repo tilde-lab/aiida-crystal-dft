@@ -110,6 +110,7 @@ def properties_calc_node(properties_calc, calc_results):
 
     def get_calcnode(files=None):
         node = CalcJobNode(computer=computer, process_type=process_type)
+        node.set_process_label('PropertiesCalculation')
         node.set_option('resources', {'num_machines': 1, 'num_mpiprocs_per_machine': 1})
         node.set_attribute('input_filename', 'INPUT')
         node.set_attribute('output_filename', '_scheduler-stderr.txt')
