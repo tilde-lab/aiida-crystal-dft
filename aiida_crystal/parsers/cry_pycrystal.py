@@ -41,7 +41,6 @@ class CrystalParser(Parser):
         self.stdout_parser = None
         self.converged_ionic = None
         self.converged_electronic = None
-        self._nodes = []
         super(CrystalParser, self).__init__(calc_node)
 
     # pylint: disable=protected-access
@@ -59,7 +58,7 @@ class CrystalParser(Parser):
         """
         success = False
         node_list = []
-
+        self.logger.info("Retrieved folder: {}".format(retrieved_temporary_folder))
         # Check that the retrieved folder is there
         if retrieved_temporary_folder is None:
             self.logger.error("No retrieved folder found")
@@ -86,7 +85,7 @@ class CrystalParser(Parser):
         """
         parse_result = callback(f)
         if parse_result is not None:
-            self._nodes.append((link_name, parse_result))
+            self.out(link_name, parse_result)
 
     def parse_stdout(self, f):
         self.stdout_parser = out.OutFileParser(f)

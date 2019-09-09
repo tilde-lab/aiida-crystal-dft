@@ -26,7 +26,7 @@ class BaseCrystalWorkChain(WorkChain):
         spec.input('parameters', valid_type=get_data_class('dict'), required=True)
         spec.input('basis_family', valid_type=get_data_class('crystal.basis_family'), required=True)
         spec.input('clean_workdir', valid_type=get_data_class('bool'),
-                   required=False, default=get_data_node('bool', True))
+                   required=False, default=get_data_node('bool', False))
         spec.input('options', valid_type=get_data_class('dict'), required=True, help="Calculation options")
         # define workchain routine
         spec.outline(cls.init_calculation,
@@ -53,7 +53,12 @@ class BaseCrystalWorkChain(WorkChain):
         self.ctx.inputs.basis_family = self.inputs.basis_family
         # set settings
         if 'options' in self.inputs:
-            self.ctx.inputs.metadata = AttributeDict({'options': self.inputs.options.get_dict()})
+            options_dict = self.inputs.options.get_dict()
+            label = options_dict.pop('label', '')
+            description = options_dict.pop('description', '')
+            self.ctx.inputs.metadata = AttributeDict({'options': options_dict,
+                                                      'label': label,
+                                                      'description': description})
 
     def run_calculation(self):
         """Run a calculation from self.ctx.inputs"""
@@ -129,7 +134,13 @@ class BasePropertiesWorkChain(WorkChain):
         # set parameters, giving the defaults
         self.ctx.inputs.parameters = self._set_default_parameters(self.inputs.parameters)
         # set options
-        self.ctx.inputs.metadata = AttributeDict({'options': self.inputs.options.get_dict()})
+        if 'options' in self.inputs:
+            options_dict = self.inputs.options.get_dict()
+            label = options_dict.pop('label', '')
+            description = options_dict.pop('description', '')
+            self.ctx.inputs.metadata = AttributeDict({'options': options_dict,
+                                                      'label': label,
+                                                      'description': description})
 
     def _set_default_parameters(self, parameters):
         """Set defaults to calculation parameters"""

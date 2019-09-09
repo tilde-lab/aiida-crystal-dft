@@ -50,6 +50,7 @@ class CrystalSerialCalculation(CrystalCommonCalculation):
         codeinfo = CodeInfo()
         codeinfo.code_uuid = self.inputs.code.uuid
         codeinfo.withmpi = False
+        codeinfo.stdin_name = self.inputs.metadata.options.input_filename
 
         # Prepare CalcInfo object for aiida
         calcinfo = CalcInfo()

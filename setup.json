@@ -46,7 +46,8 @@
         "packaging",
         "seekpath",
         "mpds_client",
-        "tzlocal==2.0.0b1"
+        "tzlocal==2.0.0b1",
+        "jsonextended"
     ],
     "extras_require": {
         "testing": [
@@ -57,8 +58,7 @@
             "wheel>=0.31",
             "coverage",
             "pytest-cov",
-            "pytest-timeout",
-            "jsonextended"
+            "pytest-timeout"
         ],
         "pre-commit": [
             "pre-commit==1.10.5",
