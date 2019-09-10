@@ -5,7 +5,7 @@ A plugin to create a properties files from CRYSTAL17 output
 import six
 from aiida.common import CalcInfo, CodeInfo, InputValidationError
 from aiida.engine import CalcJob
-from aiida.orm import Dict, Code, SinglefileData
+from aiida.orm import Dict, Code, SinglefileData, BandsData, ArrayData
 from aiida_crystal.io.d3 import D3
 
 
@@ -23,9 +23,13 @@ class PropertiesCalculation(CalcJob):
         """ Define input and output ports
         """
         super(PropertiesCalculation, cls).define(spec)
+        # input nodes
         spec.input('code', valid_type=Code)
         spec.input('wavefunction', valid_type=SinglefileData, required=True)
         spec.input('parameters', valid_type=Dict, required=True)
+        # output nodes
+        spec.output('output_bands', valid_type=BandsData, required=False)
+        spec.output('output_dos', valid_type=ArrayData, required=False)
         # input, output files and parser name
         spec.input('metadata.options.input_filename', valid_type=six.string_types, default=cls._INPUT_FILE_NAME)
         spec.input('metadata.options.output_filename', valid_type=six.string_types, default=cls._OUTPUT_FILE_NAME)

@@ -17,22 +17,22 @@ class CrystalParallelCalculation(CrystalCommonCalculation):
         # reuse base class function
         super(CrystalParallelCalculation, self)._init_internal_params()
 
-        self._OUTPUT_FILE_NAME = self._SCHED_ERROR_FILE
-        self.retrieve_list = [
-            self._GEOMETRY_FILE_NAME,
-            'fort.9'
-        ]
 
-    def prepare_for_submission(self, tempfolder, inputdict):
+
+
+    def prepare_for_submission(self, folder):
         """
         Create input files.
 
-            :param tempfolder: aiida.common.folders.Folder subclass where
+            :param folder: aiida.common.folders.Folder subclass where
                 the plugin should put all its files.
-            :param inputdict: dictionary of the input nodes as they would
-                be returned by get_inputs_dict
         """
-        validated_dict = self._validate_basis_input(inputdict)
+        retrieve_list = [
+            self._GEOMETRY_FILE_NAME,
+            'fort.9'
+        ]
+        # CRYSTAL parallel version writes input to stderr
+        self._OUTPUT_FILE_NAME = self._SCHED_ERROR_FILE
 
         # create input files: d12
         try:
@@ -54,8 +54,9 @@ class CrystalParallelCalculation(CrystalCommonCalculation):
 
         # Prepare CodeInfo object for aiida
         codeinfo = CodeInfo()
-        codeinfo.code_uuid = validated_dict['code'].uuid
+        codeinfo.code_uuid = self.inputs.code.uuid
         codeinfo.withmpi = True
+        codeinfo.stdin_name = self.inputs.metadata.options.input_filename
 
         # Prepare CalcInfo object for aiida
         calcinfo = CalcInfo()
@@ -63,8 +64,7 @@ class CrystalParallelCalculation(CrystalCommonCalculation):
         calcinfo.codes_info = [codeinfo]
         calcinfo.local_copy_list = []
         calcinfo.remote_copy_list = []
-        calcinfo.retrieve_list = self.retrieve_list
-
+        calcinfo.retrieve_list = retrieve_list
         calcinfo.local_copy_list = []
 
         return calcinfo

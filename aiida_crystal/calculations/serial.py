@@ -24,7 +24,7 @@ class CrystalSerialCalculation(CrystalCommonCalculation):
         """
         retrieve_list = [
             self._GEOMETRY_FILE_NAME,
-            self._OUTPUT_FILE_NAME,
+            self.inputs.metadata.options.output_filename,
             'fort.9']
 
         basis_dict = self._validate_basis_input(dict(self.inputs))
@@ -39,7 +39,7 @@ class CrystalSerialCalculation(CrystalCommonCalculation):
             raise InputValidationError(
                 "an input file could not be created from the parameters: {}".
                 format(err))
-        with open(folder.get_abs_path(self._INPUT_FILE_NAME), 'w') as f:
+        with open(folder.get_abs_path(self.inputs.metadata.options.input_filename), 'w') as f:
             f.write(d12_filecontent)
 
         # create input files: fort.34
@@ -51,6 +51,8 @@ class CrystalSerialCalculation(CrystalCommonCalculation):
         codeinfo.code_uuid = self.inputs.code.uuid
         codeinfo.withmpi = False
         codeinfo.stdin_name = self.inputs.metadata.options.input_filename
+        # serial CRYSTAL version writes output to stdout
+        codeinfo.stdout_name = self.inputs.metadata.options.output_filename
 
         # Prepare CalcInfo object for aiida
         calcinfo = CalcInfo()

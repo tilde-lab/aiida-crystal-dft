@@ -41,3 +41,7 @@ def test_prepare_for_submission(crystal_calc):
         calcinfo = crystal_calc.prepare_for_submission(folder=folder)
     assert crystal_calc._GEOMETRY_FILE_NAME in calcinfo['retrieve_list']
     assert crystal_calc._OUTPUT_FILE_NAME in calcinfo['retrieve_list']
+
+
+def test_run_calculation(crystal_calc):
+    pass

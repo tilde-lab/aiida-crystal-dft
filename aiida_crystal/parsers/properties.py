@@ -2,7 +2,7 @@
 
 import numpy as np
 from aiida.parsers.parser import Parser
-from aiida.common import OutputParsingError
+from aiida.common import OutputParsingError, NotExistent
 from aiida.plugins import CalculationFactory
 from aiida_crystal.io.f25 import Fort25
 from aiida_crystal.io.f9 import Fort9
@@ -15,7 +15,6 @@ class PropertiesParser(Parser):
     """
     _linkname_bands = "output_bands"
     _linkname_dos = "output_dos"
-    _linkname_input_parameters = "input_parameters"
 
     # pylint: disable=protected-access
     def __init__(self, calc_node):
@@ -48,18 +47,16 @@ class PropertiesParser(Parser):
           * ``node_list``: list of new nodes to be stored in the db
             (as a list of tuples ``(link_name, node)``)
         """
-        success = False
-        node_list = []
-
         # Check that the retrieved folder is there
-        if retrieved_temporary_folder is None:
-            self.logger.error("No retrieved folder found")
-            return success, node_list
+        try:
+            folder = self.retrieved
+        except NotExistent:
+            return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
 
         # TODO: Check the folder content is as expected
 
         # parse file here
-        with retrieved_temporary_folder.open("fort.25") as f:
+        with folder.open("fort.25") as f:
             parser = Fort25(f)
             result = parser.parse()
             self.add_node(self._linkname_bands,
@@ -75,7 +72,7 @@ class PropertiesParser(Parser):
     def add_node(self, link_name, file_name, callback):
         """Adds nodes to parser results"""
         try:
-            self._nodes.append((link_name, callback(file_name)))
+            self.out(link_name, callback(file_name))
         except (ValueError, NotImplementedError) as err:
             self.logger.warning("Exception {} was raised while parsing {}".format(err, link_name))
 

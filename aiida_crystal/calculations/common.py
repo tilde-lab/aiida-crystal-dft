@@ -6,7 +6,7 @@ Code shared between serial and parallel CRYSTAL calculations.
 import six
 from ase.data import chemical_symbols
 from aiida.engine import CalcJob
-from aiida.orm import Dict, Code, StructureData
+from aiida.orm import Dict, Code, StructureData, SinglefileData, TrajectoryData
 from aiida.common import InputValidationError
 from aiida_crystal.data.basis_set import BasisSetData
 from aiida_crystal.data.basis_family import CrystalBasisFamilyData
@@ -29,11 +29,17 @@ class CrystalCommonCalculation(CalcJob):
         """ Define input and output ports
         """
         super(CrystalCommonCalculation, cls).define(spec)
+        # input nodes
         spec.input('code', valid_type=Code)
         spec.input('structure', valid_type=StructureData, required=True)
         spec.input('parameters', valid_type=Dict, required=True)
         spec.input_namespace('basis', valid_type=BasisSetData, required=False, dynamic=True)
         spec.input('basis_family', valid_type=CrystalBasisFamilyData, required=False)
+        # output nodes
+        spec.output('output_structure', valid_type=StructureData, required=False)
+        spec.output('output_parameters', valid_type=Dict, required=True)
+        spec.output('output_wavefunction', valid_type=SinglefileData, required=False)
+        spec.output('output_trajectory', valid_type=TrajectoryData, required=False)
         # input, output files and parser name
         spec.input('metadata.options.input_filename', valid_type=six.string_types, default=cls._INPUT_FILE_NAME)
         spec.input('metadata.options.output_filename', valid_type=six.string_types, default=cls._OUTPUT_FILE_NAME)

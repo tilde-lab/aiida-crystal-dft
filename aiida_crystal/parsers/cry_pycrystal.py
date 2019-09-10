@@ -6,9 +6,8 @@ Pycrystal-based parser for CRYSTAL AiiDA plugin
 from __future__ import absolute_import
 
 from aiida.parsers.parser import Parser
-from aiida.common import OutputParsingError
-from aiida.plugins import CalculationFactory
-from aiida.plugins import DataFactory
+from aiida.common import OutputParsingError, NotExistent
+from aiida.plugins import CalculationFactory, DataFactory
 from aiida_crystal.io.pycrystal import out
 from aiida_crystal.io.f34 import Fort34
 
@@ -44,37 +43,27 @@ class CrystalParser(Parser):
         super(CrystalParser, self).__init__(calc_node)
 
     # pylint: disable=protected-access
-    def parse(self, retrieved_temporary_folder=None, **kwargs):
+    def parse(self, **kwargs):
         """
         Parse outputs, store results in database.
-
-        :param retrieved_temporary_folder: absolute path to the temporary folder on disk
-        :returns: a tuple with two values ``(bool, node_list)``,
-          where:
-
-          * ``bool``: variable to tell if the parsing succeeded
-          * ``node_list``: list of new nodes to be stored in the db
-            (as a list of tuples ``(link_name, node)``)
         """
-        success = False
-        node_list = []
-        self.logger.info("Retrieved folder: {}".format(retrieved_temporary_folder))
+
         # Check that the retrieved folder is there
-        if retrieved_temporary_folder is None:
-            self.logger.error("No retrieved folder found")
-            return success, node_list
+        try:
+            folder = self.retrieved
+        except NotExistent:
+            return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
 
         # parameters should be parsed first, as the results
-        with retrieved_temporary_folder.open(self.node.get_option('output_filename')) as f:
+        with folder.open(self.node.get_option('output_filename')) as f:
             self.add_node(self._linkname_parameters, f, self.parse_stdout)
-        with retrieved_temporary_folder.open('fort.9', 'rb') as f:
+        with folder.open('fort.9', 'rb') as f:
             self.add_node(self._linkname_wavefunction, f, self.parse_out_wavefunction)
-        with retrieved_temporary_folder.open('fort.34') as f:
+        with folder.open('fort.34') as f:
             self.add_node(self._linkname_structure, f, self.parse_out_structure)
-        with retrieved_temporary_folder.open(self.node.get_option('output_filename')) as f:
+        with folder.open(self.node.get_option('output_filename')) as f:
             self.add_node(self._linkname_trajectory, f, self.parse_out_trajectory)
-        success = True
-        return success, self._nodes
+        return None
 
     def add_node(self, link_name, f, callback):
         """
