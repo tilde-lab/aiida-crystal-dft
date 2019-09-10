@@ -11,8 +11,8 @@ def test_properties_parser(properties_calc_node):
     from aiida_crystal.parsers.properties import PropertiesParser
     calc_node = properties_calc_node()
     parser = PropertiesParser(calc_node)
-    _, nodes = parser.parse(retrieved_temporary_folder=calc_node.outputs.retrieved)
-    nodes = dict(nodes)
+    parser.parse()
+    nodes = parser.outputs
     assert nodes
     # bands tests
     assert parser._linkname_bands in nodes

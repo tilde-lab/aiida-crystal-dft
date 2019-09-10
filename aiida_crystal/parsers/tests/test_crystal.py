@@ -10,8 +10,8 @@ def test_crystal_parser(crystal_calc_node):
     calcnode = crystal_calc_node()
     parser = CrystalParser(calcnode)
 
-    _, nodes = parser.parse(retrieved_temporary_folder=calcnode.outputs.retrieved)
-    nodes = dict(nodes)
+    parser.parse()
+    nodes = parser.outputs
     # wavefunction tests
     assert parser._linkname_wavefunction in nodes
     assert isinstance(nodes[parser._linkname_wavefunction], DataFactory("singlefile"))
@@ -36,8 +36,8 @@ def test_crystal_raman_parser(crystal_calc_node):
     calcnode = crystal_calc_node(files={'crystal.out': 'mgo_sto3g/raman'})
     parser = CrystalParser(calcnode)
 
-    _, nodes = parser.parse(retrieved_temporary_folder=calcnode.outputs.retrieved)
-    nodes = dict(nodes)
+    parser.parse()
+    nodes = parser.outputs
     # output parameter tests
     assert parser._linkname_parameters in nodes
     assert isinstance(nodes[parser._linkname_parameters], DataFactory("dict"))
@@ -52,8 +52,8 @@ def test_crystal_elastic_parser(crystal_calc_node):
     calcnode = crystal_calc_node(files={'crystal.out': 'mgo_sto3g/elastic'})
     parser = CrystalParser(calcnode)
 
-    _, nodes = parser.parse(retrieved_temporary_folder=calcnode.outputs.retrieved)
-    nodes = dict(nodes)
+    parser.parse(retrieved_temporary_folder=calcnode.outputs.retrieved)
+    nodes = parser.outputs
     # output parameter tests
     assert parser._linkname_parameters in nodes
     assert isinstance(nodes[parser._linkname_parameters], DataFactory("dict"))

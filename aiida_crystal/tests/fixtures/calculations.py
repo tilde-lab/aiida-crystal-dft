@@ -106,7 +106,7 @@ def properties_calc_node(properties_calc, calc_results):
     from aiida.orm import CalcJobNode
     from aiida.common.links import LinkType
     computer = properties_calc.inputs.code.get_remote_computer()
-    process_type = 'aiida.calculations:{}'.format('properties')
+    process_type = 'aiida.calculations:{}'.format('crystal.properties')
 
     def get_calcnode(files=None):
         node = CalcJobNode(computer=computer, process_type=process_type)
