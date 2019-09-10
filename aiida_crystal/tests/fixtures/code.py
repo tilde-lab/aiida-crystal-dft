@@ -1,7 +1,9 @@
 #  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 
 
+import os
 import pytest
+from aiida_crystal.tests import MOCK_DIR
 
 
 @pytest.fixture
@@ -29,7 +31,8 @@ def test_crystal_code(test_computer):
     code = Code()
     code.label = 'crystal'
     code.description = 'CRYSTAL code'
-    code.set_remote_computer_exec((test_computer, '/usr/local/bin/crystal'))
+    mock_exec = os.path.join(MOCK_DIR, 'crystal')
+    code.set_remote_computer_exec((test_computer, mock_exec))
     code.set_input_plugin_name('crystal.serial')
     return code
 
@@ -42,6 +45,7 @@ def test_properties_code(test_computer):
     code = Code()
     code.label = 'properties'
     code.description = 'CRYSTAL properties code'
-    code.set_remote_computer_exec((test_computer, '/usr/local/bin/properties'))
+    mock_exec = os.path.join(MOCK_DIR, 'crystal')
+    code.set_remote_computer_exec((test_computer, mock_exec))
     code.set_input_plugin_name('crystal.properties')
     return code

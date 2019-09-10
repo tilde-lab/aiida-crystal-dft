@@ -43,5 +43,19 @@ def test_prepare_for_submission(crystal_calc):
     assert crystal_calc._OUTPUT_FILE_NAME in calcinfo['retrieve_list']
 
 
-def test_run_calculation(crystal_calc):
-    pass
+def test_run_crystal_calculation(crystal_calc):
+    from aiida.engine import run
+    from aiida_crystal.tests.utils import get_authinfo
+    computer = crystal_calc.inputs.code.get_remote_computer()
+    get_authinfo(computer)
+    result = run(crystal_calc)
+    assert result['output_parameters'].dict.converged_electronic
+    assert result['output_parameters'].dict.energy == -7380.221696964
+
+
+def test_run_properties_calculation(properties_calc):
+    from aiida.engine import run
+    from aiida_crystal.tests.utils import get_authinfo
+    computer = properties_calc.inputs.code.get_remote_computer()
+    get_authinfo(computer)
+    result = run(properties_calc)

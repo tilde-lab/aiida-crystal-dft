@@ -53,8 +53,6 @@ class PropertiesParser(Parser):
         except NotExistent:
             return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
 
-        # TODO: Check the folder content is as expected
-
         # parse file here
         with folder.open("fort.25") as f:
             parser = Fort25(f)
@@ -65,9 +63,6 @@ class PropertiesParser(Parser):
             self.add_node(self._linkname_dos,
                           result.get("DOSS", None),
                           self.parse_dos)
-
-        success = True
-        return success, self._nodes
 
     def add_node(self, link_name, file_name, callback):
         """Adds nodes to parser results"""

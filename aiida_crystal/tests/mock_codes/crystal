@@ -10,14 +10,10 @@ import shutil
 from hashlib import md5
 from aiida_crystal.tests import TEST_DIR
 
-inputs = {'a97aea7204e8ada080e2be6c29344384': {'fort.34': '6b1423d9ecd3ba3c7395f2079555578c'},
-          '226706c6adb6aaa7fd0b6338dc6cc92f': {'fort.34': '5537457e809147c474428dc2bcc32c5f'},
-          '11c3f2ef8e7d603d5602142e464b692c': {'fort.34': '5537457e809147c474428dc2bcc32c5f'},
-          '8731c858bbe210cb21d1dff45eb9353b': {'fort.9': '909760912d24b5273f2eeea030f12a8c'}}
-outputs = {'a97aea7204e8ada080e2be6c29344384': 'optimise',
-           '226706c6adb6aaa7fd0b6338dc6cc92f': 'elastic',
-           '11c3f2ef8e7d603d5602142e464b692c': 'frequency',
-           '8731c858bbe210cb21d1dff45eb9353b': 'properties'
+inputs = {'58145dd5a5fce295c414eb7040fc2e7b': {'fort.34': '10ce5c8d8dff73207fd340b6262ad8a3'},
+          '29984f78298455be74cb0a91584d3278': {'fort.9': 'bc716a16c8d63b6a45549ea250d194f0'}}
+outputs = {'58145dd5a5fce295c414eb7040fc2e7b': 'optimise',
+           '29984f78298455be74cb0a91584d3278': 'properties'
            }
 
 
@@ -28,6 +24,8 @@ def checksum(file_name, cs=md5):
 
 
 def main():
+    print("=============  MOCK CRYSTAL CODE  =============")
+    print("=============        V 0.1        =============")
     cwd = os.getcwd()
     files = os.listdir(cwd)
     input_files = ('INPUT', 'main.d12', 'main.d3')

@@ -40,6 +40,7 @@ class CrystalCommonCalculation(CalcJob):
         spec.output('output_parameters', valid_type=Dict, required=True)
         spec.output('output_wavefunction', valid_type=SinglefileData, required=False)
         spec.output('output_trajectory', valid_type=TrajectoryData, required=False)
+        spec.default_output_node = 'output_parameters'
         # input, output files and parser name
         spec.input('metadata.options.input_filename', valid_type=six.string_types, default=cls._INPUT_FILE_NAME)
         spec.input('metadata.options.output_filename', valid_type=six.string_types, default=cls._OUTPUT_FILE_NAME)
