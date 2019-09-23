@@ -8,6 +8,8 @@ from ase.data import chemical_symbols
 from aiida.engine import CalcJob
 from aiida.orm import Dict, Code, StructureData, SinglefileData, TrajectoryData
 from aiida.common import InputValidationError
+from aiida_crystal.io.d12_write import write_input
+from aiida_crystal.io.f34 import Fort34
 from aiida_crystal.data.basis_set import BasisSetData
 from aiida_crystal.data.basis_family import CrystalBasisFamilyData
 
@@ -83,7 +85,23 @@ class CrystalCommonCalculation(CalcJob):
 
         return validated_dict
 
-    # @classmethod
-    # def _get_linkname_basis(cls, element):
-    #     """Returns a link name for basis, one for each element"""
-    #     return "{}{}".format(cls._BASIS_PREFIX, element)
+    def _prepare_input_files(self, folder):
+        basis_dict = self._validate_basis_input(dict(self.inputs))
+        # create input files: d12
+        try:
+            # d12_filecontent = write_input(basis_dict['parameters'].get_dict(),
+            #                               list(basis_dict['basis'].values()), {})
+            basis_dict['basis_family'].set_structure(self.inputs.structure)
+            d12_filecontent = write_input(self.inputs.parameters.get_dict(),
+                                          basis_dict['basis_family'], {})
+        except (AttributeError, ValueError, NotImplementedError) as err:
+            raise InputValidationError(
+                "an input file could not be created from the parameters: {}".
+                format(err))
+        with open(folder.get_abs_path(self.inputs.metadata.options.input_filename), 'w') as f:
+            f.write(d12_filecontent)
+
+        # create input files: fort.34
+        with open(folder.get_abs_path(self._GEOMETRY_FILE_NAME), 'w') as f:
+            Fort34().from_aiida(self.inputs.structure).write(f)
+

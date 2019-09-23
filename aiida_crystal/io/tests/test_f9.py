@@ -26,3 +26,12 @@ def test_pass():
     assert positions.shape == (2, 3)
     assert sorted(numbers.tolist()) == [8, 12]
     assert parser.get_ao_number() == 18
+
+
+def test_tof98():
+    file_name = os.path.join(TEST_DIR,
+                             "output_files",
+                             "optimise",
+                             "fort.9")
+    parser = Fort9(file_name)
+    print(parser._data)

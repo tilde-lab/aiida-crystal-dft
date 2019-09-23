@@ -9,8 +9,6 @@ Register calculations via the "aiida.calculations" entry point in setup.json.
 from aiida.common import CalcInfo, CodeInfo
 from aiida.common import InputValidationError
 from aiida_crystal.calculations.common import CrystalCommonCalculation
-from aiida_crystal.io.d12_write import write_input
-from aiida_crystal.io.f34 import Fort34
 
 
 class CrystalSerialCalculation(CrystalCommonCalculation):
@@ -26,25 +24,8 @@ class CrystalSerialCalculation(CrystalCommonCalculation):
             self._GEOMETRY_FILE_NAME,
             self.inputs.metadata.options.output_filename,
             'fort.9']
-
-        basis_dict = self._validate_basis_input(dict(self.inputs))
-        # create input files: d12
-        try:
-            # d12_filecontent = write_input(basis_dict['parameters'].get_dict(),
-            #                               list(basis_dict['basis'].values()), {})
-            basis_dict['basis_family'].set_structure(self.inputs.structure)
-            d12_filecontent = write_input(self.inputs.parameters.get_dict(),
-                                          basis_dict['basis_family'], {})
-        except (AttributeError, ValueError, NotImplementedError) as err:
-            raise InputValidationError(
-                "an input file could not be created from the parameters: {}".
-                format(err))
-        with open(folder.get_abs_path(self.inputs.metadata.options.input_filename), 'w') as f:
-            f.write(d12_filecontent)
-
-        # create input files: fort.34
-        with open(folder.get_abs_path(self._GEOMETRY_FILE_NAME), 'w') as f:
-            Fort34().from_aiida(self.inputs.structure).write(f)
+        # write input files
+        self._prepare_input_files(folder)
 
         # Prepare CodeInfo object for aiida
         codeinfo = CodeInfo()

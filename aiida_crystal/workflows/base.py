@@ -4,7 +4,6 @@
 from aiida.plugins import CalculationFactory
 from aiida.orm import Code
 from aiida.common.extendeddicts import AttributeDict
-from aiida.common.links import LinkType
 from aiida.engine import WorkChain, append_
 from aiida_crystal.aiida_compatibility import get_data_class, get_data_node
 from aiida_crystal.utils.kpoints import get_shrink_kpoints_path
@@ -69,7 +68,6 @@ class BaseCrystalWorkChain(WorkChain):
         else:
             calculation = self._serial_calculation
         process = CalculationFactory(calculation)
-
         running = self.submit(process, **self.ctx.inputs)
         return self.to_context(calculations=append_(running))
 
