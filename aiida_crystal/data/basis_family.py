@@ -145,7 +145,7 @@ class CrystalBasisFamilyData(Data):
         composition = self.structure.get_composition()
         basis_strings = [self.get_basis(element).content for element in sorted(composition.keys(),
                                                                                key=lambda k: atomic_numbers[k])]
-        basis_strings.append("99 0")
+        basis_strings.append("99 0\n")
         return "\n".join(basis_strings)
 
     def store(self, with_transaction=True, use_cache=None):
