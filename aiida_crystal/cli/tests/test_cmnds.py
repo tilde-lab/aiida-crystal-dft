@@ -18,9 +18,18 @@ def test_predefined_basis_family(new_database):
 def test_upload_to_basis_family(new_database):
     path = os.path.join(TEST_DIR, "input_files", "311g")
     runner = CliRunner()
-    result = runner.invoke(basis_set, [
+    result1 = runner.invoke(basis_set, [
         'uploadfamily', '--path', path, '--name', 'TEST'])
-    assert result.exit_code == 0
+    assert result1.exit_code == 0
+    result2 = runner.invoke(basis_set, [
+        'listfamilies'])
+    assert "TEST" in result2.stdout
+    result3 = runner.invoke(basis_set, [
+        'listfamilies', '-e', 'Ag'])
+    assert "TEST" in result3.stdout
+    result4 = runner.invoke(basis_set, [
+        'listfamilies', '-e', 'U'])
+    assert "No Basis Set family contains all given elements and symbols" in result4.stdout
 
 
 def test_basis_show(new_database):

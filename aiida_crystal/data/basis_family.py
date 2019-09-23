@@ -4,6 +4,7 @@
 A module describing the CRYSTAL basis family (Str on steroids)
 """
 import os
+import six
 from ase.data import atomic_numbers
 from aiida.orm import Group, Data
 from aiida.plugins import DataFactory
@@ -186,3 +187,33 @@ class CrystalBasisFamilyData(Data):
             group.description = description
         added = group.add(bases)
         return len(files), created, added
+
+    @classmethod
+    def get_families(cls, filter_elements=None, user=None):
+        """
+        Return all names of groups of type BasisFamily, possibly with some filters.
+
+        :param filter_elements: A string or a list of strings.
+               If present, returns only the groups that contains one Basis for
+               every element present in the list. Default=None, meaning that
+               all families are returned.
+        :param user: if None (default), return the groups for all users.
+               If defined, it should be either a DbUser instance, or a string
+               for the username (that is, the user email).
+        """
+        from aiida.orm import Group
+        group_query_params = {"type_string": BASIS_FAMILY_TYPE}
+        if user is not None:
+            group_query_params['user'] = user
+        basis_groups = Group.objects.find(filters=group_query_params)
+        if isinstance(filter_elements, six.string_types):
+            filter_elements = [filter_elements]
+        if filter_elements is not None:
+            actual_filter_elements = {_.capitalize() for _ in filter_elements}
+            basis_groups = [g for g in basis_groups if actual_filter_elements.issubset({b.element for b in g.nodes})]
+        groups = [(g.label, g) for g in basis_groups]
+        # Sort by name
+        groups.sort()
+        # Return the groups, without name
+        return [_[1] for _ in groups]
+

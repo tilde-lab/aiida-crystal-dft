@@ -53,21 +53,22 @@ def createpredefined():
     '-e',
     '--element',
     multiple=True,
+    default=None,
     help='Filter for families containing potentials for all given elements.')
 @click.option('-p', '--list-pks', is_flag=True)
-def listfamilies(element, with_description, list_pks):
+@click.option('-d', '--with-description', is_flag=True, default=False)
+def listfamilies(element, list_pks, with_description):
     """List available families of CRYSTAL Basis Set files."""
 
-    basis_data_cls = get_data_class('crystal.basis_family')
-    groups = basis_data_cls.get_basis_groups(filter_elements=element)
-
+    basis_family_cls = get_data_class('crystal.basis_family')
+    groups = basis_family_cls.get_families(filter_elements=element)
     table = [['Family', 'Num Basis Sets']]
     if with_description:
         table[0].append('Description')
     if list_pks:
         table[0].append('Pks')
     for group in groups:
-        row = [group.name, len(group.nodes)]
+        row = [group.label, len(group.nodes)]
         if with_description:
             row.append(group.description)
         if list_pks:
