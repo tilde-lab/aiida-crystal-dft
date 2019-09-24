@@ -199,7 +199,8 @@ def _basis_set_block(outstr, indict, basis, atom_props):
             outstr += "END\n"
         outstr += content
         # basis sets end
-        outstr += "END\n"
+        if "BASISSET" not in content:
+            outstr += "END\n"
     elif isinstance(basis, list):
         # Geometry End
         outstr += "END\n"
