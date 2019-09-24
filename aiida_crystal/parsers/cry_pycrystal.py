@@ -30,16 +30,18 @@ class CrystalParser(Parser):
         calc_entry_points = ['crystal.serial',
                              'crystal.parallel'
                              ]
-        calc_cls = [CalculationFactory(entry_point).get_name() for entry_point in calc_entry_points]
+        calc_cls = {CalculationFactory(entry_point).get_name(): entry_point for entry_point in calc_entry_points}
         if calc_node.process_label not in calc_cls:
             raise OutputParsingError("{}: Unexpected calculation type to parse: {}".format(
                 self.__class__.__name__,
                 calc_node.__class__.__name__
             ))
 
+        self.is_parallel = "parallel" in calc_cls[calc_node.process_label]
         self.stdout_parser = None
         self.converged_ionic = None
         self.converged_electronic = None
+
         super(CrystalParser, self).__init__(calc_node)
 
     # pylint: disable=protected-access
@@ -55,13 +57,18 @@ class CrystalParser(Parser):
             return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
 
         # parameters should be parsed first, as the results
-        with folder.open(self.node.get_option('output_filename')) as f:
+        if self.is_parallel:
+            results_file = self.node.get_option('scheduler_stderr')
+        else:
+            results_file = self.node.get_option('output_filename')
+
+        with folder.open(results_file) as f:
             self.add_node(self._linkname_parameters, f, self.parse_stdout)
         with folder.open('fort.9', 'rb') as f:
             self.add_node(self._linkname_wavefunction, f, self.parse_out_wavefunction)
         with folder.open('fort.34') as f:
             self.add_node(self._linkname_structure, f, self.parse_out_structure)
-        with folder.open(self.node.get_option('output_filename')) as f:
+        with folder.open(results_file) as f:
             self.add_node(self._linkname_trajectory, f, self.parse_out_trajectory)
         return None
 

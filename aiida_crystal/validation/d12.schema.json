@@ -138,8 +138,8 @@
             }
           }
         },
-        "frequency": {
-          "description": "Calculation of vibration frequencies",
+        "phonons": {
+          "description": "Calculation of phonons frequencies",
           "type": [
             "object",
             "boolean"
@@ -195,8 +195,8 @@
             }
           }
         },
-        "elastic": {
-          "description": "elastic constants calculation",
+        "elastic_constants": {
+          "description": "Elastic constants calculation",
           "type": [
             "object",
             "boolean"

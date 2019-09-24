@@ -193,7 +193,13 @@ def _basis_set_block(outstr, indict, basis, atom_props):
     from aiida_crystal.data.basis_family import CrystalBasisFamilyData
     # Basis Sets
     if isinstance(basis, CrystalBasisFamilyData):
-        outstr += basis.content
+        content = basis.content
+        if "BASISSET" not in content:
+            # not predefined basis family, so geometry should end with END
+            outstr += "END\n"
+        outstr += content
+        # basis sets end
+        outstr += "END\n"
     elif isinstance(basis, list):
         # Geometry End
         outstr += "END\n"

@@ -71,11 +71,11 @@ class D3(object):
         lines += self._newk_block_str()
         lines += self._dos_block_str()
         lines.append("END")
-        return "\n".join(lines)
+        return u"\n".join(lines)
 
     def write(self, f):
         """Writes the content to file f"""
-        print(self, file=f)
+        print(six.text_type(str(self)), file=f)
 
     def _band_block_str(self):
         band = self._parameters.get("band", None)
