@@ -25,13 +25,14 @@ def f34_parser():
 
 class Fort34(object):
 
-    def __init__(self):
+    def __init__(self, basis=None):
         """
         A reader and writer of fort.34 (or instruct.gui) CRYSTAL input/output file.
         Stores geometry internally as conventional cell; rotations are stored for primitive cell (otherwise we can not
         get symmetry number properly).
         converts to primitive before writing the file
         """
+        from aiida_crystal.data.basis_family import CrystalBasisFamilyData
         self.dimensionality = None
         self.centring = None
         self.crystal_type = None
@@ -41,6 +42,8 @@ class Fort34(object):
         self.space_group = None
         self.abc = None
         self.atomic_numbers = None
+        # a BasisFamily instance
+        self.basis = basis
 
     def from_aiida(self, aiida_struct):
         """
@@ -118,7 +121,9 @@ class Fort34(object):
         # convert to conventional cell
         cell = (abc, positions, atomic_numbers)
         cell = spglib.standardize_cell(cell, to_primitive=False, no_idealize=False)
-        self.abc, self.positions, self.atomic_numbers = cell
+        self.abc, self.positions, atomic_numbers = cell
+        # ECPs
+        self.atomic_numbers = [num if num < 201 else num - 200 for num in atomic_numbers]
         # get symmetry operations
         self.n_symops = parsed_data['n_symops']
         self.symops = np.array(parsed_data['symops'].asList()).reshape(self.n_symops * 4, 3)
@@ -135,6 +140,11 @@ class Fort34(object):
         return self
 
     def __str__(self):
+        # check for ECPs in basis family
+        has_ecp = []
+        if not self.basis.predefined:
+            composition = set(self.atomic_numbers)
+            has_ecp = [num for num in composition if not self.basis.get_basis(chemical_symbols[num]).all_electron]
         # convert geometry to primitive and find inequivalent atoms
         cell = self.abc, self.positions, self.atomic_numbers
         cell = spglib.standardize_cell(cell, to_primitive=True, no_idealize=False)
@@ -170,8 +180,8 @@ class Fort34(object):
             np.round(line, 9) + 0.) for line in symops]
         # atoms part
         f34_lines.append(str(len(atomic_numbers)))
-        f34_lines += ["{0:3} {1[0]:17.9E} {1[1]:17.9E} {1[2]:17.9E}".format(anum, pos)
-                      for anum, pos in zip(atomic_numbers, positions)]
+        f34_lines += ["{0:3} {1[0]:17.9E} {1[1]:17.9E} {1[2]:17.9E}".format(
+            anum + 200 if anum in has_ecp else anum, pos) for anum, pos in zip(atomic_numbers, positions)]
 
         return "\n".join(f34_lines)
 

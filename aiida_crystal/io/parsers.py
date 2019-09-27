@@ -11,8 +11,6 @@ pc = pp.pyparsing_common
 def d12_geometry_parser():
     """Geometry block parser"""
     title = pp.restOfLine()('title')
-    external = pp.Word(pp.alphas)('external')
-
     return title
 
 
@@ -31,7 +29,7 @@ def gto_basis_parser():
     ecp_part = pp.Word(pp.alphas) + \
                pp.Optional(pp.Group(pc.real + 6 * pc.integer) +
                            pp.Group(pp.OneOrMore(pp.Group(2 * pc.real + pc.integer))))
-    bs_part = pp.OneOrMore(pp.Group(pp.Group(3 * pc.integer + 2 * pc.real) +
+    bs_part = pp.OneOrMore(pp.Group(pp.Group(3 * pc.integer + 2 * pc.number) +
                                     pp.ZeroOrMore(pp.Group((3 * pc.real + pp.Suppress(pp.LineEnd())) ^
                                                            (2 * pc.real + pp.Suppress(pp.LineEnd()))))))
     return pp.SkipTo(header) + header('header') + pp.Optional(ecp_part('ecp')) + bs_part('bs')
