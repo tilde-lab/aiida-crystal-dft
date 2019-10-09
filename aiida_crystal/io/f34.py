@@ -142,7 +142,7 @@ class Fort34(object):
     def __str__(self):
         # check for ECPs in basis family
         has_ecp = []
-        if not self.basis.predefined:
+        if self.basis and not self.basis.predefined:
             composition = set(self.atomic_numbers)
             has_ecp = [num for num in composition if not self.basis.get_basis(chemical_symbols[num]).all_electron]
         # convert geometry to primitive and find inequivalent atoms
