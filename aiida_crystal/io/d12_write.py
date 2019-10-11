@@ -166,8 +166,8 @@ def _geometry_block(outstr, indict, atom_props):
             outstr += "{}\n".format(keyword)
         outstr += format_value(indict, ["geometry", "optimise", "convergence"])
         outstr += "ENDOPT\n"
-    if "frequency" in indict.get("geometry", {}):
-        freq_dict = indict["geometry"]["frequency"]
+    if "phonons" in indict.get("geometry", {}):
+        freq_dict = indict["geometry"]["phonons"]
         outstr += "FREQCALC\n"
         for keyword in freq_dict.get("info_print", []):
             outstr += "{}\n".format(keyword)
@@ -179,10 +179,10 @@ def _geometry_block(outstr, indict, atom_props):
             outstr += "INTCPHF\n"
             outstr += "END\n"
         outstr += "ENDFREQ\n"
-    if "elastic" in indict.get("geometry", {}):
-        ela_dict = indict["geometry"]["elastic"]
+    if "elastic_constants" in indict.get("geometry", {}):
+        ela_dict = indict["geometry"]["elastic_constants"]
         outstr += '{}\n'.format(ela_dict['type'])
-        outstr += format_value(indict, ["geometry", "elastic", "convergence"])
+        outstr += format_value(indict, ["geometry", "elastic_constants", "convergence"])
         outstr += 'END\n'
     # somehow it seems that if basis set is given by keyword the geometry block must not end with END
     # thus ENDGEOM found its place in basis set block
