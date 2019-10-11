@@ -30,6 +30,7 @@ class CrystalBasisFamilyData(Data):
         super(CrystalBasisFamilyData, self).__init__(**kwargs)
         if name is not None:
             self.set_name(name)
+        self.structure = None
 
     @classmethod
     def _get(cls, name):
@@ -127,8 +128,21 @@ class CrystalBasisFamilyData(Data):
             composition = structure.get_composition()
             elements_in_group = set([basis.element for basis in self.group.nodes])
             if not all([el in elements_in_group for el in composition]):
-                raise ValueError('Basis sets for some elements present in the structure not found in family ')
+                raise ValueError('Basis sets for some elements present in the structure not found in family: {}'.format(
+                    ",".join(list(set(composition).difference(elements_in_group)))))
         self.structure = structure
+
+    def get_bases(self, structure=None):
+        if self.predefined:
+            return []
+        if structure is None:
+            if self.structure is not None:
+                structure = self.structure
+            else:
+                raise ValueError('Structure is needed to be set for the basis family')
+        composition = structure.get_composition()
+        return [self.get_basis(element) for element in sorted(composition.keys(),
+                                                              key=lambda k: atomic_numbers[k])]
 
     @property
     def predefined(self):
@@ -140,11 +154,8 @@ class CrystalBasisFamilyData(Data):
         """
         if self.predefined:
             return "BASISSET\n{}\n".format(self.name)
-        if not hasattr(self, 'structure'):
-            raise AttributeError('Structure is needed to be set for the basis family')
-        composition = self.structure.get_composition()
-        basis_strings = [self.get_basis(element).content for element in sorted(composition.keys(),
-                                                                               key=lambda k: atomic_numbers[k])]
+        bases = self.get_bases()
+        basis_strings = [b.content for b in bases]
         basis_strings.append("99 0\n")
         return "\n".join(basis_strings)
 
@@ -179,7 +190,7 @@ class CrystalBasisFamilyData(Data):
             os.path.realpath(os.path.join(path, i))
             for i in os.listdir(path)
             if os.path.isfile(os.path.join(path, i))
-            and i.lower().endswith(extension)
+               and i.lower().endswith(extension)
         ]
         bases = [CrystalBasisData.from_file(file_name) for file_name in files]
         group, created = cls.get_or_create(name)
@@ -216,4 +227,3 @@ class CrystalBasisFamilyData(Data):
         groups.sort()
         # Return the groups, without name
         return [_[1] for _ in groups]
-

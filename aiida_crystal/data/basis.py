@@ -8,6 +8,7 @@ from ase.data import chemical_symbols
 from aiida.orm import Dict
 from aiida.common import UniquenessError
 from aiida_crystal.io.parsers import gto_basis_parser
+from aiida_crystal.utils.pyparsing import ParseException
 
 
 def md5(d, enc='utf-8'):
@@ -80,7 +81,11 @@ class CrystalBasisData(Dict):
         :return: Class instance
         """
         with open(file_name, 'r') as f:
-            basis = gto_basis_parser().parseString(f.read())
+            try:
+                basis = gto_basis_parser().parseString(f.read())
+            except ParseException as ex:
+                raise Exception("Parsing of {} failed: {} (at line:{}, col:{})".format(
+                    file_name, ex.msg, ex.lineno, ex.col))
         md5_hash = md5(basis.asDict())
         bases = cls.from_md5(md5_hash)
         if bases:
