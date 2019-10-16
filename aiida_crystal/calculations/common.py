@@ -10,7 +10,7 @@ from aiida.orm import Dict, Code, StructureData, SinglefileData, TrajectoryData
 from aiida.common import InputValidationError
 from aiida_crystal.io.d12_write import write_input
 from aiida_crystal.io.f34 import Fort34
-from aiida_crystal.data.basis_set import BasisSetData
+from aiida_crystal.data.basis import CrystalBasisData
 from aiida_crystal.data.basis_family import CrystalBasisFamilyData
 
 
@@ -35,7 +35,7 @@ class CrystalCommonCalculation(CalcJob):
         spec.input('code', valid_type=Code)
         spec.input('structure', valid_type=StructureData, required=True)
         spec.input('parameters', valid_type=Dict, required=True)
-        spec.input_namespace('basis', valid_type=BasisSetData, required=False, dynamic=True)
+        spec.input_namespace('basis', valid_type=CrystalBasisData, required=False, dynamic=True)
         spec.input('basis_family', valid_type=CrystalBasisFamilyData, required=False)
         # output nodes
         spec.output('output_structure', valid_type=StructureData, required=False)
