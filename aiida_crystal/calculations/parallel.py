@@ -21,7 +21,8 @@ class CrystalParallelCalculation(CrystalCommonCalculation):
         retrieve_list = [
             self._GEOMETRY_FILE_NAME,
             self.inputs.metadata.options.scheduler_stderr,
-            'fort.9']
+            'fort.9',
+            'fort.87']
         # write input files
         self._prepare_input_files(folder)
 

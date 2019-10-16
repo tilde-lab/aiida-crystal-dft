@@ -6,7 +6,7 @@
 from aiida.plugins import DataFactory
 from aiida.orm import Code
 from aiida.engine import submit
-from mpds_aiida_workflows.crystal import MPDSCrystalWorkchain
+from mpds_aiida.workflows.crystal import MPDSCrystalWorkchain
 
 
 inputs = MPDSCrystalWorkchain.get_builder()

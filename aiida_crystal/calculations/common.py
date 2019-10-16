@@ -48,7 +48,17 @@ class CrystalCommonCalculation(CalcJob):
         spec.input('metadata.options.output_filename', valid_type=six.string_types, default=cls._OUTPUT_FILE_NAME)
         spec.input('metadata.options.parser_name', valid_type=six.string_types, default='crystal')
         # exit codes
+        # 10x - errors due to machine failures
         spec.exit_code(100, 'ERROR_NO_RETRIEVED_FOLDER', message='The retrieved folder data node could not be accessed')
+
+        # 11x - CRYSTAL errors
+        spec.exit_code(110, 'ERROR_SCF_FAILED', message='SCF calculation not converged')
+        spec.exit_code(111, 'ERROR_UNIT_CELL_NOT_NEUTRAL', message='Unit cell not neutral')
+        spec.exit_code(112, 'ERROR_BASIS_SET_LINEARLY_DEPENDENT', message='Basis set linearly dependent')
+        spec.exit_code(113, 'ERROR_NEIGHBOR_LIST_TOO_BIG', message='Neighbour list too large')
+
+        # 12x - other errors
+        spec.exit_code(120, 'ERROR_UNKNOWN', message='Unknown error')
 
     def _validate_basis_input(self, inputdict):
         """Input validation; returns the dict of validated data"""
@@ -79,10 +89,6 @@ class CrystalCommonCalculation(CalcJob):
             basis_dict[symbol] = basis
             basis_present = True
         validated_dict['basis'] = basis_dict
-
-        # if inputdict:
-        #     raise ValidationError("Unknown inputs remained after validation: {}".format(inputdict))
-
         return validated_dict
 
     def _prepare_input_files(self, folder):

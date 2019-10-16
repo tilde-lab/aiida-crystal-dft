@@ -23,7 +23,8 @@ class CrystalSerialCalculation(CrystalCommonCalculation):
         retrieve_list = [
             self._GEOMETRY_FILE_NAME,
             self.inputs.metadata.options.output_filename,
-            'fort.9']
+            'fort.9',
+            'fort.87']
         # write input files
         self._prepare_input_files(folder)
 
