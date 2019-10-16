@@ -15,7 +15,6 @@ class D12(object):
             self.use_basis(basis)
 
     def read(self, f):
-        """Reading input from file (eg for immigration)"""
         raise NotImplementedError
 
     def __str__(self):

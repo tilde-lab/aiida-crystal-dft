@@ -15,7 +15,6 @@
     ],
     "entry_points": {
         "aiida.data": [
-            "crystal.basisset = aiida_crystal.data.basis_set:BasisSetData",
             "crystal.basis = aiida_crystal.data.basis:CrystalBasisData",
             "crystal.basis_family = aiida_crystal.data.basis_family:CrystalBasisFamilyData"
         ],
@@ -33,8 +32,7 @@
             "crystal.base = aiida_crystal.workflows.base:BaseCrystalWorkChain"
         ],
         "aiida.cmdline.data": [
-            "crystal = aiida_crystal.cli.basis:basis_set",
-            "crystal-basis = aiida_crystal.cli.basis_set:basis_set"
+            "crystal = aiida_crystal.cli.basis:basis_set"
         ]
     },
     "include_package_data": true,
@@ -46,8 +44,7 @@
         "packaging",
         "seekpath",
         "mpds_client",
-        "tzlocal==2.0.0b1",
-        "jsonextended"
+        "tzlocal==2.0.0b1"
     ],
     "extras_require": {
         "testing": [
