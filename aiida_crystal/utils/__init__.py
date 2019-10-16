@@ -119,3 +119,23 @@ def get_keys(dct, keys, default=None, raise_error=False):
                 return default
     return subdct
 
+
+def get_data_node(data_type, *args, **kwargs):
+    return get_data_class(data_type)(*args, **kwargs)
+
+
+def get_data_class(data_type):
+    """
+    Provide access to the orm.data classes with deferred dbenv loading.
+
+    compatibility: also provide access to the orm.data.base members, which are loadable through the
+    DataFactory as of 1.0.0-alpha only.
+    """
+    from aiida.plugins import DataFactory
+    data_cls = DataFactory(data_type)
+    return data_cls
+
+
+def get_automatic_user():
+    from aiida.orm import User
+    return User.objects.get_default()

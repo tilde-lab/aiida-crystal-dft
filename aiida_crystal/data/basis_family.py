@@ -8,7 +8,7 @@ import six
 from ase.data import atomic_numbers
 from aiida.orm import Group, Data
 from aiida.plugins import DataFactory
-from aiida_crystal.aiida_compatibility import get_automatic_user
+from aiida_crystal.utils import get_automatic_user
 from aiida_crystal.data.basis import CrystalBasisData
 
 BASIS_FAMILY_KWDS = [

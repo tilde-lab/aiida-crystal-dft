@@ -5,7 +5,7 @@ from aiida.plugins import CalculationFactory
 from aiida.orm import Code
 from aiida.common.extendeddicts import AttributeDict
 from aiida.engine import WorkChain, append_
-from aiida_crystal.aiida_compatibility import get_data_class, get_data_node
+from aiida_crystal.utils import get_data_node, get_data_class
 from aiida_crystal.utils.kpoints import get_shrink_kpoints_path
 from aiida_crystal.utils.dos import get_dos_projections_atoms
 

@@ -4,7 +4,7 @@ import click
 import tabulate
 from click_spinner import spinner as cli_spinner
 from aiida.cmdline.commands.cmd_data import verdi_data
-from aiida_crystal.aiida_compatibility import get_data_class
+from aiida_crystal.utils import get_data_class
 from aiida_crystal.cli import options
 
 
