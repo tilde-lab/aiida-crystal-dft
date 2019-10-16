@@ -26,6 +26,7 @@ class CrystalParser(Parser):
         """
         Initialize Parser instance
         """
+
         # check for valid calculation node class
         calc_entry_points = ['crystal.serial',
                              'crystal.parallel'
@@ -56,6 +57,23 @@ class CrystalParser(Parser):
         except NotExistent:
             return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
 
+        # Check for error file contents
+        scf_failed = False
+        if 'fort.87' in folder.list_object_names():
+            with folder.open('fort.87') as f:
+                error = f.readline()
+                # check for scf failed, remember it and parse as much as we can
+                if 'SCF FAILED' in error:
+                    scf_failed = True
+                elif 'UNIT CELL NOT NEUTRAL' in error:
+                    return self.exit_codes.ERROR_UNIT_CELL_NOT_NEUTRAL
+                elif 'BASIS SET LINEARLY DEPENDENT' in error:
+                    return self.exit_codes.ERROR_BASIS_SET_LINEARLY_DEPENDENT
+                elif 'NEIGHBOR LIST TOO BIG' in error:
+                    return self.exit_codes.ERROR_NEIGHBOR_LIST_TOO_BIG
+                elif error:
+                    return self.exit_codes.ERROR_UNKNOWN
+
         # parameters should be parsed first, as the results
         if self.is_parallel:
             results_file = self.node.get_option('scheduler_stderr')
@@ -70,6 +88,8 @@ class CrystalParser(Parser):
             self.add_node(self._linkname_structure, f, self.parse_out_structure)
         with folder.open(results_file) as f:
             self.add_node(self._linkname_trajectory, f, self.parse_out_trajectory)
+        if scf_failed:
+            return self.exit_codes.ERROR_SCF_FAILED
         return None
 
     def add_node(self, link_name, f, callback):
