@@ -4,11 +4,13 @@
 The module describes basis set as the subclass of ParameterData
 """
 import json
+
+from pyparsing import ParseException
 from ase.data import chemical_symbols
+
 from aiida.orm import Dict
 from aiida.common import UniquenessError
 from aiida_crystal.io.parsers import gto_basis_parser
-from aiida_crystal.utils.pyparsing import ParseException
 
 
 def md5(d, enc='utf-8'):
