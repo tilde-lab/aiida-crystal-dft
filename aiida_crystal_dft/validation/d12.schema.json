@@ -160,7 +160,7 @@
                 ]
               }
             },
-            "temperature" : {
+            "TEMPERAT" : {
               "description": "Temperature range for frequency calculation",
               "type": "array",
               "items": {
@@ -170,7 +170,7 @@
                 "maxItems": 3
               }
             },
-            "ir": {
+            "IR": {
               "description": "IR intensities calculation",
               "type": [
                 "object",
@@ -178,7 +178,7 @@
               ],
               "additionalProperties": false,
               "properties": {
-                "type": {
+                "technique": {
                   "description": "Technique for calculating IR intensities",
                   "type": "string",
                   "enum": [

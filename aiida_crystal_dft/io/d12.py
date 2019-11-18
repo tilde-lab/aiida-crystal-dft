@@ -13,6 +13,7 @@ class D12(object):
         self._basis = None
         if basis is not None:
             self.use_basis(basis)
+        # geometry is EXTERNAL
 
     def read(self, f):
         raise NotImplementedError
