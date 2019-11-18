@@ -25,9 +25,9 @@ inputs = {"title": "Crystal calc",
               },
           }}
 
-basis = namedtuple("basis", field_names="content")
-mg = basis(content=basis_mg)
-o = basis(content=basis_mg)
+basis = namedtuple("basis", field_names="content,has_ecp,predefined")
+mg = basis(content=basis_mg, has_ecp=False, predefined=False)
+o = basis(content=basis_o, has_ecp=False, predefined=False)
 
 print(write_input(inputs, [mg, o]))
 
