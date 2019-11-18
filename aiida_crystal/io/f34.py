@@ -8,6 +8,7 @@ from ase.data import chemical_symbols
 import pyparsing as pp
 from aiida_crystal.utils.geometry import get_crystal_system, get_centering_code
 from aiida_crystal.io import _parse_string
+from aiida_crystal.io.basis import BasisAdapter
 
 PC = pp.pyparsing_common
 
@@ -32,7 +33,6 @@ class Fort34(object):
         get symmetry number properly).
         converts to primitive before writing the file
         """
-        from aiida_crystal.data.basis_family import CrystalBasisFamilyData
         self.dimensionality = None
         self.centring = None
         self.crystal_type = None
@@ -42,8 +42,10 @@ class Fort34(object):
         self.space_group = None
         self.abc = None
         self.atomic_numbers = None
-        # a BasisFamily instance
-        self.basis = basis
+        self.basis = None
+        # a BasisFamily instance or a list of bases
+        if basis is not None:
+            self.basis = BasisAdapter(basis)
 
     def from_aiida(self, aiida_struct):
         """

@@ -194,14 +194,14 @@ def _basis_set_block(outstr, indict, basis, atom_props, is_basis_family):
         # Geometry End
         outstr += "END\n"
         outstr += '\n'.join([b.content for b in basis])
-        outstr += '\n99 0\nEND\n'
-    # GHOSTS
-    ghosts = atom_props.get("ghosts", [])
-    if ghosts:
-        outstr += "GHOSTS\n"
-        outstr += "{}\n".format(len(ghosts))
-        outstr += " ".join([str(a) for a in sorted(ghosts)]) + " \n"
-        # GHOSTS and CHEMOD need its own END
+        outstr += '\n99 0\n'
+        # GHOSTS
+        ghosts = atom_props.get("ghosts", [])
+        if ghosts:
+            outstr += "GHOSTS\n"
+            outstr += "{}\n".format(len(ghosts))
+            outstr += " ".join([str(a) for a in sorted(ghosts)]) + " \n"
+            # GHOSTS and CHEMOD need its own END
         outstr += "END\n"
 
     # Basis Sets Optional Keywords
