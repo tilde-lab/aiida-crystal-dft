@@ -7,6 +7,8 @@ from pycrystal import CRYSTOUT
 
 class OutFileParser(object):
 
+    parser_info = pkg_resources.require("pycrystal")[0].version
+
     def __init__(self, file):
         if not isinstance(file, str):
             file_name = file.name
@@ -17,7 +19,6 @@ class OutFileParser(object):
             raise FileNotFoundError("{} is not a valid CRYSTAL output file".format(file_name))
         result = CRYSTOUT(file_name)
         self.info = result.info
-        self.parser_info = pkg_resources.require("pycrystal")[0].version
 
     def get_parameters(self):
         """
@@ -40,7 +41,7 @@ class OutFileParser(object):
             'number_of_atomic_orbitals': self.info['n_ao'],
             'number_of_electrons': self.info['n_electrons'],
             'number_of_symmetries': self.info['n_symops'],
-            'parser_info': self.parser_info,
+            'parser_info': OutFileParser.parser_info,
             'parser_warnings': self.info['warns'],
             'scf_iterations': self.info['ncycles'],
             'phonons': None,
