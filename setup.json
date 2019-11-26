@@ -2,7 +2,7 @@
     "name": "aiida-crystal",
     "author": "Andrey Sobolev, based on aiida-crystal17 plugin by Chris Sewell",
     "author_email": "as@tilde.pro",
-    "description": "Yet another AiiDA plugin for CRYSTAL code",
+    "description": "Yet another AiiDA plugin for CRYSTAL code, mainly intended for use with the cloud infrastructures (currently, MPDS)",
     "url": "https://github.com/tilde-lab/aiida-crystal",
     "license": "MIT",
     "classifiers": [
