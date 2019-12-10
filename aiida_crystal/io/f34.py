@@ -43,8 +43,9 @@ class Fort34(object):
         self.abc = None
         self.atomic_numbers = None
         self.basis = None
+
         # a BasisFamily instance or a list of bases
-        if basis is not None:
+        if basis:
             self.basis = BasisAdapter(basis)
 
     def from_aiida(self, aiida_struct):
@@ -66,13 +67,16 @@ class Fort34(object):
             self.dimensionality = 3
         else:
             raise NotImplementedError('Structure with dimensionality < 3 currently not supported')
+
         abc = ase_struct.get_cell()
         positions = ase_struct.get_scaled_positions()
         atomic_numbers = ase_struct.get_atomic_numbers()
         cell = (abc, positions, atomic_numbers)
+
         # get conventional cell
         cell = spglib.standardize_cell(cell, to_primitive=False, no_idealize=False)
         self.abc, self.positions, self.atomic_numbers = cell
+
         # symmetries related stuff
         dataset = spglib.get_symmetry_dataset(spglib.find_primitive(cell))
         self.space_group = dataset['number']
@@ -80,6 +84,7 @@ class Fort34(object):
         self.centring = get_centering_code(self.space_group, dataset['international'])
         self.n_symops = len(dataset["translations"])
         self.symops = np.zeros((self.n_symops * 4, 3), dtype=float)
+
         # convert symmetry operations from fractional to cartesian
         rotations = np.dot(self.abc.T, np.dot(dataset["rotations"], np.linalg.inv(self.abc.T)))
         rotations = np.swapaxes(rotations, 0, 1)
@@ -114,26 +119,33 @@ class Fort34(object):
         self.dimensionality, self.centring, self.crystal_type = parsed_data['header']
         if self.dimensionality != 3:
             raise NotImplementedError('Structure with dimensionality < 3 currently not supported')
+
         # primitive cell vectors and basis positions in cartesian coordinates
         abc = np.array(parsed_data['abc'].asList()).reshape((3, 3))
         positions = np.array([d[1:] for d in parsed_data['geometry']])
+
         # convert positions to fractional
         positions = np.dot(np.linalg.inv(abc).T, positions.T).T
         atomic_numbers = [d[0] for d in parsed_data['geometry']]
+
         # convert to conventional cell
         cell = (abc, positions, atomic_numbers)
         cell = spglib.standardize_cell(cell, to_primitive=False, no_idealize=False)
         self.abc, self.positions, atomic_numbers = cell
+
         # ECPs
         self.atomic_numbers = [num if num < 201 else num - 200 for num in atomic_numbers]
+
         # get symmetry operations
         self.n_symops = parsed_data['n_symops']
         self.symops = np.array(parsed_data['symops'].asList()).reshape(self.n_symops * 4, 3)
         rotations = np.zeros((self.n_symops, 3, 3))
         for i in range(3):
             rotations[:, i] = self.symops[i::4]
+
         # convert symmetry operations from cartesian to fractional
         rotations = np.dot(np.dot(np.linalg.inv(abc.T), rotations), abc.T)
+
         # have to round rotations matrix as it is used to find symmetry group
         rotations = np.round(np.swapaxes(rotations, 0, 1), 9)
         translations = np.dot(self.symops[3::4], np.linalg.inv(abc))
@@ -147,18 +159,23 @@ class Fort34(object):
         if self.basis and not self.basis.predefined:
             composition = set(self.atomic_numbers)
             has_ecp = [num for num in composition if not self.basis.get_basis(chemical_symbols[num]).all_electron]
+
         # convert geometry to primitive and find inequivalent atoms
         cell = self.abc, self.positions, self.atomic_numbers
         cell = spglib.standardize_cell(cell, to_primitive=True, no_idealize=False)
         abc, positions, atomic_numbers = cell
+
         # symmetries related stuff
         dataset = spglib.get_symmetry_dataset(cell)
+
         # leave only symmetrically inequivalent atoms
         inequiv_atoms = np.unique(dataset['equivalent_atoms'])
         positions = positions[inequiv_atoms]
         atomic_numbers = atomic_numbers[inequiv_atoms]
+
         # convert positions from fractional to cartesian
         positions = np.dot(abc.T, positions.T).T
+
         # convert symmetry operations from fractional to cartesian
         rotations = np.dot(abc.T, np.dot(dataset["rotations"], np.linalg.inv(abc.T)))
         rotations = np.swapaxes(rotations, 0, 1)
@@ -176,6 +193,7 @@ class Fort34(object):
                                           self.crystal_type)]
         f34_lines += ["{0[0]:17.9E} {0[1]:17.9E} {0[2]:17.9E}".format(
             np.round(vec, 9) + 0.) for vec in abc]
+
         # symmetry operation part
         f34_lines.append(str(n_symops))
         f34_lines += ["{0[0]:17.9E} {0[1]:17.9E} {0[2]:17.9E}".format(

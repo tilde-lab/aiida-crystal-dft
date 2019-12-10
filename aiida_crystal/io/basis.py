@@ -9,15 +9,20 @@ from .parsers import gto_basis_parser
 
 class BasisFile:
 
+    parser = gto_basis_parser()
+
     def __init__(self):
         self.basis_dict = {}
 
+    def parse(self, content):
+        """Reads basis set from string"""
+        self.basis_dict = BasisFile.parser.parseString(content).asDict()
+        return self.basis_dict
+
     def read(self, file_name):
         """Reads basis set from file"""
-        parser = gto_basis_parser()
         with open(file_name, 'r') as f:
-            res = parser.parseString(f.read())
-        self.basis_dict = res.asDict()
+            self.basis_dict = BasisFile.parser.parseString(f.read()).asDict()
         return self.basis_dict
 
 
