@@ -62,11 +62,16 @@ class BaseCrystalWorkChain(WorkChain):
     def run_calculation(self):
         """Run a calculation from self.ctx.inputs"""
         options = self.inputs.options.get_dict()
+        
         # check if it's a serial or parallel calculation (as of now, pretty simple)
-        if options['resources']['num_machines'] > 1 or options['resources']['num_mpiprocs_per_machine'] > 1:
+        try:
+            if options['resources']['num_machines'] > 1 or options['resources']['num_mpiprocs_per_machine'] > 1:
+                calculation = self._parallel_calculation
+            else:
+                calculation = self._serial_calculation
+        except KeyError:
             calculation = self._parallel_calculation
-        else:
-            calculation = self._serial_calculation
+        
         process = CalculationFactory(calculation)
         running = self.submit(process, **self.ctx.inputs)
         return self.to_context(calculations=append_(running))
