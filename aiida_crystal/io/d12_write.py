@@ -159,6 +159,8 @@ def _geometry_block(outstr, indict, atom_props):
     if "phonons" in indict.get("geometry", {}):
         freq_dict = indict["geometry"]["phonons"]
         outstr += "FREQCALC\n"
+        outstr += "TEMPERAT\n"
+        outstr += "%s %s %s\n" % (35, 5.7125, 1000)
         for keyword in freq_dict.get("info_print", []):
             outstr += "{}\n".format(keyword)
         if "ir" in freq_dict and freq_dict["ir"]:
