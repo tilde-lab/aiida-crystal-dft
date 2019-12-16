@@ -6,12 +6,20 @@
     "url": "https://github.com/tilde-lab/aiida-crystal",
     "license": "MIT",
     "classifiers": [
+        "Development Status :: 3 - Alpha",
+        "Framework :: AiiDA",
+        "License :: OSI Approved :: MIT License",
+        "Intended Audience :: Science/Research",
+        "Operating System :: OS Independent",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Chemistry",
-        "Topic :: Scientific/Engineering :: Physics"
+        "Topic :: Scientific/Engineering :: Physics",
+        "Topic :: Scientific/Engineering :: Information Analysis"
     ],
     "entry_points": {
         "aiida.data": [
