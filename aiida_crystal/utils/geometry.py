@@ -6,12 +6,13 @@ import spglib
 
 
 CRYSTAL_TYPE_MAP = {
-    1: 'triclinic',
-    2: 'monoclinic',
-    3: 'orthorhombic',
-    4: 'tetragonal',
-    5: 'hexagonal',
-    6: 'cubic'
+    "triclinic":    1,
+    "monoclinic":   2,
+    "orthorhombic": 3,
+    "tetragonal":   4,
+    "trigonal":     5,
+    "hexagonal":    5,
+    "cubic":        6
 }
 
 
@@ -75,8 +76,7 @@ def get_crystal_system(sg_number, as_number=False):
                 sg_number))
 
     if as_number:
-        crystal_system = {v: k
-                          for k, v in CRYSTAL_TYPE_MAP.items()}[crystal_system]
+        crystal_system = CRYSTAL_TYPE_MAP[crystal_system]
 
     return crystal_system
 
