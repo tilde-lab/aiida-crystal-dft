@@ -4,20 +4,6 @@ module to write CRYSTAL17 .d12 files
 from aiida_crystal.utils import get_keys
 from aiida_crystal.validation import validate_with_json
 
-# TODO float format and rounding, e.g. "{}".format(0.00001) -> 1e-05, can CRYSTAL handle that?
-
-# TODO SHRINK where IS=0 and IS1 IS2 IS3 given
-# TODO FIELD/FIELDCON
-# TODO FREQCALC
-# TODO ANHARM
-# TODO EOS
-
-# TODO RESTART (need to provide files from previous remote folder)
-
-# TODO incompatability tests e.g. using ATOMSPIN without SPIN (and spin value of SPINLOCK)
-
-# TODO look at https://gitlab.com/ase/ase/blob/master/ase/calculators/crystal.py to see if anything can be used
-
 
 def format_value(dct, keys):
     """return the value + a new line, or empty string if keys not found"""
@@ -85,7 +71,7 @@ def write_input(indict, basis, atom_props=None):
 
     outstr = _geometry_block(outstr, indict, atom_props)
 
-    outstr = _basis_set_block(outstr, indict, basis, atom_props)
+    outstr = _basis_set_block(outstr, indict, basis, atom_props, is_basis_family)
 
     outstr = _hamiltonian_block(outstr, indict, atom_props)
 
@@ -173,6 +159,8 @@ def _geometry_block(outstr, indict, atom_props):
     if "phonons" in indict.get("geometry", {}):
         freq_dict = indict["geometry"]["phonons"]
         outstr += "FREQCALC\n"
+        outstr += "TEMPERAT\n"
+        outstr += "%s %s %s\n" % (35, 5.7125, 1000)
         for keyword in freq_dict.get("info_print", []):
             outstr += "{}\n".format(keyword)
         if "ir" in freq_dict and freq_dict["ir"]:
@@ -193,10 +181,9 @@ def _geometry_block(outstr, indict, atom_props):
     return outstr
 
 
-def _basis_set_block(outstr, indict, basis, atom_props):
-    from aiida_crystal.data.basis_family import CrystalBasisFamilyData
+def _basis_set_block(outstr, indict, basis, atom_props, is_basis_family):
     # Basis Sets
-    if isinstance(basis, CrystalBasisFamilyData):
+    if is_basis_family:
         content = basis.content
         if "BASISSET" not in content:
             # not predefined basis family, so geometry should end with END
@@ -210,13 +197,13 @@ def _basis_set_block(outstr, indict, basis, atom_props):
         outstr += "END\n"
         outstr += '\n'.join([b.content for b in basis])
         outstr += '\n99 0\n'
-    # GHOSTS
-    ghosts = atom_props.get("ghosts", [])
-    if ghosts:
-        outstr += "GHOSTS\n"
-        outstr += "{}\n".format(len(ghosts))
-        outstr += " ".join([str(a) for a in sorted(ghosts)]) + " \n"
-        # GHOSTS and CHEMOD need its own END
+        # GHOSTS
+        ghosts = atom_props.get("ghosts", [])
+        if ghosts:
+            outstr += "GHOSTS\n"
+            outstr += "{}\n".format(len(ghosts))
+            outstr += " ".join([str(a) for a in sorted(ghosts)]) + " \n"
+            # GHOSTS and CHEMOD need its own END
         outstr += "END\n"
 
     # Basis Sets Optional Keywords
