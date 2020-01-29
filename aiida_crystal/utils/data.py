@@ -121,7 +121,7 @@ orbital_data = [{"l": "s", "max_e": 2},
                 {"l": "sp", "max_e": 8},
                 {"l": "p", "max_e": 6},
                 {"l": "d", "max_e": 10},
-                {"l": "f", "max_e": 18}
+                {"l": "f", "max_e": 14}
                 ]
 
 orbitals = ["1s", "2s", "2p", "3s", "3p", "4s", "3d", "4p", "5s",
