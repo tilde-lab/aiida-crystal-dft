@@ -1,6 +1,10 @@
+#  Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file.
+
 """
 A module containing different data arrays not present in ase
 """
+
+from ase.data import atomic_numbers
 
 # Common oxidation states have larger weight
 # see https://en.wikipedia.org/wiki/Oxidation_state
@@ -112,3 +116,26 @@ oxistate_weights = [
 ]
 
 oxistates = [os.keys() for os in oxistate_weights]
+
+orbital_data = [{"l": "s", "max_e": 2},
+                {"l": "sp", "max_e": 8},
+                {"l": "p", "max_e": 6},
+                {"l": "d", "max_e": 10},
+                {"l": "f", "max_e": 18}
+                ]
+
+orbitals = ["1s", "2s", "2p", "3s", "3p", "4s", "3d", "4p", "5s",
+            "4d", "5p", "6s", "4f", "5d", "6p", "7s", "5f", "6d", "7p"]
+
+max_e = {orb["l"]: orb["max_e"] for orb in orbital_data}
+
+
+def electronic_config(element):
+    def helper(e, result):
+        orb = orbitals[len(result)][1]
+        if e <= max_e[orb]:
+            result.append(e)
+            return result
+        result.append(max_e[orb])
+        return helper(e - max_e[orb], result)
+    return helper(atomic_numbers[element], [])

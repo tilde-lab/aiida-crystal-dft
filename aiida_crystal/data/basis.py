@@ -11,6 +11,7 @@ from ase.data import chemical_symbols
 from aiida.orm import Dict
 from aiida.common import UniquenessError
 from aiida_crystal.io.parsers import gto_basis_parser
+from aiida_crystal.utils.data import electronic_config, orbital_data
 
 
 def md5(d, enc='utf-8'):
@@ -62,7 +63,7 @@ class CrystalBasisData(Dict):
         return '\n'.join(s)
 
     @classmethod
-    def from_md5(cls, md5):
+    def from_md5(cls, checksum):
         """
         Return a list of all Basis Sets that match a given MD5 hash.
 
@@ -71,7 +72,7 @@ class CrystalBasisData(Dict):
         """
         from aiida.orm.querybuilder import QueryBuilder
         qb = QueryBuilder()
-        qb.append(cls, filters={'attributes.md5': {'==': md5}})
+        qb.append(cls, filters={'attributes.md5': {'==': checksum}})
         return [_ for [_] in qb.all()]
 
     @classmethod
@@ -94,6 +95,9 @@ class CrystalBasisData(Dict):
             return bases[0]
         return cls(dict=basis.asDict()).store(use_cache=True)
 
+    def set_oxistate(self, oxi_state):
+        pass
+
     def store(self, with_transaction=True, use_cache=None):
         # check if the dictionary has needed keys (may be it's incomplete?)
         if ("header" not in self.get_dict()) or ("bs" not in self.get_dict()):
@@ -104,3 +108,25 @@ class CrystalBasisData(Dict):
         self.set_attribute("md5", md5_hash)
         return super(CrystalBasisData, self).store(with_transaction=with_transaction,
                                                    use_cache=use_cache)
+
+    def _get_occupations(self):
+        """
+        A helper function providing a list of orbital types and basis occupations
+        :return: a list of [orbital type, occupation] elements
+        """
+        return [[orb[0][1], orb[0][3]] for orb in self.get_dict()['bs']]
+
+
+class ElectronicConfiguration:
+
+    def __init__(self, el, occs):
+        self.el_config = electronic_config(el)
+        self.occupations = [Orbital(orb=orb, occ=occ) for orb, occ in occs]
+
+
+class Orbital:
+
+    def __init__(self, n=None, orb=None, occ=None):
+        self.n = n
+        self.orb = orbital_data[orb]["l"]
+        self.occ = occ

@@ -18,6 +18,7 @@ def test_trivial_basis(aiida_profile):
     assert basis.uuid == basis2.uuid
     assert basis2.element == "Mg"
     assert basis2.all_electron
+    assert basis2._get_occupations()[0] == [0, 2.]
 
 
 def test_ecp_basis(aiida_profile):
@@ -26,6 +27,7 @@ def test_ecp_basis(aiida_profile):
     basis = CrystalBasisData.from_file(file_name)
     assert basis.element == "Ag"
     assert not basis.all_electron
+    assert basis._get_occupations()[0] == [1, 8.]
     assert basis.content == """247 5
 HAYWSC
 0 1 3 8.0 1.0
