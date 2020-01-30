@@ -121,7 +121,7 @@ orbital_data = [{"l": "s", "max_e": 2},
                 {"l": "sp", "max_e": 8},
                 {"l": "p", "max_e": 6},
                 {"l": "d", "max_e": 10},
-                {"l": "f", "max_e": 18}
+                {"l": "f", "max_e": 14}
                 ]
 
 orbitals = ["1s", "2s", "2p", "3s", "3p", "4s", "3d", "4p", "5s",
@@ -130,12 +130,51 @@ orbitals = ["1s", "2s", "2p", "3s", "3p", "4s", "3d", "4p", "5s",
 max_e = {orb["l"]: orb["max_e"] for orb in orbital_data}
 
 
-def electronic_config(element):
+def electronic_config(element, crystal_format=False, sp=False):
+    """
+    Constructs the ground state electronic configuration for the given element
+    :param element: A one- or two-letter element name
+    :param crystal_format: (default: False) whether to return conventional electronic configuration (a list containing
+    orbital populations from least energetic to most energetic) or the configuration in CRYSTAL format (a dictionary
+    of lists with orbital l numbers as keys)
+    :param sp: (works only in conjunction with crystal_format, default: False) if True, merges s- and p-orbitals
+    into single sp-orbital
+    :return: A list or dict representing ground-state electronic configuration for the given element
+    """
     def helper(e, result):
+        """A helper recursive function for conventional electronic config"""
         orb = orbitals[len(result)][1]
         if e <= max_e[orb]:
             result.append(e)
             return result
         result.append(max_e[orb])
         return helper(e - max_e[orb], result)
-    return helper(atomic_numbers[element], [])
+
+    def helper_crystal(e, i_orb, result):
+        """A helper recursive function for CRYSTAL format electronic config"""
+        n, orb = orbitals[i_orb]
+        n = int(n)
+        max_e_orb = max_e[orb]
+        if sp and n > 1 and orb in ("s", "p"):
+            orb = "sp"
+        # last orbital
+        if e <= max_e_orb:
+            if orb == "sp" and len(result[orb]) == n-1:
+                result[orb][-1] += e
+            else:
+                result[orb].append(e)
+            return result
+        if orb == "sp" and len(result[orb]) == n-1:
+            result[orb][-1] += max_e_orb
+        else:
+            result[orb].append(max_e_orb)
+        return helper_crystal(e - max_e_orb, i_orb + 1, result)
+
+    # actual function run
+    if not crystal_format:
+        return helper(atomic_numbers[element], [])
+    # crystal format case
+    if not sp:
+        return helper_crystal(atomic_numbers[element], 0, {"s": [], "p": [], "d": [], "f": []})
+    # crystal helper with sp orbitals case
+    return helper_crystal(atomic_numbers[element], 0, {"s": [], "sp": [], "d": [], "f": []})

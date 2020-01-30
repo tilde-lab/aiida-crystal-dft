@@ -11,7 +11,7 @@ from ase.data import chemical_symbols
 from aiida.orm import Dict
 from aiida.common import UniquenessError
 from aiida_crystal.io.parsers import gto_basis_parser
-from aiida_crystal.utils.data import electronic_config, orbital_data
+from aiida_crystal.utils.data import orbital_data
 
 
 def md5(d, enc='utf-8'):
@@ -95,8 +95,14 @@ class CrystalBasisData(Dict):
             return bases[0]
         return cls(dict=basis.asDict()).store(use_cache=True)
 
-    def set_oxistate(self, oxi_state):
-        pass
+    def set_oxistate(self, oxi_state, high_spin_preferred=False):
+        """Set oxidation state for the basis"""
+        # The algorithm is as follows:
+        # 1. if oxi_state is positive (electrons are subtracted), then subtract electrons from valence orbital.
+        # If two orbitals are valence, then subtract from the orbital with higher l
+        # 2. if oxi_state is negative (electrons are added) and high spin is preferred, then add electrons to the
+        # empty orbital with higher l than valence. If not (by default), then add electrons on valence orbital with the
+        # highest l.
 
     def store(self, with_transaction=True, use_cache=None):
         # check if the dictionary has needed keys (may be it's incomplete?)
@@ -111,22 +117,15 @@ class CrystalBasisData(Dict):
 
     def _get_occupations(self):
         """
-        A helper function providing a list of orbital types and basis occupations
-        :return: a list of [orbital type, occupation] elements
+        A helper function providing a dictionary of orbital types and basis occupations
+        :return: a dictionary of [orbital type, occupation] elements
         """
-        return [[orb[0][1], orb[0][3]] for orb in self.get_dict()['bs']]
-
-
-class ElectronicConfiguration:
-
-    def __init__(self, el, occs):
-        self.el_config = electronic_config(el)
-        self.occupations = [Orbital(orb=orb, occ=occ) for orb, occ in occs]
-
-
-class Orbital:
-
-    def __init__(self, n=None, orb=None, occ=None):
-        self.n = n
-        self.orb = orbital_data[orb]["l"]
-        self.occ = occ
+        occs = [[orb[0][1], orb[0][3]] for orb in self.get_dict()['bs']]
+        result = {"s": [], "d": [], "f": []}
+        if any([occ[0] == 1 for occ in occs]):
+            result["sp"] = []
+        else:
+            result["p"] = []
+        for orb, e in occs:
+            result[orbital_data[orb]["l"]].append(e)
+        return result

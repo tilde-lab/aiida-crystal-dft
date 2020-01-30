@@ -35,11 +35,8 @@ def write_input(indict, basis, atom_props=None):
     :param atom_props: dictionary of atom ids with specific properties ("spin_alpha", "spin_beta", "unfixed", "ghosts")
     :return:
     """
-    try:
-        from aiida_crystal.data.basis_family import CrystalBasisFamilyData
-        is_basis_family = isinstance(basis, CrystalBasisFamilyData)
-    except ImportError:
-        is_basis_family = False
+    from aiida_crystal.data.basis_family import CrystalBasisFamilyData
+    is_basis_family = isinstance(basis, CrystalBasisFamilyData)
     # validation
     validate_with_json(indict)
     if not basis:
@@ -184,7 +181,7 @@ def _geometry_block(outstr, indict, atom_props):
 def _basis_set_block(outstr, indict, basis, atom_props, is_basis_family):
     # Basis Sets
     if is_basis_family:
-        content = basis.content
+        content = basis.content()
         if "BASISSET" not in content:
             # not predefined basis family, so geometry should end with END
             outstr += "END\n"

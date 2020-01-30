@@ -8,8 +8,8 @@ def test_predefined_basis_family(aiida_profile):
     bf, _ = DataFactory('crystal.basis_family').get_or_create('STO-3G')
     bf2, _ = DataFactory('crystal.basis_family').get_or_create('STO-3G')
     assert bf2.uuid == bf.uuid
-    assert bf.content == "BASISSET\nSTO-3G\n"
-    assert bf2.content == "BASISSET\nSTO-3G\n"
+    assert bf.content() == "BASISSET\nSTO-3G\n"
+    assert bf2.content() == "BASISSET\nSTO-3G\n"
     assert bf2.predefined
     with pytest.raises(ValueError):
         DataFactory('crystal.basis_family')(name='STO-3G')
@@ -33,7 +33,7 @@ def test_basis_family(aiida_profile, test_structure_data):
         bf.add([basis_sets[0], basis_sets[0]])
     assert len(bf.add(basis_sets)) == 0
     bf.set_structure(test_structure_data)
-    assert bf.content == """8 2
+    assert bf.content() == """8 2
 1 0 3 2.0 0.0
 1 1 3 6.0 0.0
 12 3
@@ -42,4 +42,3 @@ def test_basis_family(aiida_profile, test_structure_data):
 1 1 3 2.0 0.0
 99 0
 """
-

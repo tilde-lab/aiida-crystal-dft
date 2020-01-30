@@ -132,7 +132,7 @@ class CrystalBasisFamilyData(Data):
                     ",".join(list(set(composition).difference(elements_in_group)))))
         self.structure = structure
 
-    def get_bases(self, structure=None):
+    def get_bases(self, structure=None, oxi_states=None):
         if self.predefined:
             return []
         if structure is None:
@@ -140,6 +140,8 @@ class CrystalBasisFamilyData(Data):
                 structure = self.structure
             else:
                 raise ValueError('Structure is needed to be set for the basis family')
+        if oxi_states is not None:
+            raise NotImplementedError
         composition = structure.get_composition()
         return [self.get_basis(element) for element in sorted(composition.keys(),
                                                               key=lambda k: atomic_numbers[k])]
@@ -148,13 +150,12 @@ class CrystalBasisFamilyData(Data):
     def predefined(self):
         return self.name in BASIS_FAMILY_KWDS
 
-    @property
-    def content(self):
+    def content(self, oxi_states=None):
         """Content for adding to .d12
         """
         if self.predefined:
             return "BASISSET\n{}\n".format(self.name)
-        bases = self.get_bases()
+        bases = self.get_bases(oxi_states=oxi_states)
         basis_strings = [b.content for b in bases]
         basis_strings.append("99 0\n")
         return "\n".join(basis_strings)
@@ -189,8 +190,8 @@ class CrystalBasisFamilyData(Data):
         files = [
             os.path.realpath(os.path.join(path, i))
             for i in os.listdir(path)
-            if os.path.isfile(os.path.join(path, i))
-               and i.lower().endswith(extension)
+            if (os.path.isfile(os.path.join(path, i))
+                and i.lower().endswith(extension))
         ]
         bases = [CrystalBasisData.from_file(file_name) for file_name in files]
         group, created = cls.get_or_create(name)
