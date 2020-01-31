@@ -15,4 +15,3 @@ def test_electronic_config():
     assert electronic_config("Ag", crystal_format=True, sp=True) == {
         's': [2], 'sp': [8, 8, 8, 2], 'd': [10, 9], 'f': []
     }
-

@@ -132,7 +132,7 @@ class CrystalBasisFamilyData(Data):
                     ",".join(list(set(composition).difference(elements_in_group)))))
         self.structure = structure
 
-    def get_bases(self, structure=None, oxi_states=None):
+    def get_bases(self, structure=None):
         if self.predefined:
             return []
         if structure is None:
@@ -140,8 +140,6 @@ class CrystalBasisFamilyData(Data):
                 structure = self.structure
             else:
                 raise ValueError('Structure is needed to be set for the basis family')
-        if oxi_states is not None:
-            raise NotImplementedError
         composition = structure.get_composition()
         return [self.get_basis(element) for element in sorted(composition.keys(),
                                                               key=lambda k: atomic_numbers[k])]
@@ -155,8 +153,11 @@ class CrystalBasisFamilyData(Data):
         """
         if self.predefined:
             return "BASISSET\n{}\n".format(self.name)
-        bases = self.get_bases(oxi_states=oxi_states)
-        basis_strings = [b.content for b in bases]
+        bases = self.get_bases()
+        if oxi_states is None:
+            oxi_states = [0 for _ in bases]
+        assert len(oxi_states) == len(bases)
+        basis_strings = [b.content(state) for b, state in zip(bases, oxi_states)]
         basis_strings.append("99 0\n")
         return "\n".join(basis_strings)
 

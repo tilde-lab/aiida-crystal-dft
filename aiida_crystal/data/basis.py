@@ -11,7 +11,7 @@ from ase.data import chemical_symbols
 from aiida.orm import Dict
 from aiida.common import UniquenessError
 from aiida_crystal.io.parsers import gto_basis_parser
-from aiida_crystal.utils.data import orbital_data
+from aiida_crystal.utils.data import orbital_data, max_e
 
 
 def md5(d, enc='utf-8'):
@@ -44,9 +44,8 @@ class CrystalBasisData(Dict):
     def all_electron(self):
         return "ecp" not in self.get_dict()
 
-    @property
-    def content(self):
-        basis = self.get_dict()
+    def content(self, oxi_state=0, high_spin_preferred=False):
+        basis = self.set_oxistate(oxi_state, high_spin_preferred)
         s = ["{} {}".format(*basis['header']), ]
         if 'ecp' in basis:
             s.append(basis['ecp'][0])
@@ -99,10 +98,27 @@ class CrystalBasisData(Dict):
         """Set oxidation state for the basis"""
         # The algorithm is as follows:
         # 1. if oxi_state is positive (electrons are subtracted), then subtract electrons from valence orbital.
-        # If two orbitals are valence, then subtract from the orbital with higher l
+        # If two orbitals are valence, then subtract from sp orbital first, and then from the higher l orbital
         # 2. if oxi_state is negative (electrons are added) and high spin is preferred, then add electrons to the
         # empty orbital with higher l than valence. If not (by default), then add electrons on valence orbital with the
         # highest l.
+        # doesn't yet work for H
+        if self.element == "H":
+            raise NotImplementedError
+        occs = self._get_occupations()
+        # change oxidation state according to the algorithm above
+        if oxi_state > 0:
+            occs = remove_valence_electrons(oxi_state, occs, self.element)
+        elif oxi_state < 0:
+            occs = add_valence_electrons(oxi_state, occs, self.element, high_spin_preferred)
+        # alter basis dict and return it
+        basis_dict = self.get_dict()
+        for orb, occ in occs.items():
+            if occ:
+                orb_idx = [i for i, o in enumerate(basis_dict["bs"]) if orbital_data[o[0][1]]["l"] == orb]
+                for i, o in zip(orb_idx, occ):
+                    basis_dict["bs"][i][0][3] = o
+        return basis_dict
 
     def store(self, with_transaction=True, use_cache=None):
         # check if the dictionary has needed keys (may be it's incomplete?)
@@ -129,3 +145,66 @@ class CrystalBasisData(Dict):
         for orb, e in occs:
             result[orbital_data[orb]["l"]].append(e)
         return result
+
+
+def get_valence_orbitals(occs):
+    """Returns the dictionary of valence orbital indices in occupations dict"""
+    i_valence = {}
+    for orb, occ in occs.items():
+        n_valence_orb = -1
+        for occ_i in occ:
+            if occ_i == max_e[orb]:
+                n_valence_orb += 1
+            elif occ_i == 0:
+                i_valence[orb] = n_valence_orb
+                break
+            else:
+                i_valence[orb] = n_valence_orb + 1
+                break
+    return i_valence
+
+
+def remove_valence_electrons(n, occs, element):
+    """Removes n valence electrons from occupations dict"""
+    # get valence orbitals
+    i_valence = get_valence_orbitals(occs)
+    p_orb = "sp" if "sp" in occs else "p"
+    high_l = "f" if "f" in i_valence else "d"
+    # first get electrons off last p or sp orbital
+    p_e = occs[p_orb][i_valence[p_orb]]
+    if p_e >= n:
+        # if sp electrons are sufficient for oxidizing, remove oxi_state electrons from the last sp orbital
+        occs[p_orb][i_valence[p_orb]] -= n
+    else:
+        # if not, remove all sp electrons and then remove electrons from higher l orbital
+        occs[p_orb][i_valence[p_orb]] -= p_e
+        occs[high_l][i_valence[high_l]] -= (n - p_e)
+        # if we get negative number, throw an error
+        if occs[high_l][i_valence[high_l]] < 0:
+            raise ValueError("Too large positive oxidation state for element {}: {}".format(
+                element, n
+            ))
+    return occs
+
+
+def add_valence_electrons(n, occs, element, high_spin_preferred):
+    """Adds n valence electrons to occupation dict"""
+    # get valence orbitals
+    i_valence = get_valence_orbitals(occs)
+    p_orb = "sp" if "sp" in occs else "p"
+    high_l = "f" if "f" in i_valence else "d"
+    if high_spin_preferred:
+        raise NotImplementedError
+    # if there is a high-l open shell, then add electrons to it
+    if high_l in i_valence and occs[high_l][i_valence[high_l]] < max_e[high_l] and not high_spin_preferred:
+        n += (max_e[high_l] - occs[occs[high_l][i_valence[high_l]]])
+        occs[occs[high_l][i_valence[high_l]]] = max_e[high_l]
+    # if after that we have more electrons, put them on an open sp shell
+    if n < 0:
+        occs[p_orb][i_valence[p_orb]] -= n
+    # if after that we have more than max_e electrons on the shell, throw an error
+    if occs[p_orb][i_valence[p_orb]] > max_e[p_orb]:
+        raise ValueError("Too large negative oxidation state for element {}: {}".format(
+            element, n
+        ))
+    return occs
