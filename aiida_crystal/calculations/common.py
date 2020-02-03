@@ -3,7 +3,6 @@ AiiDA CRYSTAL calculation plugin.
 Code shared between serial and parallel CRYSTAL calculations.
 """
 
-import six
 from ase.data import chemical_symbols
 from aiida.engine import CalcJob
 from aiida.orm import Dict, Code, StructureData, SinglefileData, TrajectoryData
@@ -44,9 +43,9 @@ class CrystalCommonCalculation(CalcJob):
         spec.output('output_trajectory', valid_type=TrajectoryData, required=False)
         spec.default_output_node = 'output_parameters'
         # input, output files and parser name
-        spec.input('metadata.options.input_filename', valid_type=six.string_types, default=cls._INPUT_FILE_NAME)
-        spec.input('metadata.options.output_filename', valid_type=six.string_types, default=cls._OUTPUT_FILE_NAME)
-        spec.input('metadata.options.parser_name', valid_type=six.string_types, default='crystal')
+        spec.input('metadata.options.input_filename', valid_type=str, default=cls._INPUT_FILE_NAME)
+        spec.input('metadata.options.output_filename', valid_type=str, default=cls._OUTPUT_FILE_NAME)
+        spec.input('metadata.options.parser_name', valid_type=str, default='crystal')
         # exit codes
         # 10x - errors due to machine failures
         spec.exit_code(100, 'ERROR_NO_RETRIEVED_FOLDER', message='The retrieved folder data node could not be accessed')

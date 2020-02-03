@@ -2,7 +2,6 @@
 A plugin to create a properties files from CRYSTAL17 output
 """
 
-import six
 from aiida.common import CalcInfo, CodeInfo, InputValidationError
 from aiida.engine import CalcJob
 from aiida.orm import Dict, Code, SinglefileData, BandsData, ArrayData
@@ -31,9 +30,9 @@ class PropertiesCalculation(CalcJob):
         spec.output('output_bands', valid_type=BandsData, required=False)
         spec.output('output_dos', valid_type=ArrayData, required=False)
         # input, output files and parser name
-        spec.input('metadata.options.input_filename', valid_type=six.string_types, default=cls._INPUT_FILE_NAME)
-        spec.input('metadata.options.output_filename', valid_type=six.string_types, default=cls._OUTPUT_FILE_NAME)
-        spec.input('metadata.options.parser_name', valid_type=six.string_types, default='crystal.properties')
+        spec.input('metadata.options.input_filename', valid_type=str, default=cls._INPUT_FILE_NAME)
+        spec.input('metadata.options.output_filename', valid_type=str, default=cls._OUTPUT_FILE_NAME)
+        spec.input('metadata.options.parser_name', valid_type=str, default='crystal.properties')
         # exit codes
         spec.exit_code(100, 'ERROR_NO_RETRIEVED_FOLDER',
                        message='The retrieved folder data node could not be accessed')

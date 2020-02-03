@@ -3,13 +3,14 @@
 An adapter for writing out .d3 file (for properties calculation)
 """
 from __future__ import print_function
-import six
+
 import pyparsing as pp
 from collections import defaultdict
 from aiida_crystal.validation import validate_with_json
 from aiida_crystal.utils.keywords import PROPERTIES_KEYWORDS
-pc = pp.pyparsing_common
 
+
+pc = pp.pyparsing_common
 
 def _band_parser():
     kw = pp.Keyword("BAND")
@@ -53,7 +54,7 @@ class D3(object):
         if self._parameters is None:
             raise ValueError("No ParameterData is given for .d3 input")
         if 'band' in self._parameters:
-            if isinstance(self._parameters['band']['bands'][0][0], six.string_types):
+            if isinstance(self._parameters['band']['bands'][0][0], str):
                 self._parameters['band']['shrink'] = 0
 
         if 'dos' in self._parameters and 'projections_atoms' not in self._parameters['dos']:
@@ -75,7 +76,7 @@ class D3(object):
 
     def write(self, f):
         """Writes the content to file f"""
-        print(six.text_type(str(self)), file=f)
+        print(str(self), file=f)
 
     def _band_block_str(self):
         band = self._parameters.get("band", None)
@@ -93,7 +94,7 @@ class D3(object):
                                           int(band.get("write", False)))
         ]
         # now add lines to be explored
-        if isinstance(band["bands"][0][0], six.string_types):
+        if isinstance(band["bands"][0][0], str):
             format_line = '{0[0]}  {0[1]}'
         else:
             format_line = '{0[0][0]} {0[0][1]} {0[0][2]}  {0[1][0]} {0[1][1]} {0[1][2]}'
