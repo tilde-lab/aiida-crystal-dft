@@ -1,20 +1,22 @@
+#  Copyright (c)  Andrey Sobolev, 2019-2020. Distributed under MIT license, see LICENSE file.
 """
 AiiDA CRYSTAL calculation plugin.
 Code shared between serial and parallel CRYSTAL calculations.
 """
+from abc import ABCMeta
 
 import six
 from ase.data import chemical_symbols
 from aiida.engine import CalcJob
-from aiida.orm import Dict, Code, StructureData, SinglefileData, TrajectoryData
-from aiida.common import InputValidationError
+from aiida.orm import Dict, Code, StructureData, SinglefileData, TrajectoryData, Bool
+from aiida.common import CodeInfo, CalcInfo, InputValidationError
 from aiida_crystal.io.d12_write import write_input
 from aiida_crystal.io.f34 import Fort34
 from aiida_crystal.data.basis import CrystalBasisData
 from aiida_crystal.data.basis_family import CrystalBasisFamilyData
 
 
-class CrystalCommonCalculation(CalcJob):
+class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
     """
     AiiDA calculation plugin for CRYSTAL code. As there're two different executables for serial and
     parallel version, we should provide two Calculations, one for each executable version.
@@ -35,6 +37,8 @@ class CrystalCommonCalculation(CalcJob):
         spec.input('code', valid_type=Code)
         spec.input('structure', valid_type=StructureData, required=True)
         spec.input('parameters', valid_type=Dict, required=True)
+        spec.input('guess_oxistate', valid_type=Bool, required=False, default=lambda: Bool(False))
+        spec.input('high_spin_preferred', valid_type=Bool, required=False, default=lambda: Bool(False))
         spec.input_namespace('basis', valid_type=CrystalBasisData, required=False, dynamic=True)
         spec.input('basis_family', valid_type=CrystalBasisFamilyData, required=False)
         # output nodes
@@ -109,3 +113,18 @@ class CrystalCommonCalculation(CalcJob):
         with open(folder.get_abs_path(self._GEOMETRY_FILE_NAME), 'w') as f:
             Fort34(basis=basis_dict['basis_family']).from_aiida(self.inputs.structure).write(f)
 
+    def _prepare_codeinfo(self):
+        # Prepare CodeInfo object for aiida
+        codeinfo = CodeInfo()
+        codeinfo.code_uuid = self.inputs.code.uuid
+        codeinfo.stdin_name = self.inputs.metadata.options.input_filename
+        return codeinfo
+
+    def _prepare_calcinfo(self, codeinfo):
+        # Prepare CalcInfo object for aiida
+        calcinfo = CalcInfo()
+        calcinfo.uuid = self.uuid
+        calcinfo.codes_info = [codeinfo]
+        calcinfo.local_copy_list = []
+        calcinfo.remote_copy_list = []
+        return calcinfo
