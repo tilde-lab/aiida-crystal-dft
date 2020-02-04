@@ -2,10 +2,12 @@
 """
 Tests for data helper utils
 """
+# noinspection PyUnresolvedReferences
+from aiida_crystal.tests.fixtures import *
 
 
 def test_electronic_config():
-    from aiida_crystal.utils.data import electronic_config
+    from aiida_crystal.utils.electrons import electronic_config
     assert electronic_config("Br") == [2, 2, 6, 2, 6, 2, 10, 5]
     assert electronic_config("K") == [2, 2, 6, 2, 6, 1]
     assert electronic_config("Br", crystal_format=True) == {'s': [2, 2, 2, 2], 'p': [6, 6, 5], 'd': [10], 'f': []}
@@ -15,3 +17,8 @@ def test_electronic_config():
     assert electronic_config("Ag", crystal_format=True, sp=True) == {
         's': [2], 'sp': [8, 8, 8, 2], 'd': [10, 9], 'f': []
     }
+
+
+def test_guess_oxistates(test_structure_data):
+    from aiida_crystal.utils.electrons import guess_oxistates
+    assert guess_oxistates(test_structure_data) == {"Mg": 2, "O": -2}

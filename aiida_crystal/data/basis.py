@@ -11,7 +11,7 @@ from ase.data import chemical_symbols
 from aiida.orm import Dict
 from aiida.common import UniquenessError
 from aiida_crystal.io.parsers import gto_basis_parser
-from aiida_crystal.utils.data import orbital_data, max_e
+from aiida_crystal.utils.electrons import orbital_data, max_e
 
 
 def md5(d, enc='utf-8'):

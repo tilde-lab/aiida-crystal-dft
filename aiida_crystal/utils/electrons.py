@@ -1,9 +1,9 @@
 #  Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file.
 
 """
-A module containing different data arrays not present in ase
+A module containing data on electrons and oxidation states of the elements
 """
-
+from itertools import product
 from ase.data import atomic_numbers
 
 # Common oxidation states have larger weight
@@ -178,3 +178,15 @@ def electronic_config(element, crystal_format=False, sp=False):
         return helper_crystal(atomic_numbers[element], 0, {"s": [], "p": [], "d": [], "f": []})
     # crystal helper with sp orbitals case
     return helper_crystal(atomic_numbers[element], 0, {"s": [], "sp": [], "d": [], "f": []})
+
+
+def guess_oxistates(structure):
+    """A function returning a dictionary of oxidation states for each element of the structure"""
+    composition = structure.get_composition()
+    elements = composition.keys()
+    oxistates_element = [oxistates[atomic_numbers[el]] for el in elements]
+    weights = {state: sum([composition[el] * oxistate_weights[atomic_numbers[el]][state[i]]
+                           for i, el in enumerate(elements)])
+               for state in product(*oxistates_element)
+               if sum([x*y for x, y in zip(state, [composition[el] for el in elements])]) == 0}
+    return dict(zip(elements, sorted(weights.items(), key=lambda x: x[1], reverse=True)[0][0]))
