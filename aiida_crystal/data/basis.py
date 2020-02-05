@@ -11,7 +11,7 @@ from ase.data import chemical_symbols
 from aiida.orm import Dict
 from aiida.common import UniquenessError
 from aiida_crystal.io.parsers import gto_basis_parser
-from aiida_crystal.utils.electrons import orbital_data, max_e
+from aiida_crystal.utils.electrons import orbital_data, max_e, get_valence_shell
 
 
 def md5(d, enc='utf-8'):
@@ -168,22 +168,27 @@ def remove_valence_electrons(n, occs, element):
     """Removes n valence electrons from occupations dict"""
     # get valence orbitals
     i_valence = get_valence_orbitals(occs)
-    p_orb = "sp" if "sp" in occs else "p"
-    high_l = "f" if "f" in i_valence else "d"
-    # first get electrons off last p or sp orbital
-    p_e = occs[p_orb][i_valence[p_orb]]
-    if p_e >= n:
-        # if sp electrons are sufficient for oxidizing, remove oxi_state electrons from the last sp orbital
-        occs[p_orb][i_valence[p_orb]] -= n
-    else:
-        # if not, remove all sp electrons and then remove electrons from higher l orbital
-        occs[p_orb][i_valence[p_orb]] -= p_e
-        occs[high_l][i_valence[high_l]] -= (n - p_e)
-        # if we get negative number, throw an error
-        if occs[high_l][i_valence[high_l]] < 0:
-            raise ValueError("Too large positive oxidation state for element {}: {}".format(
-                element, n
-            ))
+    shell_valence = get_valence_shell(element, n=1, vacant=False)
+    # get electrons off last two orbitals
+    for shell in shell_valence:
+        if shell == "p" and "sp" in occs:
+            shell = "sp"
+        if shell == "s" and "s" not in i_valence:  # eg, in ecp basis
+            shell = "sp"
+        n_e = occs[shell][i_valence[shell]]
+        if n_e >= n:
+            # number of electrons is sufficient, remove electrons from the shell and break the loop
+            occs[shell][i_valence[shell]] -= n
+            n = 0
+            break
+        # number of electrons is not sufficient, remove all electrons from the shell and check another shell
+        occs[shell][i_valence[shell]] -= n_e
+        n -= n_e
+    # if we get more electrons to remove, throw an error
+    if n > 0:
+        raise ValueError("Too large positive oxidation state for element {}: {}".format(
+            element, n
+        ))
     return occs
 
 
@@ -191,19 +196,28 @@ def add_valence_electrons(n, occs, element, high_spin_preferred):
     """Adds n valence electrons to occupation dict"""
     # get valence orbitals
     i_valence = get_valence_orbitals(occs)
+    shell_valence = get_valence_shell(element, n=1, vacant=True)
     p_orb = "sp" if "sp" in occs else "p"
-    high_l = "f" if "f" in i_valence else "d"
     if high_spin_preferred:
         raise NotImplementedError
-    # if there is a high-l open shell, then add electrons to it
-    if high_l in i_valence and occs[high_l][i_valence[high_l]] < max_e[high_l] and not high_spin_preferred:
-        n += (max_e[high_l] - occs[occs[high_l][i_valence[high_l]]])
-        occs[occs[high_l][i_valence[high_l]]] = max_e[high_l]
-    # if after that we have more electrons, put them on an open sp shell
-    if n < 0:
-        occs[p_orb][i_valence[p_orb]] -= n
-    # if after that we have more than max_e electrons on the shell, throw an error
-    if occs[p_orb][i_valence[p_orb]] > max_e[p_orb]:
+    # get electrons on last two orbitals
+    print(shell_valence)
+    for shell in shell_valence:
+        if shell == "p" and "sp" in occs:
+            shell = "sp"
+        if shell == "s" and "s" not in i_valence:  # eg, in ecp basis
+            shell = "sp"
+        n_e = occs[shell][i_valence[shell]]
+        if not high_spin_preferred and n + n_e <= max_e[shell]:
+            # enough vacancies on the shell, fill'em and break the loop
+            occs[shell][i_valence[shell]] += n
+            n = 0
+            break
+        # not enough vacancies on the shell, fill the shell up to max_e and go into another iteration
+        occs[shell][i_valence[shell]] += (max_e[shell] - n_e)
+        n -= (max_e[shell] - n_e)
+    # if after that we have more electrons to put on the shell, throw an error
+    if n > 0:
         raise ValueError("Too large negative oxidation state for element {}: {}".format(
             element, n
         ))

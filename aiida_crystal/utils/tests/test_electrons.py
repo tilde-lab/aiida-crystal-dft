@@ -22,3 +22,13 @@ def test_electronic_config():
 def test_guess_oxistates(test_structure_data):
     from aiida_crystal.utils.electrons import guess_oxistates
     assert guess_oxistates(test_structure_data) == {"Mg": 2, "O": -2}
+
+
+def test_get_valence_shell():
+    from aiida_crystal.utils.electrons import get_valence_shell
+    assert get_valence_shell("Fe") == ["d"]
+    assert get_valence_shell("Fe", n=1) == ["d", "s"]
+    assert get_valence_shell("Fe", n=1, vacant=True) == ["d", "p"]
+    assert get_valence_shell("Be") == ["s"]
+    assert get_valence_shell("Be", n=1) == ["s", "s"]
+    assert get_valence_shell("Be", n=1, vacant=True) == ["s", "p"]

@@ -130,6 +130,22 @@ orbitals = ["1s", "2s", "2p", "3s", "3p", "4s", "3d", "4p", "5s",
 max_e = {orb["l"]: orb["max_e"] for orb in orbital_data}
 
 
+def get_valence_shell(element, n=0, vacant=False):
+    """Returns valence shell (plus n shells, vacant or not) for the given element"""
+    n_e = atomic_numbers[element]
+    i = 0
+    while n_e > 0:
+        orb = orbitals[i][1]
+        n_e -= max_e[orb]
+        if n_e > 0:
+            i += 1
+    if vacant:
+        return [x[1] for x in orbitals[i:i+n+1]]
+    if i <= n:
+        return [x[1] for x in orbitals[i::-1]]
+    return [x[1] for x in orbitals[i:i-n-1:-1]]
+
+
 def electronic_config(element, crystal_format=False, sp=False):
     """
     Constructs the ground state electronic configuration for the given element
