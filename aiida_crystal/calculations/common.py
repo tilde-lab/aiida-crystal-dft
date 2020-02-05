@@ -97,7 +97,7 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
 
     def _prepare_input_files(self, folder):
         basis_dict = self._validate_basis_input(dict(self.inputs))
-        # create input files: d12
+        # create input files: d12, taking into account
         try:
             basis_dict['basis_family'].set_structure(self.inputs.structure)
             d12_filecontent = write_input(self.inputs.parameters.get_dict(),

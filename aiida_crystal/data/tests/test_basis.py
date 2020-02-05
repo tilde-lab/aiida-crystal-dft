@@ -66,20 +66,31 @@ HAYWSC
 def test_get_valence_orbitals():
     from aiida_crystal.data.basis import get_valence_orbitals as func
     assert func({'s': [], 'sp': [8.0, 1.0, 0.0], 'd': [10.0, 0.0], 'f': []}) == {'sp': 1, 'd': 0}
+    assert func({'s': [2.0, 2.0, 0.0, 0.0, 0.0], 'p': [0.0], 'd': [], 'f': []}) == {'s': 1}
     assert func({'s': [2.0], 'sp': [8.0, 2.0], 'd': [], 'f': []}) == {'sp': 1}
 
 
 def test_remove_valence_electrons():
     from aiida_crystal.data.basis import remove_valence_electrons as func
     assert func(3, {'s': [], 'sp': [8.0, 1.0, 0.0], 'd': [10.0, 0.0], 'f': []}, "Ag") == \
-        {'s': [], 'sp': [8.0, 0.0, 0.0], 'd': [8.0, 0.0], 'f': []}
+        {'s': [], 'sp': [8.0, 1.0, 0.0], 'd': [7.0, 0.0], 'f': []}
+    assert func(2, {'s': [2.0, 2.0, 0.0, 0.0, 0.0], 'p': [0.0], 'd': [], 'f': []}, "Be") == \
+        {'s': [2.0, 0.0, 0.0, 0.0, 0.0], 'p': [0.0], 'd': [], 'f': []}
+    assert func(4, {'s': [2.0, 2.0, 0.0, 0.0], 'p': [2.0, 0.0], 'd': [], 'f': []}, "C") == \
+        {'s': [2.0, 0.0, 0.0, 0.0], 'p': [0.0, 0.0], 'd': [], 'f': []}
+    assert func(1, {'s': [1.0, 0.0, 0.0, 0.0], 'p': [0.0], 'd': [], 'f': []}, "H") == \
+        {'s': [0.0, 0.0, 0.0, 0.0], 'p': [0.0], 'd': [], 'f': []}
+    with pytest.raises(ValueError):
+        func(5, {'s': [2.0, 2.0, 0.0, 0.0], 'p': [2.0, 0.0], 'd': [], 'f': []}, "C")
     with pytest.raises(ValueError):
         func(12, {'s': [], 'sp': [8.0, 1.0, 0.0], 'd': [10.0, 0.0], 'f': []}, "Ag")
 
 
 def test_add_valence_electrons():
     from aiida_crystal.data.basis import add_valence_electrons as func
-    assert func(-3, {'s': [], 'sp': [8.0, 1.0, 0.0], 'd': [10.0, 0.0], 'f': []}, "Ag", False) == \
+    assert func(4, {'s': [2.0, 2.0, 0.0, 0.0], 'p': [2.0, 0.0], 'd': [], 'f': []}, "C", False) == \
+        {'s': [2.0, 2.0, 0.0, 0.0], 'p': [6.0, 0.0], 'd': [], 'f': []}
+    assert func(3, {'s': [], 'sp': [8.0, 1.0, 0.0], 'd': [10.0, 0.0], 'f': []}, "Ag", False) == \
         {'s': [], 'sp': [8.0, 4.0, 0.0], 'd': [10.0, 0.0], 'f': []}
     with pytest.raises(ValueError):
-        func(-12, {'s': [], 'sp': [8.0, 1.0, 0.0], 'd': [10.0, 0.0], 'f': []}, "Ag", False)
+        func(12, {'s': [], 'sp': [8.0, 1.0, 0.0], 'd': [10.0, 0.0], 'f': []}, "Ag", False)
