@@ -110,7 +110,7 @@ class CrystalBasisData(Dict):
         if oxi_state > 0:
             occs = remove_valence_electrons(oxi_state, occs, self.element)
         elif oxi_state < 0:
-            occs = add_valence_electrons(oxi_state, occs, self.element, high_spin_preferred)
+            occs = add_valence_electrons(-oxi_state, occs, self.element, high_spin_preferred)
         # alter basis dict and return it
         basis_dict = self.get_dict()
         for orb, occ in occs.items():
