@@ -102,9 +102,6 @@ class CrystalBasisData(Dict):
         # 2. if oxi_state is negative (electrons are added) and high spin is preferred, then add electrons to the
         # empty orbital with higher l than valence. If not (by default), then add electrons on valence orbital with the
         # highest l.
-        # doesn't yet work for H
-        if self.element == "H":
-            raise NotImplementedError
         occs = self._get_occupations()
         # change oxidation state according to the algorithm above
         if oxi_state > 0:
@@ -200,14 +197,14 @@ def add_valence_electrons(n, occs, element, high_spin_preferred):
     for shell in shell_valence:
         orb = "sp" if shell in ("s", "p") and "sp" in i_valence else shell
         n_e = occs[orb][i_valence[orb]]
-        if not high_spin_preferred and n + n_e <= max_e[shell]:
+        if not high_spin_preferred and n + n_e <= max_e[orb]:
             # enough vacancies on the shell, fill'em and break the loop
             occs[orb][i_valence[orb]] += n
             n = 0
             break
         # not enough vacancies on the shell, fill the shell up to max_e and go into another iteration
-        occs[orb][i_valence[orb]] += (max_e[shell] - n_e)
-        n -= (max_e[shell] - n_e)
+        occs[orb][i_valence[orb]] += (max_e[orb] - n_e)
+        n -= (max_e[orb] - n_e)
     # if after that we have more electrons to put on the shell, throw an error
     if n > 0:
         raise ValueError("Too large negative oxidation state for element {}: {}".format(

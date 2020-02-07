@@ -181,7 +181,7 @@ def _geometry_block(outstr, indict, atom_props):
 def _basis_set_block(outstr, indict, basis, atom_props, is_basis_family):
     # Basis Sets
     if is_basis_family:
-        content = basis.content()
+        content = basis.content
         if "BASISSET" not in content:
             # not predefined basis family, so geometry should end with END
             outstr += "END\n"

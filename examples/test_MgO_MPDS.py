@@ -10,7 +10,7 @@ from mpds_aiida.workflows.crystal import MPDSCrystalWorkchain
 
 
 inputs = MPDSCrystalWorkchain.get_builder()
-inputs.crystal_code = Code.get_from_string('Yacrystal@localhost')
+inputs.crystal_code = Code.get_from_string('Pcrystal@torquessh')
 inputs.properties_code = Code.get_from_string('properties@torquessh')
 
 inputs.crystal_parameters = DataFactory('dict')(dict={
@@ -53,10 +53,10 @@ inputs.mpds_query = DataFactory('dict')(dict={
 inputs.options = DataFactory('dict')(dict={
     'need_phonons': False,
     'need_electronic_properties': False,
-        'resources': {
-            'num_machines': 1,
-            'num_mpiprocs_per_machine': 1
-        }
+    'resources': {
+        'num_machines': 1,
+        'num_mpiprocs_per_machine': 1
+    }
     })
 inputs.metadata = {"label": "MgO/225"}
 

@@ -31,6 +31,7 @@ class CrystalBasisFamilyData(Data):
         if name is not None:
             self.set_name(name)
         self.structure = None
+        self.oxi_states = None
 
     @classmethod
     def _get(cls, name):
@@ -130,33 +131,47 @@ class CrystalBasisFamilyData(Data):
             if not all([el in elements_in_group for el in composition]):
                 raise ValueError('Basis sets for some elements present in the structure not found in family: {}'.format(
                     ",".join(list(set(composition).difference(elements_in_group)))))
+            self.oxi_states = {el: 0. for el in composition}
         self.structure = structure
+
+    def set_oxistates(self, oxi_states):
+        if self.structure is None:
+            raise ValueError("Structure must be set before setting oxidation states")
+        composition = self.structure.get_composition()
+        if not all([el in oxi_states for el in composition]):
+            raise ValueError("Oxidation states missing for the following elements: {}".format(
+                [el for el in composition if el not in oxi_states]
+            ))
+        if sum([oxi_states[el]*composition[el] for el in composition]) != 0:
+            raise ValueError("Unit cell not neutral for the following oxidation states: {}".format(oxi_states))
+        self.oxi_states = oxi_states
 
     def get_bases(self, structure=None):
         if self.predefined:
             return []
         if structure is None:
-            if self.structure is not None:
-                structure = self.structure
-            else:
+            if self.structure is None:
                 raise ValueError('Structure is needed to be set for the basis family')
+            else:
+                structure = self.structure
+        elif self.structure is None:
+            # for oxi_states to be set to default
+            self.set_structure(structure)
         composition = structure.get_composition()
-        return [self.get_basis(element) for element in sorted(composition.keys(),
-                                                              key=lambda k: atomic_numbers[k])]
+        return [self.get_basis(el) for el in sorted(composition.keys(), key=lambda k: atomic_numbers[k])]
 
     @property
     def predefined(self):
         return self.name in BASIS_FAMILY_KWDS
 
-    def content(self, oxi_states=None):
+    @property
+    def content(self):
         """Content for adding to .d12
         """
         if self.predefined:
             return "BASISSET\n{}\n".format(self.name)
         bases = self.get_bases()
-        if oxi_states is None:
-            oxi_states = [0 for _ in bases]
-        assert len(oxi_states) == len(bases)
+        oxi_states = [self.oxi_states[el] for el in sorted(self.oxi_states.keys(), key=lambda k: atomic_numbers[k])]
         basis_strings = [b.content(state) for b, state in zip(bases, oxi_states)]
         basis_strings.append("99 0\n")
         return "\n".join(basis_strings)

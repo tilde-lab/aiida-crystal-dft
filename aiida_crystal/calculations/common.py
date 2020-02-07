@@ -14,6 +14,7 @@ from aiida_crystal.io.d12_write import write_input
 from aiida_crystal.io.f34 import Fort34
 from aiida_crystal.data.basis import CrystalBasisData
 from aiida_crystal.data.basis_family import CrystalBasisFamilyData
+from aiida_crystal.utils.electrons import guess_oxistates
 
 
 class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
@@ -37,7 +38,7 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         spec.input('code', valid_type=Code)
         spec.input('structure', valid_type=StructureData, required=True)
         spec.input('parameters', valid_type=Dict, required=True)
-        spec.input('guess_oxistate', valid_type=Bool, required=False, default=lambda: Bool(False))
+        spec.input('guess_oxistates', valid_type=Bool, required=False, default=lambda: Bool(False))
         spec.input('high_spin_preferred', valid_type=Bool, required=False, default=lambda: Bool(False))
         spec.input_namespace('basis', valid_type=CrystalBasisData, required=False, dynamic=True)
         spec.input('basis_family', valid_type=CrystalBasisFamilyData, required=False)
@@ -100,6 +101,9 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         # create input files: d12, taking into account
         try:
             basis_dict['basis_family'].set_structure(self.inputs.structure)
+            if self.inputs.guess_oxistates:
+                oxi_states = guess_oxistates(self.inputs.structure)
+                basis_dict['basis_family'].set_oxistates(oxi_states)
             d12_filecontent = write_input(self.inputs.parameters.get_dict(),
                                           basis_dict['basis_family'], {})
         except (AttributeError, ValueError, NotImplementedError) as err:
