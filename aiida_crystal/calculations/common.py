@@ -38,8 +38,8 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         spec.input('code', valid_type=Code)
         spec.input('structure', valid_type=StructureData, required=True)
         spec.input('parameters', valid_type=Dict, required=True)
-        spec.input('guess_oxistates', valid_type=Bool, required=False, default=lambda: Bool(False))
-        spec.input('high_spin_preferred', valid_type=Bool, required=False, default=lambda: Bool(False))
+        spec.input('guess_oxistates', valid_type=Bool, required=False, default=Bool(False))
+        spec.input('high_spin_preferred', valid_type=Bool, required=False, default=Bool(False))
         spec.input_namespace('basis', valid_type=CrystalBasisData, required=False, dynamic=True)
         spec.input('basis_family', valid_type=CrystalBasisFamilyData, required=False)
         # output nodes

@@ -2,7 +2,7 @@
 """
 
 from aiida.plugins import CalculationFactory
-from aiida.orm import Code
+from aiida.orm import Code, Bool
 from aiida.common.extendeddicts import AttributeDict
 from aiida.engine import WorkChain, append_
 from aiida_crystal.utils import get_data_node, get_data_class
@@ -55,6 +55,10 @@ class BaseCrystalWorkChain(WorkChain):
             options_dict = self.inputs.options.get_dict()
             label = options_dict.pop('label', '')
             description = options_dict.pop('description', '')
+            guess_oxistates = options_dict.pop('guess_oxistates', False)
+            self.ctx.inputs.guess_oxistates = Bool(guess_oxistates)
+            high_spin_preferred = options_dict.pop('high_spin_preferred', False)
+            self.ctx.inputs.high_spin_preferred = Bool(high_spin_preferred)
             self.ctx.inputs.metadata = AttributeDict({'options': options_dict,
                                                       'label': label,
                                                       'description': description})
