@@ -4,7 +4,7 @@
 from aiida.plugins import CalculationFactory
 from aiida.orm import Code, Bool
 from aiida.common.extendeddicts import AttributeDict
-from aiida.engine import WorkChain, append_
+from aiida.engine import WorkChain, append_, while_
 from aiida_crystal.utils import get_data_node, get_data_class
 from aiida_crystal.utils.kpoints import get_shrink_kpoints_path
 from aiida_crystal.utils.dos import get_dos_projections_atoms
@@ -28,8 +28,10 @@ class BaseCrystalWorkChain(WorkChain):
                    required=False, default=get_data_node('bool', False))
         spec.input('options', valid_type=get_data_class('dict'), required=True, help="Calculation options")
         # define workchain routine
-        spec.outline(cls.init_calculation,
-                     cls.run_calculation,
+        spec.outline(while_(cls.not_converged)(
+                        cls.init_calculation,
+                        cls.run_calculation,
+                     ),
                      cls.retrieve_results,
                      cls.finalize)
         # define outputs
@@ -38,9 +40,18 @@ class BaseCrystalWorkChain(WorkChain):
         spec.output('output_parameters', valid_type=get_data_class('dict'), required=False)
         spec.output('output_wavefunction', valid_type=get_data_class('singlefile'), required=False)
         spec.output('output_trajectory', valid_type=get_data_class('array.trajectory'), required=False)
+        # define error codes
+        spec.exit_code(300, 'ERROR_CRYSTAL', message='CRYSTAL error')
+        spec.exit_code(400, 'ERROR_UNKNOWN', message='Unknown error')
 
     def init_calculation(self):
         """Create input dictionary for the calculation, deal with restart (later?)"""
+        # count number of previous calculations
+        if "calc_number" not in self.ctx:
+            self.ctx.calc_number = 1
+        else:
+            self.ctx.calc_number += 1
+        # prepare inputs
         self.ctx.inputs = AttributeDict()
         # set the code
         self.ctx.inputs.code = self.inputs.code
@@ -56,12 +67,24 @@ class BaseCrystalWorkChain(WorkChain):
             label = options_dict.pop('label', '')
             description = options_dict.pop('description', '')
             guess_oxistates = options_dict.pop('guess_oxistates', False)
-            self.ctx.inputs.guess_oxistates = Bool(guess_oxistates)
             high_spin_preferred = options_dict.pop('high_spin_preferred', False)
-            self.ctx.inputs.high_spin_preferred = Bool(high_spin_preferred)
+            if self.ctx.calc_number > 1 and guess_oxistates:
+                self.report('Trying to guess oxidation states')
+                self.ctx.inputs.guess_oxistates = Bool(guess_oxistates)
+                self.ctx.inputs.high_spin_preferred = Bool(high_spin_preferred)
             self.ctx.inputs.metadata = AttributeDict({'options': options_dict,
-                                                      'label': label,
+                                                      'label': '{} [{}]'.format(label, self.ctx.calc_number),
                                                       'description': description})
+
+    def not_converged(self):
+        return not self.converged()
+
+    def converged(self):
+        """Check if calculation has converged"""
+        # if no calculations have run
+        if "calculations" not in self.ctx:
+            return False
+        return self.ctx.calculations[-1].exit_status == 0 or self.ctx.calc_number == 2
 
     def run_calculation(self):
         """Run a calculation from self.ctx.inputs"""
@@ -108,6 +131,17 @@ class BaseCrystalWorkChain(WorkChain):
                 pass
         if cleaned_calcs:
             self.report('cleaned remote folders of calculations: {}'.format(' '.join(map(str, cleaned_calcs))))
+
+    def on_finish(self, result, successful):
+        # alter result
+        last_calc = self.ctx.calculations[-1]
+        if last_calc.exit_status == 0:
+            result = None
+        elif 300 <= last_calc.exit_status < 400:
+            result = self.exit_codes.ERROR_CRYSTAL
+        elif last_calc.exit_status >= 400:
+            result = self.exit_codes.ERROR_UNKNOWN
+        super(BaseCrystalWorkChain, self).on_finish(result, successful)
 
 
 class BasePropertiesWorkChain(WorkChain):

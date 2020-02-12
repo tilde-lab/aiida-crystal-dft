@@ -71,6 +71,8 @@ class CrystalParser(Parser):
                     return self.exit_codes.ERROR_BASIS_SET_LINEARLY_DEPENDENT
                 elif 'NEIGHBOR LIST TOO BIG' in error:
                     return self.exit_codes.ERROR_NEIGHBOR_LIST_TOO_BIG
+                elif 'GEOMETRY OPTIMIZATION FAILED' in error:
+                    return self.exit_codes.ERROR_GEOMETRY_OPTIMIZATION_FAILED
                 elif error:
                     return self.exit_codes.ERROR_UNKNOWN
 

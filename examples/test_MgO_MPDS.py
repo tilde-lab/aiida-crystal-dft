@@ -20,7 +20,8 @@ inputs.crystal_parameters = DataFactory('dict')(dict={
         },
         "geometry": {
             "optimise": {
-                "type": "FULLOPTG"
+                "type": "FULLOPTG",
+                "convergence": {"MAXCYCLE": 3},
             },
             "phonons": {
                 "ir": {
@@ -53,7 +54,7 @@ inputs.mpds_query = DataFactory('dict')(dict={
 inputs.options = DataFactory('dict')(dict={
     'need_phonons': False,
     'need_electronic_properties': False,
-    # 'guess_oxistates': True,
+    'guess_oxistates': True,
     'resources': {
         'num_machines': 1,
         'num_mpiprocs_per_machine': 1

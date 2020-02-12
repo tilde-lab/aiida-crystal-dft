@@ -53,17 +53,15 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         spec.input('metadata.options.output_filename', valid_type=six.string_types, default=cls._OUTPUT_FILE_NAME)
         spec.input('metadata.options.parser_name', valid_type=six.string_types, default='crystal')
         # exit codes
-        # 10x - errors due to machine failures
-        spec.exit_code(100, 'ERROR_NO_RETRIEVED_FOLDER', message='The retrieved folder data node could not be accessed')
-
-        # 11x - CRYSTAL errors
-        spec.exit_code(110, 'ERROR_SCF_FAILED', message='SCF calculation not converged')
-        spec.exit_code(111, 'ERROR_UNIT_CELL_NOT_NEUTRAL', message='Unit cell not neutral')
-        spec.exit_code(112, 'ERROR_BASIS_SET_LINEARLY_DEPENDENT', message='Basis set linearly dependent')
-        spec.exit_code(113, 'ERROR_NEIGHBOR_LIST_TOO_BIG', message='Neighbour list too large')
-
-        # 12x - other errors
-        spec.exit_code(120, 'ERROR_UNKNOWN', message='Unknown error')
+        # 3xx - CRYSTAL errors
+        spec.exit_code(300, 'ERROR_SCF_FAILED', message='SCF calculation not converged')
+        spec.exit_code(301, 'ERROR_GEOMETRY_OPTIMIZATION_FAILED', message='Geometry optimization failed')
+        spec.exit_code(302, 'ERROR_UNIT_CELL_NOT_NEUTRAL', message='Unit cell not neutral')
+        spec.exit_code(303, 'ERROR_BASIS_SET_LINEARLY_DEPENDENT', message='Basis set linearly dependent')
+        spec.exit_code(304, 'ERROR_NEIGHBOR_LIST_TOO_BIG', message='Neighbour list too large')
+        # 4xx - other errors
+        spec.exit_code(400, 'ERROR_UNKNOWN', message='Unknown error')
+        spec.exit_code(401, 'ERROR_NO_RETRIEVED_FOLDER', message='The retrieved folder data node could not be accessed')
 
     def _validate_basis_input(self, inputdict):
         """Input validation; returns the dict of validated data"""
