@@ -5,7 +5,6 @@ Code shared between serial and parallel CRYSTAL calculations.
 """
 from abc import ABCMeta
 
-import six
 from ase.data import chemical_symbols
 from aiida.engine import CalcJob
 from aiida.orm import Dict, Code, StructureData, SinglefileData, TrajectoryData, Bool
@@ -49,9 +48,9 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         spec.output('output_trajectory', valid_type=TrajectoryData, required=False)
         spec.default_output_node = 'output_parameters'
         # input, output files and parser name
-        spec.input('metadata.options.input_filename', valid_type=six.string_types, default=cls._INPUT_FILE_NAME)
-        spec.input('metadata.options.output_filename', valid_type=six.string_types, default=cls._OUTPUT_FILE_NAME)
-        spec.input('metadata.options.parser_name', valid_type=six.string_types, default='crystal')
+        spec.input('metadata.options.input_filename', valid_type=str, default=cls._INPUT_FILE_NAME)
+        spec.input('metadata.options.output_filename', valid_type=str, default=cls._OUTPUT_FILE_NAME)
+        spec.input('metadata.options.parser_name', valid_type=str, default='crystal')
         # exit codes
         # 3xx - CRYSTAL errors
         spec.exit_code(300, 'ERROR_SCF_FAILED', message='SCF calculation not converged')
