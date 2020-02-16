@@ -1,10 +1,11 @@
 #  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 
-from __future__ import print_function
 import numpy as np
 import spglib
+
 from ase import Atoms
 from ase.data import chemical_symbols
+
 import pyparsing as pp
 from aiida_crystal.utils.geometry import get_crystal_system, get_centering_code
 from aiida_crystal.io import _parse_string

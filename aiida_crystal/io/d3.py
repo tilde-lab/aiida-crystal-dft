@@ -2,10 +2,9 @@
 """
 An adapter for writing out .d3 file (for properties calculation)
 """
-from __future__ import print_function
+from collections import defaultdict
 
 import pyparsing as pp
-from collections import defaultdict
 from aiida_crystal.validation import validate_with_json
 from aiida_crystal.utils.keywords import PROPERTIES_KEYWORDS
 
