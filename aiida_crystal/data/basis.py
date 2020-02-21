@@ -144,7 +144,7 @@ class CrystalBasisData(Dict):
         return result
 
 
-def get_valence_orbitals(occs):
+def get_valence_orbitals(occs, vacant=False):
     """Returns the dictionary of valence orbital indices in occupations dict"""
     i_valence = {}
     for orb, occ in occs.items():
@@ -152,7 +152,7 @@ def get_valence_orbitals(occs):
         for occ_i in occ:
             if occ_i == max_e[orb]:
                 n_valence_orb += 1
-            elif occ_i == 0:
+            elif occ_i == 0 and not vacant:
                 i_valence[orb] = n_valence_orb
                 break
             else:
@@ -194,9 +194,13 @@ def add_valence_electrons(n, occs, element, high_spin_preferred):
     if high_spin_preferred:
         raise NotImplementedError
     # get electrons on last two orbitals
-    for shell in shell_valence:
+    for i_shell, shell in enumerate(shell_valence):
         orb = "sp" if shell in ("s", "p") and "sp" in i_valence else shell
         n_e = occs[orb][i_valence[orb]]
+        if i_shell > 0 and n_e == max_e[orb]:
+            # our bad, we erroneously found full orbitals as valence
+            i_valence[orb] += 1
+            n_e = 0
         if not high_spin_preferred and n + n_e <= max_e[orb]:
             # enough vacancies on the shell, fill'em and break the loop
             occs[orb][i_valence[orb]] += n

@@ -1,6 +1,7 @@
 """Tests for base workflow calculation
 """
 
+# noinspection PyUnresolvedReferences
 from aiida_crystal.tests.fixtures import *
 
 
@@ -14,8 +15,8 @@ def test_crystal_wc_run(test_crystal_code, crystal_calc_parameters, test_structu
     inputs.basis_family, _ = DataFactory('crystal.basis_family').get_or_create('STO-3G')
     inputs.structure = test_structure_data
     inputs.options = DataFactory("dict")(dict={'resources':
-                                              {"num_machines": 1, "num_mpiprocs_per_machine": 1}
-                                          })
+                                               {"num_machines": 1, "num_mpiprocs_per_machine": 1},
+                                               'try_oxi_if_fails': False})
     run(BaseCrystalWorkChain, **inputs)
 
 
