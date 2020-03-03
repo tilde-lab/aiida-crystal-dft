@@ -11,7 +11,7 @@ from mpds_aiida.workflows.crystal import MPDSCrystalWorkchain
 
 inputs = MPDSCrystalWorkchain.get_builder()
 inputs.crystal_code = Code.get_from_string('Pcrystal@torquessh')
-inputs.properties_code = Code.get_from_string('properties@torquessh')
+# inputs.properties_code = Code.get_from_string('properties@torquessh')
 
 inputs.crystal_parameters = DataFactory('dict')(dict={
         "title": "Crystal calc",
@@ -34,15 +34,15 @@ inputs.crystal_parameters = DataFactory('dict')(dict={
             }
         }
 })
-inputs.properties_parameters = DataFactory('dict')(dict={
-        "band": {
-            "shrink": 8,
-            "k_points": 30,
-        },
-        "dos": {
-            "n_e": 100
-        }
-})
+# inputs.properties_parameters = DataFactory('dict')(dict={
+#         "band": {
+#             "shrink": 8,
+#             "k_points": 30,
+#         },
+#         "dos": {
+#             "n_e": 100
+#         }
+# })
 
 inputs.basis_family, _ = DataFactory('crystal_dft.basis_family').get_or_create('MINIMAL')
 inputs.mpds_query = DataFactory('dict')(dict={
@@ -53,6 +53,7 @@ inputs.mpds_query = DataFactory('dict')(dict={
 
 inputs.options = DataFactory('dict')(dict={
     'need_phonons': False,
+    'need_elastic_constants': False,
     'need_electronic_properties': False,
     'try_oxi_if_fails': True,
     'resources': {
