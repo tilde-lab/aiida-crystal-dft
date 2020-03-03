@@ -10,6 +10,7 @@ from ase.spacegroup import crystal
 @pytest.fixture
 def crystal_calc(test_crystal_code, crystal_calc_parameters, test_structure_data, test_basis_family_predefined):
     from aiida.common.extendeddicts import AttributeDict
+    from aiida.orm import Bool
     from aiida_crystal.calculations.serial import CrystalSerialCalculation
     inputs = AttributeDict()
     inputs.metadata = AttributeDict({'options':
@@ -21,6 +22,8 @@ def crystal_calc(test_crystal_code, crystal_calc_parameters, test_structure_data
     inputs.structure = test_structure_data
     inputs.parameters = crystal_calc_parameters
     inputs.basis_family = test_basis_family_predefined
+    inputs.guess_oxistates = Bool(False)
+    inputs.high_spin_preferred = Bool(False)
     calc = CrystalSerialCalculation(inputs)
     return calc
 

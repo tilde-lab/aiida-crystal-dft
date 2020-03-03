@@ -35,11 +35,8 @@ def write_input(indict, basis, atom_props=None):
     :param atom_props: dictionary of atom ids with specific properties ("spin_alpha", "spin_beta", "unfixed", "ghosts")
     :return:
     """
-    try:
-        from aiida_crystal.data.basis_family import CrystalBasisFamilyData
-        is_basis_family = isinstance(basis, CrystalBasisFamilyData)
-    except ImportError:
-        is_basis_family = False
+    from aiida_crystal.data.basis_family import CrystalBasisFamilyData
+    is_basis_family = isinstance(basis, CrystalBasisFamilyData)
     # validation
     validate_with_json(indict)
     if not basis:

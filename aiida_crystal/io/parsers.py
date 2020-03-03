@@ -26,10 +26,10 @@ def gto_basis_parser():
     :return: basis parser
     """
     header = 2 * pc.integer
-    ecp_part = pp.Word(pp.alphas) + \
-               pp.Optional(pp.Group(pc.real + 6 * pc.integer) +
-                           pp.Group(pp.OneOrMore(pp.Group(2 * pc.real + pc.signed_integer))))
-    bs_part = pp.OneOrMore(pp.Group(pp.Group(3 * pc.integer + 2 * pc.number) +
+    ecp_part = pp.Word(pp.alphas) + pp.Optional(pp.Group(pc.real + 6 * pc.integer) +
+                                                pp.Group(pp.OneOrMore(pp.Group(2 * pc.real + pc.signed_integer))))
+    bs_head = pp.Group(3 * pc.integer + 2 * pc.number)
+    bs_part = pp.OneOrMore(pp.Group(bs_head +
                                     pp.ZeroOrMore(pp.Group((3 * pc.real + pp.Suppress(pp.LineEnd())) ^
                                                            (2 * pc.real + pp.Suppress(pp.LineEnd()))))))
     return pp.SkipTo(header) + header('header') + pp.Optional(ecp_part('ecp')) + bs_part('bs')

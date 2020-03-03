@@ -1,11 +1,8 @@
+#   Copyright (c)  Andrey Sobolev, 2019-2020. Distributed under MIT license, see LICENSE file.
 """
 A parallel version of CRYSTAL calculation
 """
-from aiida.common import CalcInfo, CodeInfo
-from aiida.common import InputValidationError
 from aiida_crystal.calculations.common import CrystalCommonCalculation
-from aiida_crystal.io.d12_write import write_input
-from aiida_crystal.io.f34 import Fort34
 
 
 class CrystalParallelCalculation(CrystalCommonCalculation):
@@ -27,20 +24,13 @@ class CrystalParallelCalculation(CrystalCommonCalculation):
         self._prepare_input_files(folder)
 
         # Prepare CodeInfo object for aiida
-        codeinfo = CodeInfo()
-        codeinfo.code_uuid = self.inputs.code.uuid
+        codeinfo = self._prepare_codeinfo()
         codeinfo.withmpi = True
-        codeinfo.stdin_name = self.inputs.metadata.options.input_filename
         # parallel CRYSTAL version writes output to scheduler stderr
         codeinfo.stdout_name = self.inputs.metadata.options.scheduler_stderr
 
         # Prepare CalcInfo object for aiida
-        calcinfo = CalcInfo()
-        calcinfo.uuid = self.uuid
-        calcinfo.codes_info = [codeinfo]
-        calcinfo.local_copy_list = []
-        calcinfo.remote_copy_list = []
+        calcinfo = self._prepare_calcinfo(codeinfo)
         calcinfo.retrieve_list = retrieve_list
-        calcinfo.local_copy_list = []
 
         return calcinfo

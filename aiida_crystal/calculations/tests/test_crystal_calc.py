@@ -19,7 +19,7 @@ def test_validate_input(test_crystal_code, test_structure_data, crystal_calc_par
     inputs = AttributeDict()
     with pytest.raises(ValueError):
         CrystalSerialCalculation(inputs)
-    inputs.metadata = {'options': {'resources': {'tot_num_mpiprocs': 1, 'num_mpiprocs_per_machine': 1}}}
+    inputs.metadata = {'options': {'resources': {'num_machines': 1, 'num_mpiprocs_per_machine': 1}}}
     inputs.code = test_crystal_code
     with pytest.raises(ValueError):
         CrystalSerialCalculation(inputs)

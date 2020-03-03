@@ -2,15 +2,16 @@
 """
 A file with various data devoted to k-points calculations: special k-points etc.
 """
-from __future__ import division
 from fractions import Fraction
 try:
     from math import gcd
 except ImportError:
     # python < 3.5
     from fractions import gcd
+
 from functools import reduce
 from .geometry import get_lattice_type, get_spacegroup
+
 
 # Cubic: simple: P; BC: I, FC: F;
 # Orthorhombic: Primitive - P, AC: S, BC: I, FC: F
@@ -149,8 +150,9 @@ def get_shrink_kpoints_path(structure):
     # as points is a dictionary, get coords and labels separately
     point_labels = points.keys()
     # least common multiplier for all the denominators
-    shrink = reduce(lambda x, y: x * y // gcd(x, y), [Fraction(p).denominator for l in point_labels for p in points[l]])
-    point_coords = [[int(p*shrink) for p in points[l]] for l in point_labels]
+    shrink = reduce(lambda x, y: x * y // gcd(x, y), [Fraction(p).denominator
+                                                      for lbl in point_labels for p in points[lbl]])
+    point_coords = [[int(p*shrink) for p in points[lbl]] for lbl in point_labels]
     points = dict(zip(point_labels, point_coords))
     return shrink, points, [[points[p[0]], points[p[1]]] for p in path]
 

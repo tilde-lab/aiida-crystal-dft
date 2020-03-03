@@ -33,6 +33,7 @@ def test_basis_family(aiida_profile, test_structure_data):
         bf.add([basis_sets[0], basis_sets[0]])
     assert len(bf.add(basis_sets)) == 0
     bf.set_structure(test_structure_data)
+    assert bf.oxi_states == {"Mg": 0., "O": 0.}
     assert bf.content == """8 2
 1 0 3 2.0 0.0
 1 1 3 6.0 0.0
@@ -42,4 +43,17 @@ def test_basis_family(aiida_profile, test_structure_data):
 1 1 3 2.0 0.0
 99 0
 """
-
+    with pytest.raises(ValueError):
+        bf.set_oxistates({"Mg": 2.})
+    with pytest.raises(ValueError):
+        bf.set_oxistates({"Mg": 2., "O": -1.})
+    bf.set_oxistates({"Mg": 2., "O": -2.})
+    assert bf.content == """8 2
+1 0 3 2.0 0.0
+1 1 3 8.0 0.0
+12 3
+1 0 3 2.0 0.0
+1 1 3 8.0 0.0
+1 1 3 0.0 0.0
+99 0
+"""

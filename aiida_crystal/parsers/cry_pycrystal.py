@@ -2,12 +2,10 @@
 """
 Pycrystal-based parser for CRYSTAL AiiDA plugin
 """
-
-from __future__ import absolute_import
-
 from aiida.parsers.parser import Parser
 from aiida.common import OutputParsingError, NotExistent
 from aiida.plugins import CalculationFactory, DataFactory
+
 from aiida_crystal.io.pycrystal import out
 from aiida_crystal.io.f34 import Fort34
 
@@ -62,15 +60,32 @@ class CrystalParser(Parser):
         if 'fort.87' in folder.list_object_names():
             with folder.open('fort.87') as f:
                 error = f.readline()
+
                 # check for scf failed, remember it and parse as much as we can
-                if 'SCF FAILED' in error:
+                if 'SCF FAILED' in error or 'TOO MANY ITERATIONS' in error:
                     scf_failed = True
+
                 elif 'UNIT CELL NOT NEUTRAL' in error:
                     return self.exit_codes.ERROR_UNIT_CELL_NOT_NEUTRAL
+
                 elif 'BASIS SET LINEARLY DEPENDENT' in error:
                     return self.exit_codes.ERROR_BASIS_SET_LINEARLY_DEPENDENT
+
                 elif 'NEIGHBOR LIST TOO BIG' in error:
                     return self.exit_codes.ERROR_NEIGHBOR_LIST_TOO_BIG
+
+                elif 'GEOMETRY OPTIMIZATION FAILED' in error:
+                    return self.exit_codes.ERROR_GEOMETRY_OPTIMIZATION_FAILED
+
+                elif 'ALL G-VECTORS USED' in error:
+                    return self.exit_codes.ERROR_NO_G_VECTORS
+
+                elif 'SMALLDIST' in error:
+                    return self.exit_codes.ERROR_GEOMETRY_COLLAPSED
+
+                elif 'ALLOCATION' in error:
+                    return self.exit_codes.ERROR_ALLOCATION
+
                 elif error:
                     return self.exit_codes.ERROR_UNKNOWN
 
