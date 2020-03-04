@@ -1,6 +1,8 @@
 """A reader and writer for CRYSTAL d12 input file
 """
+import os
 from aiida_crystal.validation import read_schema, validate_with_json
+from jinja2 import Template
 
 
 class D12Formatter(object):
@@ -38,7 +40,6 @@ class D12Formatter(object):
         return self.get_value_type(key[1:], schema["properties"][key[0]])
 
 
-
 class D12(object):
     """A reader and writer of INPUT (or input.d12) CRYSTAL file"""
 
@@ -57,9 +58,10 @@ class D12(object):
     def __str__(self):
         if self._input is None:
             raise ValueError("Can not make input file out of empty dict")
-        lines = [self._input.get("title", "CRYSTAL calc")]
-        lines += self._geometry_block()
-        return "\n".join(lines)
+        dirpath = os.path.dirname(os.path.realpath(__file__))
+        with open(os.path.join(dirpath, "d12.schema")) as schema_file:
+            template = Template(schema_file.read())
+        return template.render(**self._input)
 
     def _geometry_block(self):
         geom_dict = self._input.get("geometry", {})
@@ -102,9 +104,9 @@ class D12(object):
             raise ValueError("No BasisSet is associated with the input")
 
     def use_parameters(self, parameters):
-        """A ParameterData to use for making INPUT"""
-        input_dict = parameters.get_dict()
-        validate_with_json(parameters.get_dict(), name="d12")
+        """A ParameterData (or a simple dict) to use for making INPUT"""
+        input_dict = parameters if isinstance(parameters, dict) else parameters.get_dict()
+        validate_with_json(input_dict, name="d12")
         self._input = input_dict
 
     def use_basis(self, basis):
