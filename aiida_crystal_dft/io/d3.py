@@ -12,6 +12,7 @@ from aiida_crystal_dft.utils.keywords import PROPERTIES_KEYWORDS
 
 pc = pp.pyparsing_common
 
+
 def _band_parser():
     kw = pp.Keyword("BAND")
     title = pp.Word(pp.alphas)('title')
@@ -43,11 +44,11 @@ class D3(object):
             data[kw].append(line)
         bands = _band_parser().parseString(''.join(data['BAND']))
         return {'band':
-            {
-                'title': bands['title'],
-                'shrink': bands['settings'][1]
-            }
-        }
+                {
+                    'title': bands['title'],
+                    'shrink': bands['settings'][1]
+                 }
+                }
 
     def _validate(self):
         """Scientific validation routine"""
