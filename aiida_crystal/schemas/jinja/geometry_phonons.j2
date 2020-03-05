@@ -1,0 +1,8 @@
+FREQCALC
+{% if geometry.phonons.TEMPERAT -%}
+    {{ macros.variable('TEMPERAT', geometry.phonons.TEMPERAT) }}
+{% endif %}
+{% for item in geometry.phonons.info_print -%}
+    {{ item }}
+{% endfor -%}
+ENDFREQ

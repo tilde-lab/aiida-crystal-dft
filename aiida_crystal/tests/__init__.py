@@ -24,7 +24,8 @@ d12_input = {
                 "MAXCYCLE": 50,
                 "FINALRUN": 4
             },
-        }
+        },
+        # "phonons": {"TEMPERAT": [1, 2, 3]}
     },
     "basis_set": {
         "CHARGED": False,
@@ -91,16 +92,16 @@ HESSIDEN
 NUMGRATO
 PRINTOPT
 PRINTFORCES
-MAXCYCLE
-50
-TOLDEX
-0.0012
-FINALRUN
-4
 TOLDEG
 0.0003
+TOLDEX
+0.0012
 TOLDEE
 7
+MAXCYCLE
+50
+FINALRUN
+4
 ENDOPT
 BASISSET
 STO-3G

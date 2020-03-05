@@ -10,7 +10,7 @@ def read_schema(name="d12"):
     :return:
     """
     dirpath = os.path.dirname(os.path.realpath(__file__))
-    jpath = os.path.join(dirpath, "{}.schema.json".format(name))
+    jpath = os.path.join(dirpath, "validation", "{}.schema.json".format(name))
     with open(jpath) as jfile:
         schema = json.load(jfile)
     return schema

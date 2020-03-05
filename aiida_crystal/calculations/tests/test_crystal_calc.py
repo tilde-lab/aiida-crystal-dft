@@ -27,7 +27,7 @@ def test_validate_input(test_crystal_code, test_structure_data, crystal_calc_par
     with pytest.raises(ValueError):
         CrystalSerialCalculation(inputs)
     inputs.parameters = crystal_calc_parameters
-    # TODO: write validation code checking that either basis or basis_family is present!
+    # TODO: write schemas code checking that either basis or basis_family is present!
     # with pytest.raises(ValueError):
     #     CrystalSerialCalculation(inputs)
     # inputs.basis_family = test_basis_family_predefined
