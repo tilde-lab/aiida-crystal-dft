@@ -70,7 +70,7 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         spec.exit_code(401, 'ERROR_NO_RETRIEVED_FOLDER', message='The retrieved folder data node could not be accessed')
 
     def _validate_basis_input(self, inputdict):
-        """Input validation; returns the dict of validated data"""
+        """Input schemas; returns the dict of validated data"""
         validated_dict = {}
 
         # basis family input

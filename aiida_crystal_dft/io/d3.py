@@ -5,8 +5,7 @@ An adapter for writing out .d3 file (for properties calculation)
 from collections import defaultdict
 
 import pyparsing as pp
-
-from aiida_crystal_dft.validation import validate_with_json
+from aiida_crystal_dft.schemas import validate_with_json
 from aiida_crystal_dft.utils.keywords import PROPERTIES_KEYWORDS
 
 
@@ -51,7 +50,7 @@ class D3(object):
                 }
 
     def _validate(self):
-        """Scientific validation routine"""
+        """Scientific schemas routine"""
         if self._parameters is None:
             raise ValueError("No ParameterData is given for .d3 input")
         if 'band' in self._parameters:

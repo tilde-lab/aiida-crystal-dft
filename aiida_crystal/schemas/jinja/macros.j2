@@ -1,0 +1,8 @@
+{% macro variable(key, value) -%}
+{{ key }}
+{% if value is iterable and value is not string -%}
+    {{ value|join('  ') }}
+{%- else -%}
+    {{ value }}
+{%- endif -%}
+{%- endmacro -%}

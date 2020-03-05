@@ -69,5 +69,5 @@ class Fort9(object):
 
     def get_ao_number(self):
         """Get number of atomic orbitals (which is the number of bands)"""
-        # cast to python type for validation purposes
+        # cast to python type for schemas purposes
         return int(self._data[3][6])

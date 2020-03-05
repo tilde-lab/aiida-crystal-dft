@@ -1,0 +1,18 @@
+{% import 'macros.j2' as macros -%}
+{{ title }}
+EXTERNAL
+{% for item in geometry.info_print -%}
+    {{ item }}
+{% endfor -%}
+{% for item in geometry.info_external -%}
+    {{ item }}
+{% endfor -%}
+{% if geometry.optimise -%}
+    {% include 'geometry_optimise.j2' -%}
+{% endif -%}
+{% if geometry.phonons -%}
+    {% include 'geometry_phonons.j2' -%}
+{% endif -%}
+{% if geometry.elastic -%}
+    {% include 'geometry_elastic.j2' -%}
+{% endif -%}

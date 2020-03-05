@@ -1,8 +1,7 @@
 """A reader and writer for CRYSTAL d12 input file
 """
-import os
-from aiida_crystal.validation import read_schema, validate_with_json
-from jinja2 import Template
+from aiida_crystal.schemas import read_schema, validate_with_json
+from aiida_crystal.schemas.jinja import get_template
 
 
 class D12Formatter(object):
@@ -12,23 +11,23 @@ class D12Formatter(object):
             schema = read_schema("d12")
         self._schema = schema
 
-    def format(self, key, value, keyword=None, ending=None):
-        """
-        Formats a value from the dict based on its type from schema
-        :param key: a list of keys for the schema
-        :param value: parameter value
-        :param keyword: optional keyword as the title
-        :param ending: optional ending for the parameter
-        :return: a list of strings
-        """
-        type_formatter = {
-            "string": self._format_string,
-        }
-        value_type = self._schema
-
-    @staticmethod
-    def _format_string(key, value, keyword, ending):
-        return [value]
+    # def format(self, key, value, keyword=None, ending=None):
+    #     """
+    #     Formats a value from the dict based on its type from schema
+    #     :param key: a list of keys for the schema
+    #     :param value: parameter value
+    #     :param keyword: optional keyword as the title
+    #     :param ending: optional ending for the parameter
+    #     :return: a list of strings
+    #     """
+    #     type_formatter = {
+    #         "string": self._format_string,
+    #     }
+    #     value_type = self._schema
+    #
+    # @staticmethod
+    # def _format_string(key, value, keyword, ending):
+    #     return [value]
 
     def get_value_type(self, key, schema=None):
         if schema is None:
@@ -58,9 +57,7 @@ class D12(object):
     def __str__(self):
         if self._input is None:
             raise ValueError("Can not make input file out of empty dict")
-        dirpath = os.path.dirname(os.path.realpath(__file__))
-        with open(os.path.join(dirpath, "d12.schema")) as schema_file:
-            template = Template(schema_file.read())
+        template = get_template('d12.j2')
         return template.render(**self._input)
 
     def _geometry_block(self):

@@ -2,7 +2,7 @@
 test d12 schema
 """
 import pytest
-from aiida_crystal_dft.validation import validate_with_json
+from aiida_crystal.schemas import validate_with_json
 from jsonschema import ValidationError
 
 
