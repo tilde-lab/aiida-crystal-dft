@@ -2,12 +2,10 @@
 """
 Pycrystal-based parser for CRYSTAL AiiDA plugin
 """
-
-from __future__ import absolute_import
-
 from aiida.parsers.parser import Parser
 from aiida.common import OutputParsingError, NotExistent
 from aiida.plugins import CalculationFactory, DataFactory
+
 from aiida_crystal_dft.io.pycrystal import out
 from aiida_crystal_dft.io.f34 import Fort34
 

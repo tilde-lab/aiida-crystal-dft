@@ -23,8 +23,11 @@ class Fort9(object):
             raise ValueError("Expected fort.9 as the file name, got {} instead".format(os.path.basename(file_name)))
         self._geometry = None
         # read arrays from file
-        with FortranFile(file_name) as f:
-            self._data = [f.read_record(rtype) for rtype in self._record_types]
+        try:
+            with FortranFile(file_name) as f:
+                self._data = [f.read_record(rtype) for rtype in self._record_types]
+        except TypeError:
+            raise FileNotFoundError("Something is wrong with {} file, please check".format(file_name))
 
     def _read_geometry(self):
         """Returns geometry from fort.9. All lengths are in Bohr. If scale=True, then convert positions to fractional.

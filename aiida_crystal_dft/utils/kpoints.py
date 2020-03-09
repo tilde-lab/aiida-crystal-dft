@@ -2,15 +2,16 @@
 """
 A file with various data devoted to k-points calculations: special k-points etc.
 """
-from __future__ import division
 from fractions import Fraction
 try:
     from math import gcd
 except ImportError:
     # python < 3.5
     from fractions import gcd
+
 from functools import reduce
 from .geometry import get_lattice_type, get_spacegroup
+
 
 # Cubic: simple: P; BC: I, FC: F;
 # Orthorhombic: Primitive - P, AC: S, BC: I, FC: F

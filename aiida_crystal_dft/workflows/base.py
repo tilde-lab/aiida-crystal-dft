@@ -142,17 +142,6 @@ class BaseCrystalWorkChain(WorkChain):
         if cleaned_calcs:
             self.report('cleaned remote folders of calculations: {}'.format(' '.join(map(str, cleaned_calcs))))
 
-    def on_finish(self, result, successful):
-        # alter result
-        last_calc = self.ctx.calculations[-1]
-        if last_calc.exit_status == 0:
-            result = None
-        elif 300 <= last_calc.exit_status < 400:
-            result = self.exit_codes.ERROR_CRYSTAL
-        elif last_calc.exit_status >= 400:
-            result = self.exit_codes.ERROR_UNKNOWN
-        super(BaseCrystalWorkChain, self).on_finish(result, successful)
-
 
 class BasePropertiesWorkChain(WorkChain):
     """Run Properties calculation"""

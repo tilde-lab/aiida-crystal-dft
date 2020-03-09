@@ -19,7 +19,7 @@ def test_validate_input(test_properties_code, properties_calc_parameters, test_w
     inputs = AttributeDict()
     with pytest.raises(ValueError):
         PropertiesCalculation(inputs)
-    inputs.metadata = {'options': {'resources': {'tot_num_mpiprocs': 1, 'num_mpiprocs_per_machine': 1}}}
+    inputs.metadata = {'options': {'resources': {'num_machines': 1, 'num_mpiprocs_per_machine': 1}}}
     inputs.code = test_properties_code
     with pytest.raises(ValueError):
         PropertiesCalculation(inputs)
