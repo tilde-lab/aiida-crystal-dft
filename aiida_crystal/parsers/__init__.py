@@ -1,3 +1,0 @@
-"""
-parsers for CRYSTAL17
-"""

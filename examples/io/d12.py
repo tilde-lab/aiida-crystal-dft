@@ -4,7 +4,7 @@
 This example shows how to write .d12 file to with custom dictionary
 """
 
-from aiida_crystal.io.d12_write import write_input
+from aiida_crystal_dft.io.d12_write import write_input
 from collections import namedtuple
 
 basis_mg = """12 3

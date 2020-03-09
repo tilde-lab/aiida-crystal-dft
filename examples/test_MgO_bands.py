@@ -27,7 +27,7 @@ assert isinstance(wf, SinglefileData)
 # set up calculation
 calc = code.new_calc()
 
-calc.label = "aiida_crystal properties test"
+calc.label = "aiida_crystal_dft properties test"
 calc.description = "Test properties job submission"
 calc.set_max_wallclock_seconds(3600)
 calc.set_resources({"num_machines": 1, "num_mpiprocs_per_machine": 1})

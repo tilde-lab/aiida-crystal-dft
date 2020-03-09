@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+
+""" A mock CRYSTAL executable for running MPDS tests
+"""
+
+#  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
+
+import os
+import shutil
+from hashlib import md5
+from aiida_crystal_dft.tests import TEST_DIR
+
+inputs = {'58145dd5a5fce295c414eb7040fc2e7b': {'fort.34': '10ce5c8d8dff73207fd340b6262ad8a3'},
+          '29984f78298455be74cb0a91584d3278': {'fort.9': 'bc716a16c8d63b6a45549ea250d194f0'}}
+outputs = {'58145dd5a5fce295c414eb7040fc2e7b': 'optimise',
+           '29984f78298455be74cb0a91584d3278': 'properties'
+           }
+
+
+def checksum(file_name, cs=md5):
+    with open(file_name, 'rb') as f:
+        data = f.read()
+    return cs(data).hexdigest()
+
+
+def main():
+    print("=============  MOCK CRYSTAL CODE  =============")
+    print("=============        V 0.1        =============")
+    cwd = os.getcwd()
+    files = os.listdir(cwd)
+    input_files = ('INPUT', 'main.d12', 'main.d3')
+    assert any([f in files for f in input_files])
+    cs = checksum('INPUT' if 'INPUT' in files else 'main.d3')
+    assert cs in inputs
+    for k, v in inputs[cs].items():
+        assert k in files and checksum(k) == v
+    out_dir = os.path.join(TEST_DIR, 'output_files', outputs[cs])
+    for f in os.listdir(out_dir):
+        shutil.copy(os.path.join(out_dir, f), cwd)
+
+
+if __name__ == "__main__":
+    main()

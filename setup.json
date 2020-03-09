@@ -1,9 +1,9 @@
 {
-    "name": "aiida-crystal",
+    "name": "aiida-crystal-dft",
     "author": "Andrey Sobolev, based on aiida-crystal17 plugin by Chris Sewell",
     "author_email": "as@tilde.pro",
     "description": "Yet another AiiDA plugin for CRYSTAL code, mainly intended for use with the cloud infrastructures (currently, MPDS)",
-    "url": "https://github.com/tilde-lab/aiida-crystal",
+    "url": "https://github.com/tilde-lab/aiida-crystal-dft",
     "license": "MIT",
     "classifiers": [
         "Development Status :: 3 - Alpha",
@@ -23,24 +23,24 @@
     ],
     "entry_points": {
         "aiida.data": [
-            "crystal.basis = aiida_crystal.data.basis:CrystalBasisData",
-            "crystal.basis_family = aiida_crystal.data.basis_family:CrystalBasisFamilyData"
+            "crystal.basis = aiida_crystal_dft.data.basis:CrystalBasisData",
+            "crystal.basis_family = aiida_crystal_dft.data.basis_family:CrystalBasisFamilyData"
         ],
         "aiida.calculations": [
-            "crystal.serial = aiida_crystal.calculations.serial:CrystalSerialCalculation",
-            "crystal.parallel = aiida_crystal.calculations.parallel:CrystalParallelCalculation",
-            "crystal.properties = aiida_crystal.calculations.properties:PropertiesCalculation"
+            "crystal.serial = aiida_crystal_dft.calculations.serial:CrystalSerialCalculation",
+            "crystal.parallel = aiida_crystal_dft.calculations.parallel:CrystalParallelCalculation",
+            "crystal.properties = aiida_crystal_dft.calculations.properties:PropertiesCalculation"
         ],
         "aiida.parsers": [
-            "crystal = aiida_crystal.parsers.cry_pycrystal:CrystalParser",
-            "crystal.properties = aiida_crystal.parsers.properties:PropertiesParser"
+            "crystal = aiida_crystal_dft.parsers.cry_pycrystal:CrystalParser",
+            "crystal.properties = aiida_crystal_dft.parsers.properties:PropertiesParser"
 
         ],
         "aiida.workflows": [
-            "crystal.base = aiida_crystal.workflows.base:BaseCrystalWorkChain"
+            "crystal.base = aiida_crystal_dft.workflows.base:BaseCrystalWorkChain"
         ],
         "aiida.cmdline.data": [
-            "crystal = aiida_crystal.cli.basis:basis_set"
+            "crystal = aiida_crystal_dft.cli.basis:basis_set"
         ]
     },
     "include_package_data": true,

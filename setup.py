@@ -5,7 +5,7 @@ A setup script
 
 import json
 from setuptools import setup, find_packages
-from aiida_crystal import __version__
+from aiida_crystal_dft import __version__
 
 if __name__ == '__main__':
     # Provide static information in setup.json

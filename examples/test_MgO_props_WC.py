@@ -5,7 +5,7 @@
 
 from aiida.plugins import DataFactory, Code, load_node
 from aiida.engine import submit
-from aiida_crystal.workflows.base import BasePropertiesWorkChain
+from aiida_crystal_dft.workflows.base import BasePropertiesWorkChain
 
 
 inputs = BasePropertiesWorkChain.get_builder()

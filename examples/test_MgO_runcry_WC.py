@@ -11,8 +11,8 @@ from mpds_client.retrieve_MPDS import MPDSDataRetrieval
 
 from aiida.plugins import DataFactory, Code
 from aiida.engine import submit
-from aiida_crystal.workflows.runcry import RunCryWorkChain
-from aiida_crystal.tests import TEST_DIR
+from aiida_crystal_dft.workflows.runcry import RunCryWorkChain
+from aiida_crystal_dft.tests import TEST_DIR
 
 inputs = RunCryWorkChain.get_builder()
 inputs.crystal_code = Code.get_from_string('crystal@torquessh')

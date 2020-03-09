@@ -1,14 +1,13 @@
-# aiida-crystal
+# aiida-crystal-dft
 
-This is an AiiDA plugin for running the [CRYSTAL](http://www.crystal.unito.it/) code, mainly 
-adapted from `aiida-crystal17` plugin by Chris Sewell.   
+This is an AiiDA plugin for running the [CRYSTAL](http://www.crystal.unito.it) code, spin-off from the `aiida-crystal17` plugin by Chris Sewell.
 
 ## Installation
 
-As of now, only development version can be installed: 
+As of now, the development version can be installed:
 ```shell
->> git clone aiida-crystal
->> pip install -e aiida-crystal
+>> git clone aiida-crystal-dft
+>> pip install -e aiida-crystal-dft
 ```
 
 ## Usage
