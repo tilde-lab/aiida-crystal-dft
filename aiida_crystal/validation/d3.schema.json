@@ -197,7 +197,11 @@
         "first",
         "last"
       ]
+    },
+    "boltztra": {
+      "description": "Electrical and thermal conductivity and Seebeck coefficient from semiclassical Boltzmann theory",
+      "type": "object",
+      "properties": {}
     }
   }
 }
-
