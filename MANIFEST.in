@@ -1,3 +1,3 @@
 include setup.json
-recursive-include aiida_crystal/tests/ *
-include aiida_crystal/validation/*.json
+recursive-include aiida_crystal_dft/tests/ *
+include aiida_crystal_dft/validation/*.json

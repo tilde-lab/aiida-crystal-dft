@@ -16,6 +16,7 @@
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Chemistry",
         "Topic :: Scientific/Engineering :: Physics",
@@ -48,7 +49,7 @@
     "reentry_register": true,
     "install_requires": [
         "aiida-core>=1.0",
-        "pycrystal @ git+https://github.com/tilde-lab/pycrystal.git",
+        "pycrystal>=1.0.6",
         "packaging",
         "seekpath",
         "mpds_client",
