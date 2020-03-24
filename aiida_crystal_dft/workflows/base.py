@@ -13,8 +13,8 @@ from aiida_crystal_dft.utils.dos import get_dos_projections_atoms
 class BaseCrystalWorkChain(WorkChain):
     """Run CRYSTAL calculation"""
 
-    _serial_calculation = 'crystal.serial'
-    _parallel_calculation = 'crystal.parallel'
+    _serial_calculation = 'crystal_dft.serial'
+    _parallel_calculation = 'crystal_dft.parallel'
 
     @classmethod
     def define(cls, spec):
@@ -24,7 +24,7 @@ class BaseCrystalWorkChain(WorkChain):
         spec.input('code', valid_type=Code)
         spec.input('structure', valid_type=get_data_class('structure'), required=True)
         spec.input('parameters', valid_type=get_data_class('dict'), required=True)
-        spec.input('basis_family', valid_type=get_data_class('crystal.basis_family'), required=True)
+        spec.input('basis_family', valid_type=get_data_class('crystal_dft.basis_family'), required=True)
         spec.input('clean_workdir', valid_type=get_data_class('bool'),
                    required=False, default=get_data_node('bool', False))
         spec.input('options', valid_type=get_data_class('dict'), required=True, help="Calculation options")
@@ -146,7 +146,7 @@ class BaseCrystalWorkChain(WorkChain):
 class BasePropertiesWorkChain(WorkChain):
     """Run Properties calculation"""
 
-    _calculation = 'crystal.properties'
+    _calculation = 'crystal_dft.properties'
 
     @classmethod
     def define(cls, spec):

@@ -24,24 +24,24 @@
     ],
     "entry_points": {
         "aiida.data": [
-            "crystal.basis = aiida_crystal_dft.data.basis:CrystalBasisData",
-            "crystal.basis_family = aiida_crystal_dft.data.basis_family:CrystalBasisFamilyData"
+            "crystal_dft.basis = aiida_crystal_dft.data.basis:CrystalBasisData",
+            "crystal_dft.basis_family = aiida_crystal_dft.data.basis_family:CrystalBasisFamilyData"
         ],
         "aiida.calculations": [
-            "crystal.serial = aiida_crystal_dft.calculations.serial:CrystalSerialCalculation",
-            "crystal.parallel = aiida_crystal_dft.calculations.parallel:CrystalParallelCalculation",
-            "crystal.properties = aiida_crystal_dft.calculations.properties:PropertiesCalculation"
+            "crystal_dft.serial = aiida_crystal_dft.calculations.serial:CrystalSerialCalculation",
+            "crystal_dft.parallel = aiida_crystal_dft.calculations.parallel:CrystalParallelCalculation",
+            "crystal_dft.properties = aiida_crystal_dft.calculations.properties:PropertiesCalculation"
         ],
         "aiida.parsers": [
-            "crystal = aiida_crystal_dft.parsers.cry_pycrystal:CrystalParser",
-            "crystal.properties = aiida_crystal_dft.parsers.properties:PropertiesParser"
+            "crystal_dft = aiida_crystal_dft.parsers.cry_pycrystal:CrystalParser",
+            "crystal_dft.properties = aiida_crystal_dft.parsers.properties:PropertiesParser"
 
         ],
         "aiida.workflows": [
-            "crystal.base = aiida_crystal_dft.workflows.base:BaseCrystalWorkChain"
+            "crystal_dft.base = aiida_crystal_dft.workflows.base:BaseCrystalWorkChain"
         ],
         "aiida.cmdline.data": [
-            "crystal = aiida_crystal_dft.cli.basis:basis_set"
+            "crystal_dft = aiida_crystal_dft.cli.basis:basis_set"
         ]
     },
     "include_package_data": true,

@@ -26,8 +26,8 @@ class CrystalParser(Parser):
         """
 
         # check for valid calculation node class
-        calc_entry_points = ['crystal.serial',
-                             'crystal.parallel'
+        calc_entry_points = ['crystal_dft.serial',
+                             'crystal_dft.parallel'
                              ]
         calc_cls = {CalculationFactory(entry_point).get_name(): entry_point for entry_point in calc_entry_points}
         if calc_node.process_label not in calc_cls:

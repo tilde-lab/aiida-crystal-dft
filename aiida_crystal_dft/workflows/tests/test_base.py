@@ -12,7 +12,7 @@ def test_crystal_wc_run(test_crystal_code, crystal_calc_parameters, test_structu
     inputs = BaseCrystalWorkChain.get_builder()
     inputs.code = test_crystal_code
     inputs.parameters = crystal_calc_parameters
-    inputs.basis_family, _ = DataFactory('crystal.basis_family').get_or_create('STO-3G')
+    inputs.basis_family, _ = DataFactory('crystal_dft.basis_family').get_or_create('STO-3G')
     inputs.structure = test_structure_data
     inputs.options = DataFactory("dict")(dict={'resources':
                                                {"num_machines": 1, "num_mpiprocs_per_machine": 1},

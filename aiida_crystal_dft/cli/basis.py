@@ -20,7 +20,7 @@ def basis_set():
 @options.DESCRIPTION()
 def uploadfamily(path, ext, name, description):
     """Upload a family of CRYSTAL Basis Set files."""
-    basis_family_cls = get_data_class('crystal.basis_family')
+    basis_family_cls = get_data_class('crystal_dft.basis_family')
     with cli_spinner():
         nfiles, created, uploaded = basis_family_cls.upload(
             name,
@@ -39,7 +39,7 @@ def uploadfamily(path, ext, name, description):
 @basis_set.command()
 def createpredefined():
     """Create predefined basis families"""
-    basis_family_cls = get_data_class('crystal.basis_family')
+    basis_family_cls = get_data_class('crystal_dft.basis_family')
     with cli_spinner():
         created = basis_family_cls.create_predefined()
     msg = 'Created {} predefined basis families'.format(len(created))
@@ -60,7 +60,7 @@ def createpredefined():
 def listfamilies(element, list_pks, with_description):
     """List available families of CRYSTAL Basis Set files."""
 
-    basis_family_cls = get_data_class('crystal.basis_family')
+    basis_family_cls = get_data_class('crystal_dft.basis_family')
     groups = basis_family_cls.get_families(filter_elements=element)
     table = [['Family', 'Num Basis Sets']]
     if with_description:

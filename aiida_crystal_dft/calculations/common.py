@@ -53,7 +53,7 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         # input, output files and parser name
         spec.input('metadata.options.input_filename', valid_type=str, default=cls._INPUT_FILE_NAME)
         spec.input('metadata.options.output_filename', valid_type=str, default=cls._OUTPUT_FILE_NAME)
-        spec.input('metadata.options.parser_name', valid_type=str, default='crystal')
+        spec.input('metadata.options.parser_name', valid_type=str, default='crystal_dft')
 
         # exit codes
         # 3xx - CRYSTAL errors

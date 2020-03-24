@@ -44,7 +44,7 @@ inputs.properties_parameters = DataFactory('dict')(dict={
         }
 })
 
-inputs.basis_family, _ = DataFactory('crystal.basis_family').get_or_create('MINIMAL')
+inputs.basis_family, _ = DataFactory('crystal_dft.basis_family').get_or_create('MINIMAL')
 inputs.mpds_query = DataFactory('dict')(dict={
         "formulae": "Li3N",
         "sgs": 191

@@ -5,16 +5,16 @@ from aiida_crystal_dft.tests.fixtures import *
 
 def test_predefined_basis_family(aiida_profile):
     from aiida.plugins import DataFactory
-    bf, _ = DataFactory('crystal.basis_family').get_or_create('STO-3G')
-    bf2, _ = DataFactory('crystal.basis_family').get_or_create('STO-3G')
+    bf, _ = DataFactory('crystal_dft.basis_family').get_or_create('STO-3G')
+    bf2, _ = DataFactory('crystal_dft.basis_family').get_or_create('STO-3G')
     assert bf2.uuid == bf.uuid
     assert bf.content == "BASISSET\nSTO-3G\n"
     assert bf2.content == "BASISSET\nSTO-3G\n"
     assert bf2.predefined
     with pytest.raises(ValueError):
-        DataFactory('crystal.basis_family')(name='STO-3G')
+        DataFactory('crystal_dft.basis_family')(name='STO-3G')
     with pytest.raises(ValueError):
-        DataFactory('crystal.basis_family').get_or_create(name='STO-6G', basis_sets=["bs1", "bs2"])
+        DataFactory('crystal_dft.basis_family').get_or_create(name='STO-6G', basis_sets=["bs1", "bs2"])
 
 
 def test_basis_family(aiida_profile, test_structure_data):
@@ -24,8 +24,8 @@ def test_basis_family(aiida_profile, test_structure_data):
     root_dir = os.path.join(TEST_DIR, "input_files", "sto3g")
     basis_files = [os.path.join(root_dir, f) for f in os.listdir(root_dir)]
     basis_sets = [CrystalBasisData.from_file(f) for f in basis_files]
-    bf, _ = DataFactory('crystal.basis_family').get_or_create('STO3G', basis_sets=basis_sets)
-    bf2, _ = DataFactory('crystal.basis_family').get_or_create('STO3G')
+    bf, _ = DataFactory('crystal_dft.basis_family').get_or_create('STO3G', basis_sets=basis_sets)
+    bf2, _ = DataFactory('crystal_dft.basis_family').get_or_create('STO3G')
     assert bf.uuid == bf2.uuid
     with pytest.raises(TypeError):
         bf.add(["bs1", "bs2"])

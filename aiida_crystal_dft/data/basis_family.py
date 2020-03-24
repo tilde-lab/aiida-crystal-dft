@@ -20,7 +20,7 @@ BASIS_FAMILY_KWDS = [
     "POB-TZVP"
 ]
 
-BASIS_FAMILY_TYPE = 'crystal.basis_family'
+BASIS_FAMILY_TYPE = 'crystal_dft.basis_family'
 
 
 class CrystalBasisFamilyData(Data):

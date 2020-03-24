@@ -32,7 +32,7 @@ class PropertiesCalculation(CalcJob):
         # input, output files and parser name
         spec.input('metadata.options.input_filename', valid_type=str, default=cls._INPUT_FILE_NAME)
         spec.input('metadata.options.output_filename', valid_type=str, default=cls._OUTPUT_FILE_NAME)
-        spec.input('metadata.options.parser_name', valid_type=str, default='crystal.properties')
+        spec.input('metadata.options.parser_name', valid_type=str, default='crystal_dft.properties')
         # exit codes
         spec.exit_code(100, 'ERROR_NO_RETRIEVED_FOLDER',
                        message='The retrieved folder data node could not be accessed')

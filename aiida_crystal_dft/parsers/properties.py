@@ -22,7 +22,7 @@ class PropertiesParser(Parser):
         Initialize Parser instance
         """
         super(PropertiesParser, self).__init__(calc_node)
-        calc_entry_points = ('crystal.properties',)
+        calc_entry_points = ('crystal_dft.properties',)
 
         calc_cls = [CalculationFactory(entry_point).get_name() for entry_point in calc_entry_points]
         if calc_node.process_label not in calc_cls:
