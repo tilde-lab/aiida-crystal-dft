@@ -155,7 +155,9 @@
                 "enum": [
                   "IR",
                   "RAMAN",
+                  "IRRAMAN",
                   "ALL",
+                  "FREQ",
                   "IRREP"
                 ]
               }
@@ -170,7 +172,7 @@
                 "maxItems": 3
               }
             },
-            "IR": {
+            "INTENS": {
               "description": "IR intensities calculation",
               "type": [
                 "object",
@@ -186,21 +188,18 @@
                     "INTLOC",
                     "INTCPHF"
                   ]
+                },
+                "INTRAMAN": {
+                  "description": "Raman intensities calculation",
+                  "type": "boolean"
                 }
               }
-            },
-            "raman": {
-              "description": "Raman intensities calculation",
-              "type": "boolean"
             }
           }
         },
         "elastic_constants": {
           "description": "Elastic constants calculation",
-          "type": [
-            "object",
-            "boolean"
-          ],
+          "type": "object",
           "additionalProperties": false,
           "required": ["type"],
           "properties": {

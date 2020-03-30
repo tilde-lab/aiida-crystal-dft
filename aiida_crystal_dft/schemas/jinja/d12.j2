@@ -7,12 +7,19 @@ EXTERNAL
 {% for item in geometry.info_external -%}
     {{ item }}
 {% endfor -%}
-{% if geometry.optimise -%}
-    {% include 'geometry_optimise.j2' -%}
+{%- if geometry.optimise %}
+OPTGEOM
+{% include 'geometry_optimise.j2' -%}
+ENDOPT
 {% endif -%}
 {% if geometry.phonons -%}
-    {% include 'geometry_phonons.j2' -%}
+FREQCALC
+{% include 'geometry_phonons.j2' -%}
+ENDFREQ
 {% endif -%}
-{% if geometry.elastic -%}
+{% if geometry.elastic_constants -%}
+{{ geometry.elastic_constants.type }}
     {% include 'geometry_elastic.j2' -%}
+END
+END
 {% endif -%}

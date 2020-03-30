@@ -1,6 +1,8 @@
 #  Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file.
 
 
+from aiida_crystal_dft.tests.fixtures import test_basis_family_predefined
+
 def test_d12_formatter():
     from aiida_crystal_dft.io.d12 import D12Formatter
     formatter = D12Formatter()

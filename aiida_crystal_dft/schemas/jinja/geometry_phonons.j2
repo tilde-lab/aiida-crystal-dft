@@ -1,8 +1,13 @@
-FREQCALC
 {% if geometry.phonons.TEMPERAT -%}
     {{ macros.variable('TEMPERAT', geometry.phonons.TEMPERAT) }}
 {% endif %}
-{% for item in geometry.phonons.info_print -%}
+{%- for item in geometry.phonons.info_print -%}
     {{ item }}
 {% endfor -%}
-ENDFREQ
+{%- if 'INTENS' in geometry.phonons -%}
+INTENS
+{{ macros.optional_key(geometry.phonons.INTENS, 'technique') -}}
+{%- if geometry.phonons.INTENS.INTRAMAN -%}
+INTRAMAN
+{% endif -%}
+{% endif -%}

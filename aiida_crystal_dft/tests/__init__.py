@@ -25,7 +25,13 @@ d12_input = {
                 "FINALRUN": 4
             },
         },
-        # "phonons": {"TEMPERAT": [1, 2, 3]}
+        "phonons": {"TEMPERAT": [1, 2, 3],
+                    "info_print": ["ALL", "FREQ"],
+                    "INTENS": {
+                        "technique": "INTPOL",
+                        "INTRAMAN": True,
+                    }
+                    }
     },
     "basis_set": {
         "CHARGED": False,

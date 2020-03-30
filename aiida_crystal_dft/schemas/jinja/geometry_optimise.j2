@@ -1,11 +1,9 @@
-OPTGEOM
-{{ geometry.optimise.type }}
-{{ geometry.optimise.hessian }}
-{{ geometry.optimise.gradient }}
+{{ macros.optional_key(geometry.optimise, 'type') -}}
+{{ macros.optional_key(geometry.optimise, 'hessian') -}}
+{{ macros.optional_key(geometry.optimise, 'gradient') -}}
 {% for item in geometry.optimise.info_print -%}
     {{ item }}
 {% endfor -%}
 {% for key, value in geometry.optimise.convergence.items() -%}
     {{ macros.variable(key, value) }}
 {% endfor -%}
-ENDOPT

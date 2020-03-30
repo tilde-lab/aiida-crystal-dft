@@ -1,8 +1,9 @@
-{% macro variable(key, value) -%}
+{% macro variable(key, value) %}
 {{ key }}
-{% if value is iterable and value is not string -%}
-    {{ value|join('  ') }}
-{%- else -%}
-    {{ value }}
-{%- endif -%}
-{%- endmacro -%}
+{% if value is iterable and value is not string %}{{ value|join('  ') }}{% else %}{{ value }}{% endif %}
+{% endmacro %}
+{% macro optional_key(parent, key) %}
+    {% if key in parent %}
+{{ parent[key] }}
+    {% endif %}
+{% endmacro %}

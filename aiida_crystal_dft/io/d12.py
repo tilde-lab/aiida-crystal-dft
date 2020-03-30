@@ -1,5 +1,7 @@
 """A reader and writer for CRYSTAL d12 input file
 """
+#  Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file.
+
 from aiida_crystal_dft.schemas import read_schema, validate_with_json
 from aiida_crystal_dft.schemas.jinja import get_template
 
