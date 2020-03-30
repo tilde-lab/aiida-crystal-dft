@@ -20,8 +20,7 @@ inputs.crystal_parameters = DataFactory('dict')(dict={
         },
         "geometry": {
             "optimise": {
-                "type": "FULLOPTG",
-                # "convergence": {"MAXCYCLE": 3},
+                "type": "FULLOPTG"
             },
             "phonons": {
                 "ir": {
@@ -46,8 +45,8 @@ inputs.crystal_parameters = DataFactory('dict')(dict={
 
 inputs.basis_family, _ = DataFactory('crystal_dft.basis_family').get_or_create('MINIMAL')
 inputs.mpds_query = DataFactory('dict')(dict={
-        "formulae": "Li3N",
-        "sgs": 191
+        "formulae": "MgO",
+        "sgs": 225
     }
 )
 
@@ -61,7 +60,7 @@ inputs.options = DataFactory('dict')(dict={
         'num_mpiprocs_per_machine': 2
     }
     })
-inputs.metadata = {"label": "Li3N/191/hP4"}
+inputs.metadata = {"label": "MgO/225"}
 
 calc = submit(MPDSCrystalWorkchain, **inputs)
 print("submitted WorkChain; calc=WorkCalculation(PK={})".format(

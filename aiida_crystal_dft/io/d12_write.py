@@ -37,7 +37,7 @@ def write_input(indict, basis, atom_props=None):
     """
     from aiida_crystal_dft.data.basis_family import CrystalBasisFamilyData
     is_basis_family = isinstance(basis, CrystalBasisFamilyData)
-    # schemas
+    # validation
     validate_with_json(indict)
     if not basis:
         raise ValueError("there must be a basis family or a list of basis sets present")
