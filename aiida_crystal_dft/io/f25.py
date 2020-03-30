@@ -5,7 +5,7 @@ A parser for fort.25 bands and DOS files
 import numpy as np
 from pyparsing import *
 
-from aiida_crystal.io import _parse_string
+from aiida_crystal_dft.io import _parse_string
 
 pc = pyparsing_common
 

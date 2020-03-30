@@ -65,7 +65,7 @@ HAYWSC
 
 def test_special_cases(aiida_profile):
     # CdY/221/cP2, Bug # 26
-    from aiida_crystal.data.basis import CrystalBasisData
+    from aiida_crystal_dft.data.basis import CrystalBasisData
     file_name = os.path.join(TEST_DIR, "input_files", "tzvp", "Cd.basis")
     basis = CrystalBasisData.from_file(file_name)
     assert basis.element == "Cd"
