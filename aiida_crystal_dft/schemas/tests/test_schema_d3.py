@@ -4,7 +4,7 @@ test d3 schema
 #  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 
 import pytest
-from aiida_crystal.schemas import validate_with_json
+from aiida_crystal_dft.schemas import validate_with_json
 from jsonschema import ValidationError
 
 

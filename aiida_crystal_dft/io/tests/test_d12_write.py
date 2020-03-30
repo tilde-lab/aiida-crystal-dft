@@ -1,12 +1,12 @@
 import pytest
 from aiida_crystal_dft.io.d12_write import write_input
 # noinspection PyUnresolvedReferences
-from aiida_crystal.tests.fixtures import test_basis_family_predefined
+from aiida_crystal_dft.tests.fixtures import test_basis_family_predefined
 
 
 @pytest.mark.skip
 def test_input_full(test_basis_family_predefined):
-    from aiida_crystal.tests import d12_input, d12_expected
+    from aiida_crystal_dft.tests import d12_input, d12_expected
     outstr = write_input(d12_input, test_basis_family_predefined)
     assert outstr == d12_expected
 
