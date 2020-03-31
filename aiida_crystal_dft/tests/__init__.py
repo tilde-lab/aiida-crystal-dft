@@ -25,13 +25,19 @@ d12_input = {
                 "FINALRUN": 4
             },
         },
-        "phonons": {"TEMPERAT": [1, 2, 3],
+        "phonons": {"TEMPERAT": [273, 1073, 100],
                     "info_print": ["ALL", "FREQ"],
                     "INTENS": {
                         "technique": "INTPOL",
-                        "INTRAMAN": True,
+                        "INTRAMAN": {"INTCPHF": True,
+                                     "options": ["RAMANEXP", "NORENORM"]},
                     }
-                    }
+                    },
+        "elastic_constants": {"type": "ELASTCON",
+                              "convergence": {"TOLDEG": 0.0003},
+                              "NUMDERIV": 3,
+                              "STEPSIZE": 0.001
+                              }
     },
     "basis_set": {
         "CHARGED": False,

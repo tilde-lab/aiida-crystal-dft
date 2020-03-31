@@ -6,8 +6,15 @@
 {% endfor -%}
 {%- if 'INTENS' in geometry.phonons -%}
 INTENS
-{{ macros.optional_key(geometry.phonons.INTENS, 'technique') -}}
-{%- if geometry.phonons.INTENS.INTRAMAN -%}
+{{ macros.optional_key(geometry.phonons.INTENS, 'technique') }}
+    {% if geometry.phonons.INTENS.INTRAMAN %}
 INTRAMAN
-{% endif -%}
+        {% if geometry.phonons.INTENS.INTRAMAN.INTCPHF %}
+INTCPHF
+END
+        {% endif -%}
+        {%- for item in geometry.phonons.INTENS.INTRAMAN.options -%}
+            {{ item }}
+        {% endfor -%}
+    {% endif -%}
 {% endif -%}

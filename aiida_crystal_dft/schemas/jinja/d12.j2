@@ -9,17 +9,17 @@ EXTERNAL
 {% endfor -%}
 {%- if geometry.optimise %}
 OPTGEOM
-{% include 'geometry_optimise.j2' -%}
+{% include 'geometry_optimise.j2' %}
 ENDOPT
 {% endif -%}
 {% if geometry.phonons -%}
 FREQCALC
-{% include 'geometry_phonons.j2' -%}
+{% include 'geometry_phonons.j2' %}
 ENDFREQ
 {% endif -%}
-{% if geometry.elastic_constants -%}
+{%- if geometry.elastic_constants %}
 {{ geometry.elastic_constants.type }}
-    {% include 'geometry_elastic.j2' -%}
+{% include 'geometry_elastic.j2' %}
 END
 END
 {% endif -%}
