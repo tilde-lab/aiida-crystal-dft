@@ -3,7 +3,7 @@
 
 import os
 import pytest
-from aiida_crystal.tests import MOCK_DIR
+from aiida_crystal_dft.tests import MOCK_DIR
 
 
 @pytest.fixture
