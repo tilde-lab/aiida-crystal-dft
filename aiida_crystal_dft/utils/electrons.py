@@ -21,7 +21,7 @@ oxistate_weights = [
     {-1: 2},  # F
     {},  # Ne
     {-1: 1, 1: 2},  # Na
-    {1: 1, 2: 2},  # Mg
+    {0: 1, 1: 1, 2: 2},  # Mg
     {-2: 1, -1: 1, 1: 1, 2: 1, 3: 2},  # Al
     {-4: 2, -3: 1, -2: 1, -1: 1, 0: 1, 1: 1, 2: 1, 3: 1, 4: 2},  # Si
     {-3: 2, -2: 1, -1: 1, 0: 1, 1: 1, 2: 1, 3: 2, 4: 1, 5: 2},  # P
@@ -206,4 +206,6 @@ def guess_oxistates(structure):
                            for i, el in enumerate(elements)])
                for state in product(*oxistates_element)
                if sum([x*y for x, y in zip(state, [composition[el] for el in elements])]) == 0}
+    if not weights:
+        raise ValueError("No electrically neutral state found for the following composition: {}".format(composition))
     return dict(zip(elements, sorted(weights.items(), key=lambda x: x[1], reverse=True)[0][0]))
