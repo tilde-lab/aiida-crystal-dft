@@ -198,14 +198,17 @@ def test_ase_structure():
 @pytest.fixture
 def test_mpds_structure(aiida_profile):
     from aiida.tools.dbimporters.plugins.mpds import MpdsDbImporter
+    from aiida.orm import StructureData
+
     importer = MpdsDbImporter()
-    query = {'formulae': 'MgTb', 'sgs': 221}
+    query = {'formulae': 'HgEr', 'sgs': 221}
     res = next(importer.find(query))
-    return crystal(
+    ase_struct = crystal(
         symbols=res['els_noneq'],
         basis=res['basis_noneq'],
         spacegroup=res['sg_n'],
         cellpar=res['cell_abc'])
+    return StructureData(ase=ase_struct)
 
 
 @pytest.fixture

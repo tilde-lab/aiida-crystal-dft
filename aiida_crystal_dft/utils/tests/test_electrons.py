@@ -19,9 +19,15 @@ def test_electronic_config():
     }
 
 
-def test_guess_oxistates(test_structure_data):
+def test_guess_oxistates(test_structure_data, test_mpds_structure):
     from aiida_crystal_dft.utils.electrons import guess_oxistates
     assert guess_oxistates(test_structure_data) == {"Mg": 2, "O": -2}
+
+
+@pytest.skip
+def test_guess_oxistates_mpds(test_mpds_structure):
+    from aiida_crystal_dft.utils.electrons import guess_oxistates
+    assert guess_oxistates(test_mpds_structure) == {"Er": 2, "Hg": -2}
 
 
 def test_get_valence_shell():

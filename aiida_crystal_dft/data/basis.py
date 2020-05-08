@@ -199,7 +199,13 @@ def add_valence_electrons(n, occs, element, high_spin_preferred):
     # get electrons on last two orbitals
     for i_shell, shell in enumerate(shell_valence):
         orb = "sp" if shell in ("s", "p") and "sp" in i_valence else shell
-        n_e = occs[orb][i_valence[orb]]
+        try:
+            n_e = occs[orb][i_valence[orb]]
+        except KeyError:
+            # There are no empty orbitals to put electrons to, bad basis (eg, Hg per #38)
+            raise ValueError("Bad basis, no empty {} orbitals for the given oxidation state for element {}: {}".format(
+                orb, element, n
+            ))
         if i_shell > 0 and n_e == max_e[orb]:
             # our bad, we erroneously found full orbitals as valence
             i_valence[orb] += 1

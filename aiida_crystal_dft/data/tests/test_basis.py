@@ -74,6 +74,10 @@ def test_4f_basis(aiida_profile):
     assert get_occupations(basis_dict) == {'s': [], 'd': [10, 0], 'f': [8, 0, 0], 'g': [], 'sp': [8, 8, 0, 0, 0]}
     basis_dict = basis.set_oxistate(2)
     assert get_occupations(basis_dict) == {'s': [], 'd': [10, 0], 'f': [4, 0, 0], 'g': [], 'sp': [8, 8, 0, 0, 0]}
+    file_name = os.path.join(TEST_DIR, "input_files", "4f", "Hg.basis")
+    basis = CrystalBasisData.from_file(file_name)
+    assert basis.element == "Hg"
+    assert basis._get_occupations() == {'s': [2], 'd': [10, 0], 'f': [], 'g': [], 'p': [6]}
 
 
 def test_special_cases(aiida_profile):
