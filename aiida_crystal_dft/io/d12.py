@@ -25,7 +25,7 @@ class D12(object):
         if self._input is None:
             raise ValueError("Can not make input file out of empty dict")
         template = get_template('d12.j2')
-        return template.render(**self._input)
+        return template.render(basis=self._basis.content, **self._input)
 
     def write(self):
         """Writing input to file"""

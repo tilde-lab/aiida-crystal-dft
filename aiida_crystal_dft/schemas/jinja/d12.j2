@@ -21,5 +21,10 @@ ENDFREQ
 {{ geometry.elastic_constants.type }}
 {% include 'geometry_elastic.j2' %}
 END
-END
 {% endif -%}
+{% if "BASISSET" not in basis %}END
+{% endif %}
+{{ basis -}}
+{% if "BASISSET" not in basis %}END
+{% endif %}
+{% include 'dft.j2' %}

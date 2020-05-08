@@ -160,13 +160,13 @@ def _geometry_block(outstr, indict, atom_props):
         outstr += "%s %s %s\n" % (35, 5.7125, 1000)
         for keyword in freq_dict.get("info_print", []):
             outstr += "{}\n".format(keyword)
-        if "ir" in freq_dict and freq_dict["ir"]:
+        if "INTENS" in freq_dict and freq_dict["INTENS"]:
             outstr += "INTENS\n"
-            outstr += format_value(freq_dict, ["ir", "technique"])
-        if "raman" in freq_dict and freq_dict["raman"]:
-            outstr += "INTRAMAN\n"
-            outstr += "INTCPHF\n"
-            outstr += "END\n"
+            outstr += format_value(freq_dict, ["INTENS", "technique"])
+            if "INTRAMAN" in freq_dict['INTENS'] and freq_dict['INTENS']['INTRAMAN']:
+                outstr += "INTRAMAN\n"
+                outstr += "INTCPHF\n"
+                outstr += "END\n"
         outstr += "ENDFREQ\n"
     if "elastic_constants" in indict.get("geometry", {}):
         ela_dict = indict["geometry"]["elastic_constants"]
