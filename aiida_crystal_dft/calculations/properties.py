@@ -46,8 +46,8 @@ class PropertiesCalculation(CalcJob):
                 the plugin should put all its files.
         """
         # create input files: d3
-        # structure = self.inputs.structure
-        # # print(structure)
+        structure = self.inputs.structure
+        # print(structure)
         try:
             d3_content = D3(self.inputs.parameters.get_dict())
         except (ValueError, NotImplementedError) as err:
