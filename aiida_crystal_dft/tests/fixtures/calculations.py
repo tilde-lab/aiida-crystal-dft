@@ -199,7 +199,6 @@ def test_ase_structure():
 def test_mpds_structure(aiida_profile):
     from aiida.tools.dbimporters.plugins.mpds import MpdsDbImporter
     from aiida.orm import StructureData
-
     importer = MpdsDbImporter()
     query = {'formulae': 'HgEr', 'sgs': 221}
     res = next(importer.find(query))
@@ -215,3 +214,18 @@ def test_mpds_structure(aiida_profile):
 def test_structure_data(aiida_profile, test_ase_structure):
     from aiida.orm import StructureData
     return StructureData(ase=test_ase_structure)
+
+
+@pytest.fixture
+def test_structure_issue_30(aiida_profile):
+    from .. import TEST_DIR
+    # from aiida_crystal_dft.io.f9 import Fort9
+    from aiida_crystal_dft.io.f34 import Fort34
+    name = os.path.join(TEST_DIR,
+                        "input_files",
+                        "issue_30",
+                        "fort.34")
+    # parser = Fort9(name)
+    struct = Fort34().read(name)
+    print(struct.space_group)
+    return struct.to_aiida()

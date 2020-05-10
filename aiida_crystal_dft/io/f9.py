@@ -32,11 +32,11 @@ class Fort9(object):
     def _read_geometry(self):
         """Returns geometry from fort.9. All lengths are in Bohr. If scale=True, then convert positions to fractional.
         If ase=True, returns geometry as ase Atoms (independently of scale)"""
-        # the first 9 entries of the 5th record (if counting from 0) contain cell
+        # the first 9 entries of the 5th record (if counting from 0) contain cell (in Bohr; NB fort.34 has cell in Å)
         cell = self._data[5][:9].reshape(3, 3)
         # the 7th record contains atomic numbers
         numbers = self._data[7].astype(int)
-        # the 8th record contains cartesian atomic coordinates
+        # the 8th record contains cartesian atomic coordinates (also in Bohr; fort.34 has it in Å)
         positions = self._data[8].reshape(len(numbers), 3)
         # internally store positions in Cartesian coordinates
         self._geometry = (cell, positions, numbers)

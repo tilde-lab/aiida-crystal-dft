@@ -4,7 +4,7 @@ A plugin to create a properties files from CRYSTAL17 output
 
 from aiida.common import CalcInfo, CodeInfo, InputValidationError
 from aiida.engine import CalcJob
-from aiida.orm import Dict, Code, SinglefileData, BandsData, ArrayData
+from aiida.orm import Dict, Code, SinglefileData, BandsData, ArrayData, StructureData
 from aiida_crystal_dft.io.d3 import D3
 
 
@@ -26,6 +26,7 @@ class PropertiesCalculation(CalcJob):
         spec.input('code', valid_type=Code)
         spec.input('wavefunction', valid_type=SinglefileData, required=True)
         spec.input('parameters', valid_type=Dict, required=True)
+        spec.input('structure', valid_type=StructureData, required=False)
         # output nodes
         spec.output('output_bands', valid_type=BandsData, required=False)
         spec.output('output_dos', valid_type=ArrayData, required=False)
@@ -45,6 +46,8 @@ class PropertiesCalculation(CalcJob):
                 the plugin should put all its files.
         """
         # create input files: d3
+        # structure = self.inputs.structure
+        # # print(structure)
         try:
             d3_content = D3(self.inputs.parameters.get_dict())
         except (ValueError, NotImplementedError) as err:

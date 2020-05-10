@@ -12,6 +12,7 @@ from aiida_crystal_dft.utils.keywords import PROPERTIES_KEYWORDS
 
 pc = pp.pyparsing_common
 
+
 def _band_parser():
     kw = pp.Keyword("BAND")
     title = pp.Word(pp.alphas)('title')

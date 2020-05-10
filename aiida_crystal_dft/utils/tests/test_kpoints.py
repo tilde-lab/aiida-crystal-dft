@@ -34,6 +34,12 @@ def test_get_shrink_kpoints_path(test_structure_data):
     assert len(path) == 6
 
 
+# @pytest.mark.skip
+def test_get_shrink_kpoints_path_issue_30(test_structure_issue_30):
+    shrink, points, path = get_shrink_kpoints_path(test_structure_issue_30)
+    assert shrink == 6
+
+
 def test_get_kpoints_from_shrink():
     path = [[[0, 0, 0], [0, 4, 6]]]
     assert get_kpoints_from_shrink(path, 12) == [[[0, 0, 0], [0, 1./3, 0.5]]]

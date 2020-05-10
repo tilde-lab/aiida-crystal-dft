@@ -3,7 +3,6 @@
 Tests for fort.9 reader
 """
 import os
-import shutil
 import pytest
 from aiida_crystal_dft.tests import TEST_DIR
 from aiida_crystal_dft.io.f9 import Fort9
@@ -28,10 +27,19 @@ def test_pass():
     assert parser.get_ao_number() == 18
 
 
+def test_issue_30():
+    name = os.path.join(TEST_DIR,
+                        "input_files",
+                        "issue_30",
+                        "fort.9")
+    parser = Fort9(name)
+    assert parser.get_ao_number() == 71
+
+
 def test_tof98():
-    file_name = os.path.join(TEST_DIR,
-                             "output_files",
-                             "optimise",
-                             "fort.9")
-    parser = Fort9(file_name)
+    name = os.path.join(TEST_DIR,
+                        "output_files",
+                        "optimise",
+                        "fort.9")
+    parser = Fort9(name)
     print(parser._data)
