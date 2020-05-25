@@ -25,10 +25,11 @@ def _band_parser():
 class D3(object):
     """A writer for .d3 file (input for properties calculation)"""
 
-    def __init__(self, parameters=None):
+    def __init__(self, parameters=None, structure=None):
         self._parameters = {}
         if parameters is not None:
             self.use_parameters(parameters)
+        self._structure = structure
 
     def read(self, file_name):
         """Read .d3 parameters from file"""

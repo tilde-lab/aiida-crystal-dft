@@ -46,10 +46,9 @@ class PropertiesCalculation(CalcJob):
                 the plugin should put all its files.
         """
         # create input files: d3
-        structure = self.inputs.structure
-        # print(structure)
+        structure = self.inputs.get('structure', None)
         try:
-            d3_content = D3(self.inputs.parameters.get_dict())
+            d3_content = D3(self.inputs.parameters.get_dict(), structure)
         except (ValueError, NotImplementedError) as err:
             raise InputValidationError(
                 "an input file could not be created from the parameters: {}".

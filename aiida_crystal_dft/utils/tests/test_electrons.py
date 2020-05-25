@@ -24,7 +24,7 @@ def test_guess_oxistates(test_structure_data, test_mpds_structure):
     assert guess_oxistates(test_structure_data) == {"Mg": 2, "O": -2}
 
 
-@pytest.skip
+@pytest.mark.skip
 def test_guess_oxistates_mpds(test_mpds_structure):
     from aiida_crystal_dft.utils.electrons import guess_oxistates
     assert guess_oxistates(test_mpds_structure) == {"Er": 2, "Hg": -2}
