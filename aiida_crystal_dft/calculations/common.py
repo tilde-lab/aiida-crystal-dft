@@ -39,6 +39,7 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         spec.input('structure', valid_type=StructureData, required=True)
         spec.input('parameters', valid_type=Dict, required=True)
         spec.input('guess_oxistates', valid_type=Bool, required=False, default=Bool(False))
+        spec.input('use_oxistates', valid_type=Dict, required=False)
         spec.input('high_spin_preferred', valid_type=Bool, required=False, default=Bool(False))
         spec.input_namespace('basis', valid_type=CrystalBasisData, required=False, dynamic=True)
         spec.input('basis_family', valid_type=CrystalBasisFamilyData, required=False)
@@ -46,6 +47,7 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         # output nodes
         spec.output('output_structure', valid_type=StructureData, required=False)
         spec.output('output_parameters', valid_type=Dict, required=True)
+        spec.output('oxidation_states', valid_type=Dict, required=True)
         spec.output('output_wavefunction', valid_type=SinglefileData, required=False)
         spec.output('output_trajectory', valid_type=TrajectoryData, required=False)
         spec.default_output_node = 'output_parameters'
@@ -105,9 +107,14 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         # create input files: d12, taking into account
         try:
             basis_dict['basis_family'].set_structure(self.inputs.structure)
-            if self.inputs.guess_oxistates:
+            if "use_oxistates" in self.inputs:
+                basis_dict['basis_family'].set_oxistates(self.inputs.use_oxistates.get_dict())
+                self.out('oxidation_states', Dict(dict=self.inputs.use_oxistates.get_dict()))
+            elif self.inputs.guess_oxistates:
                 oxi_states = guess_oxistates(self.inputs.structure)
                 basis_dict['basis_family'].set_oxistates(oxi_states)
+                # save oxidation states for future reference
+                self.out('oxidation_states', Dict(dict=oxi_states))
             d12_filecontent = write_input(self.inputs.parameters.get_dict(),
                                           basis_dict['basis_family'], {})
         except (AttributeError, ValueError, NotImplementedError) as err:

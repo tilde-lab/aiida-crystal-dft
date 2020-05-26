@@ -2,7 +2,7 @@
 """
 
 from aiida.plugins import CalculationFactory
-from aiida.orm import Code, Bool
+from aiida.orm import Code, Bool, Dict
 from aiida.common.extendeddicts import AttributeDict
 from aiida.engine import WorkChain, append_, while_
 from aiida_crystal_dft.utils import get_data_node, get_data_class
@@ -43,6 +43,7 @@ class BaseCrystalWorkChain(WorkChain):
         spec.output('output_parameters', valid_type=get_data_class('dict'), required=False)
         spec.output('output_wavefunction', valid_type=get_data_class('singlefile'), required=False)
         spec.output('output_trajectory', valid_type=get_data_class('array.trajectory'), required=False)
+        spec.output('oxidation_states', valid_type=get_data_class('dict'), required=False)
 
         # define error codes
         spec.exit_code(300, 'ERROR_CRYSTAL', message='CRYSTAL error')
@@ -77,8 +78,13 @@ class BaseCrystalWorkChain(WorkChain):
             label = options_dict.pop('label', '')
             description = options_dict.pop('description', '')
             try_oxi = options_dict.pop('try_oxi_if_fails', False)
+            use_oxi = options_dict.pop('use_oxidation_states', None)
             high_spin_preferred = options_dict.pop('high_spin_preferred', False)
-            if self.ctx.calc_number > 1 and try_oxi:
+            if use_oxi is not None:
+                self.report('Using oxidation states: {}'.format(use_oxi))
+                self.ctx.inputs.use_oxistates = Dict(dict=use_oxi)
+            elif self.ctx.calc_number > 1 and try_oxi:
+                # elif try_oxi:
                 self.report('Trying to guess oxidation states')
                 self.ctx.inputs.guess_oxistates = Bool(try_oxi)
                 self.ctx.inputs.high_spin_preferred = Bool(high_spin_preferred)
@@ -92,8 +98,7 @@ class BaseCrystalWorkChain(WorkChain):
     def converged(self):
         """Check if calculation has converged"""
         if "calculations" not in self.ctx:
-            return False # if no calculations have run
-
+            return False  # if no calculations have run
         return self.ctx.calculations[-1].exit_status == 0 or self.ctx.calc_number == 2
 
     def run_calculation(self):
@@ -119,7 +124,7 @@ class BaseCrystalWorkChain(WorkChain):
         last_calc = self.ctx.calculations[-1]
         for name, port in self.spec().outputs.items():
             if port.required and name not in last_calc.outputs:
-                self.report('the spec specifies the output {} as required '
+                self.report('The spec specifies the output {} as required '
                             'but was not an output of {}<{}>'.format(name, self._calculation.__name__,
                                                                      last_calc.pk))
 
@@ -137,10 +142,10 @@ class BaseCrystalWorkChain(WorkChain):
                 # noinspection PyProtectedMember
                 calculation.outputs.remote_folder._clean()
                 cleaned_calcs.append(calculation)
-            except BaseException:
-                pass
+            except ValueError as ex:
+                self.logger.warning("Exception catched while cleaning remote folders: {}".format(ex))
         if cleaned_calcs:
-            self.report('cleaned remote folders of calculations: {}'.format(' '.join(map(str, cleaned_calcs))))
+            self.report('Cleaned remote folders of calculations: {}'.format(' '.join(map(str, cleaned_calcs))))
 
 
 class BasePropertiesWorkChain(WorkChain):
