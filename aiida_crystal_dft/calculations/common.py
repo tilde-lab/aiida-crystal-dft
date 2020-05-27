@@ -13,7 +13,7 @@ from aiida_crystal_dft.io.d12_write import write_input
 from aiida_crystal_dft.io.f34 import Fort34
 from aiida_crystal_dft.data.basis import CrystalBasisData
 from aiida_crystal_dft.data.basis_family import CrystalBasisFamilyData
-from aiida_crystal_dft.utils.electrons import guess_oxistates
+from aiida_crystal_dft.utils.electrons import guess_oxistates, guess_spinlock
 
 
 class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
@@ -41,6 +41,7 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         spec.input('guess_oxistates', valid_type=Bool, required=False, default=Bool(False))
         spec.input('use_oxistates', valid_type=Dict, required=False)
         spec.input('high_spin_preferred', valid_type=Bool, required=False, default=Bool(False))
+        spec.input('is_magnetic', valid_type=Bool, required=False, default=Bool(False))
         spec.input_namespace('basis', valid_type=CrystalBasisData, required=False, dynamic=True)
         spec.input('basis_family', valid_type=CrystalBasisFamilyData, required=False)
 
@@ -115,6 +116,7 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
                 basis_dict['basis_family'].set_oxistates(oxi_states)
                 # save oxidation states for future reference
                 self.out('oxidation_states', Dict(dict=oxi_states))
+
             d12_filecontent = write_input(self.inputs.parameters.get_dict(),
                                           basis_dict['basis_family'], {})
         except (AttributeError, ValueError, NotImplementedError) as err:

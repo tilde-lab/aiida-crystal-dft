@@ -189,7 +189,8 @@ def test_ase_structure():
     #     cellpar=[3.852, 3.852, 6.118, 90.0, 90.0, 120.0])
     # MgO
     return crystal(
-        symbols=[12, 8],
+        # symbols=[12, 8],
+        symbols=[26, 8],
         basis=[[0, 0, 0], [0.5, 0.5, 0.5]],
         spacegroup=225,
         cellpar=[4.21, 4.21, 4.21, 90, 90, 90])

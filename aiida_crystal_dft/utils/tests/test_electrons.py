@@ -38,3 +38,10 @@ def test_get_valence_shell():
     assert get_valence_shell("Be") == ["s"]
     assert get_valence_shell("Be", n=1) == ["s", "s"]
     assert get_valence_shell("Be", n=1, vacant=True) == ["s", "p"]
+
+
+def test_guess_spinlock(test_structure_data):
+    from aiida_crystal_dft.utils.electrons import guess_spinlock
+    guess_spinlock(test_structure_data)
+
+

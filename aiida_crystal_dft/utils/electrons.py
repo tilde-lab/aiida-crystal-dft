@@ -209,3 +209,21 @@ def guess_oxistates(structure):
     if not weights:
         raise ValueError("No electrically neutral state found for the following composition: {}".format(composition))
     return dict(zip(elements, sorted(weights.items(), key=lambda x: x[1], reverse=True)[0][0]))
+
+
+def guess_spinlock(structure):
+    """A function that tries to guess total spin of structure in case it is magnetic.
+    Works only with 3d and 4f elements"""
+    # get primitive structure
+    from aiida_crystal_dft.io.f34 import Fort34
+    primitive_struct = Fort34().from_aiida(structure)
+    composition = primitive_struct.get_chemical_formula()
+    elements = composition.keys()
+    valence = {e: (get_valence_shell(e)[0], electronic_config(e)[-1]) for e in elements}
+    transition_els = [e for e in elements if valence[e][0] in ('d', 'f')]
+    if not transition_els:
+        # no transition elements in structure, are nonmagnetic as of now
+        return 0
+    # guess spinlock based on oxidation state and composition
+    oxi_states = guess_oxistates(structure)
+    print(composition)
