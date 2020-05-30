@@ -31,3 +31,9 @@ def test_get_spacegroup(test_ase_structure):
                                     test_ase_structure.get_atomic_numbers())
     assert symbol == "Fm-3m"
     assert number == 225
+
+
+def test_get_primitive(test_structure_data):
+    from aiida_crystal_dft.utils.geometry import to_primitive
+    primitive_struct = to_primitive(test_structure_data)
+    assert primitive_struct.get_composition() == {"Fe": 1, "O": 1}

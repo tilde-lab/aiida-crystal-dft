@@ -3,7 +3,7 @@
 """
 import numpy as np
 import spglib
-
+from ase import Atoms
 
 CRYSTAL_TYPE_MAP = {
     "triclinic":    1,
@@ -129,3 +129,11 @@ def get_centering_code(sg_number, sg_symbol):
     #     return 2  # TODO check this is always correct (not in original function)
 
     return 1
+
+
+def to_primitive(structure):
+    """Returns aiida StructureData with primitive cell"""
+    from aiida.orm import StructureData
+    cell, positions, numbers = spglib.find_primitive(structure.get_ase())
+    ase_struct = Atoms(numbers, scaled_positions=positions, cell=cell, pbc=True)
+    return StructureData(ase=ase_struct)

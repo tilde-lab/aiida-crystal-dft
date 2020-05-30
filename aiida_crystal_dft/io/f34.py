@@ -44,6 +44,7 @@ class Fort34(object):
         self.abc = None
         self.atomic_numbers = None
         self.basis = None
+        self.is_primitive = False
 
         # a BasisFamily instance or a list of bases
         if basis:
@@ -152,7 +153,18 @@ class Fort34(object):
         translations = np.dot(self.symops[3::4], np.linalg.inv(abc))
         hall = spglib.get_hall_number_from_symmetry(rotations, translations)
         self.space_group = int(spglib.get_spacegroup_type(hall)['number'])
+        # we have conventional cell now
         return self
+
+    def to_conventional(self):
+        if not self.is_primitive:
+            return self
+        return NotImplementedError
+
+    def to_primitive(self):
+        if self.is_primitive:
+            return self
+        return NotImplementedError
 
     def __str__(self):
         # check for ECPs in basis family
