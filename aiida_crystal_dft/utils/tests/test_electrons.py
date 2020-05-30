@@ -42,6 +42,13 @@ def test_get_valence_shell():
 
 def test_guess_spinlock(test_structure_data):
     from aiida_crystal_dft.utils.electrons import guess_spinlock
-    guess_spinlock(test_structure_data)
+    assert guess_spinlock(test_structure_data) == 4
 
 
+def test_unpaired_electrons():
+    from aiida_crystal_dft.utils.electrons import unpaired_electrons
+    assert unpaired_electrons(5, "d") == 5
+    assert unpaired_electrons(0, "d") == 0
+    assert unpaired_electrons(10, "d") == 0
+    assert unpaired_electrons(8, "d") == 2
+    assert unpaired_electrons(8, "f") == 6

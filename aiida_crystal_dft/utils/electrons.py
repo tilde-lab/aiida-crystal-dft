@@ -215,15 +215,21 @@ def guess_spinlock(structure):
     """A function that tries to guess total spin of structure in case it is magnetic.
     Works only with 3d and 4f elements"""
     # get primitive structure
-    from aiida_crystal_dft.io.f34 import Fort34
-    primitive_struct = Fort34().from_aiida(structure)
-    composition = primitive_struct.get_chemical_formula()
+    from aiida_crystal_dft.utils.geometry import to_primitive
+    composition = to_primitive(structure).get_composition()
     elements = composition.keys()
-    valence = {e: (get_valence_shell(e)[0], electronic_config(e)[-1]) for e in elements}
-    transition_els = [e for e in elements if valence[e][0] in ('d', 'f')]
+    # change valence electron number based on oxidation states
+    oxi_states = guess_oxistates(structure)
+    valence = {e: (electronic_config(e)[-1] - oxi_states[e], get_valence_shell(e)[0]) for e in elements}
+    # guess spinlock based on oxidation state and composition
+    transition_els = [e for e in elements if valence[e][1] in ('d', 'f')]
     if not transition_els:
         # no transition elements in structure, are nonmagnetic as of now
         return 0
-    # guess spinlock based on oxidation state and composition
-    oxi_states = guess_oxistates(structure)
-    print(composition)
+    return sum([composition[el] * unpaired_electrons(*valence[el]) for el in transition_els])
+
+
+def unpaired_electrons(n_e, shell):
+    """Returns the number of unpaired electrons out of n_e on the shell according to Hund rule"""
+    return max_e[shell]/2 - abs(n_e - max_e[shell]/2)
+
