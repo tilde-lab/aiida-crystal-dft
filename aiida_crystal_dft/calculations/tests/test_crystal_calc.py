@@ -39,6 +39,8 @@ def test_prepare_for_submission(crystal_calc):
     # crystal_calc.store_all()
     with SandboxFolder() as folder:
         calcinfo = crystal_calc.prepare_for_submission(folder=folder)
+        # with folder.open('INPUT') as f:
+        #     print(f.readlines())
     assert crystal_calc._GEOMETRY_FILE_NAME in calcinfo['retrieve_list']
     assert crystal_calc._OUTPUT_FILE_NAME in calcinfo['retrieve_list']
 

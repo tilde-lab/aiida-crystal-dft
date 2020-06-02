@@ -226,10 +226,9 @@ def guess_spinlock(structure):
     if not transition_els:
         # no transition elements in structure, are nonmagnetic as of now
         return 0
-    return sum([composition[el] * unpaired_electrons(*valence[el]) for el in transition_els])
+    return int(sum([composition[el] * unpaired_electrons(*valence[el]) for el in transition_els]))
 
 
 def unpaired_electrons(n_e, shell):
     """Returns the number of unpaired electrons out of n_e on the shell according to Hund rule"""
     return max_e[shell]/2 - abs(n_e - max_e[shell]/2)
-

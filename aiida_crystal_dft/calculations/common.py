@@ -7,7 +7,7 @@ from abc import ABCMeta
 
 from ase.data import chemical_symbols
 from aiida.engine import CalcJob
-from aiida.orm import Dict, Code, StructureData, SinglefileData, TrajectoryData, Bool
+from aiida.orm import Dict, Code, StructureData, SinglefileData, TrajectoryData, Bool, Int
 from aiida.common import CodeInfo, CalcInfo, InputValidationError
 from aiida_crystal_dft.io.d12_write import write_input
 from aiida_crystal_dft.io.f34 import Fort34
@@ -38,10 +38,11 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         spec.input('code', valid_type=Code)
         spec.input('structure', valid_type=StructureData, required=True)
         spec.input('parameters', valid_type=Dict, required=True)
-        spec.input('guess_oxistates', valid_type=Bool, required=False, default=Bool(False))
+        spec.input('guess_oxistates', valid_type=Bool, required=False, default=lambda: Bool(False))
         spec.input('use_oxistates', valid_type=Dict, required=False)
-        spec.input('high_spin_preferred', valid_type=Bool, required=False, default=Bool(False))
-        spec.input('is_magnetic', valid_type=Bool, required=False, default=Bool(False))
+        spec.input('high_spin_preferred', valid_type=Bool, required=False, default=lambda: Bool(False))
+        spec.input('is_magnetic', valid_type=Bool, required=False, default=lambda: Bool(False))
+        spec.input('spinlock_steps', valid_type=Int, required=False, default=lambda: Int(5))
         spec.input_namespace('basis', valid_type=CrystalBasisData, required=False, dynamic=True)
         spec.input('basis_family', valid_type=CrystalBasisFamilyData, required=False)
 
@@ -105,6 +106,11 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
 
     def _prepare_input_files(self, folder):
         basis_dict = self._validate_basis_input(dict(self.inputs))
+        params = self.inputs.parameters.get_dict()
+        # check if both SPINLOCK and is_magnetic are present; in this case SPINLOCK takes precedence
+        if 'spinlock' in params['scf'] and self.inputs.is_magnetic:
+            self.logger.warning('both SPINLOCK and is_magnetic are present')
+            self.inputs.is_magnetic = False
         # create input files: d12, taking into account
         try:
             basis_dict['basis_family'].set_structure(self.inputs.structure)
@@ -117,7 +123,11 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
                 # save oxidation states for future reference
                 self.out('oxidation_states', Dict(dict=oxi_states))
 
-            d12_filecontent = write_input(self.inputs.parameters.get_dict(),
+            if self.inputs.is_magnetic:
+                params['scf']['spinlock'] = {}
+                params['scf']['spinlock']['SPINLOCK'] = [guess_spinlock(self.inputs.structure),
+                                                         int(self.inputs.spinlock_steps)]
+            d12_filecontent = write_input(params,
                                           basis_dict['basis_family'], {})
         except (AttributeError, ValueError, NotImplementedError) as err:
             raise InputValidationError(

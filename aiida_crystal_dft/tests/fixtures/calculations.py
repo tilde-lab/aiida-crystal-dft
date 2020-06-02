@@ -25,6 +25,7 @@ def crystal_calc(test_crystal_code, crystal_calc_parameters, test_structure_data
     inputs.basis_family = test_basis_family_predefined
     inputs.guess_oxistates = Bool(False)
     inputs.high_spin_preferred = Bool(False)
+    inputs.is_magnetic = Bool(True)
     calc = CrystalSerialCalculation(inputs)
     return calc
 
