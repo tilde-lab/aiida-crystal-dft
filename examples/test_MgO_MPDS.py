@@ -16,7 +16,8 @@ inputs.properties_code = Code.get_from_string('properties@torquessh')
 inputs.crystal_parameters = DataFactory('dict')(dict={
         "title": "Crystal calc",
         "scf": {
-            "k_points": (8, 8)
+            "k_points": (8, 8),
+            "single": "UHF"
         },
         "geometry": {
             "optimise": {
@@ -47,7 +48,7 @@ inputs.properties_parameters = DataFactory('dict')(dict={
 # Li3N/191/hP4
 inputs.basis_family, _ = DataFactory('crystal_dft.basis_family').get_or_create('MINIMAL')
 inputs.mpds_query = DataFactory('dict')(dict={
-        "formulae": "MgO",
+        "formulae": "NiO",
         "sgs": 225
     }
 )
@@ -55,13 +56,14 @@ inputs.mpds_query = DataFactory('dict')(dict={
 inputs.options = DataFactory('dict')(dict={
     'need_phonons': False,
     'need_electronic_properties': False,
-    'try_oxi_if_fails': True,
+    'try_oxi_if_fails': False,
+    'is_magnetic': True,
     'resources': {
         'num_machines': 1,
         'num_mpiprocs_per_machine': 2
     }
     })
-inputs.metadata = {"label": "Li3N/191/hP4"}
+inputs.metadata = {"label": "NiO/225/cF8"}
 
 calc = submit(MPDSCrystalWorkchain, **inputs)
 print("submitted WorkChain; calc=WorkCalculation(PK={})".format(

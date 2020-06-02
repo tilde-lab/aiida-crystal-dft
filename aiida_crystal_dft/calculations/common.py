@@ -68,6 +68,7 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         spec.exit_code(304, 'ERROR_NEIGHBOR_LIST_TOO_BIG', message='Neighbour list too large')
         spec.exit_code(305, 'ERROR_NO_G_VECTORS', message='No G-vectors left')
         spec.exit_code(306, 'ERROR_GEOMETRY_COLLAPSED', message='Collapsed geometry')
+        spec.exit_code(307, 'ERROR_CLOSED_SHELL_SPIN', message='Closed shell run - spin polarization not allowed')
         spec.exit_code(350, 'ERROR_ALLOCATION', message='Internal memory error')
         # 4xx - other errors
         spec.exit_code(400, 'ERROR_UNKNOWN', message='Unknown error')

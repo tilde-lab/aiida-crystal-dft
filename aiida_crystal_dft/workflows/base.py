@@ -2,7 +2,7 @@
 """
 
 from aiida.plugins import CalculationFactory
-from aiida.orm import Code, Bool, Dict
+from aiida.orm import Code, Bool, Dict, Int
 from aiida.common.extendeddicts import AttributeDict
 from aiida.engine import WorkChain, append_, while_
 from aiida_crystal_dft.utils import get_data_node, get_data_class
@@ -80,6 +80,12 @@ class BaseCrystalWorkChain(WorkChain):
             try_oxi = options_dict.pop('try_oxi_if_fails', False)
             use_oxi = options_dict.pop('use_oxidation_states', None)
             high_spin_preferred = options_dict.pop('high_spin_preferred', False)
+            is_magnetic = options_dict.pop('is_magnetic', False)
+            spinlock_steps = options_dict.pop('spinlock_steps', 5)
+            if is_magnetic:
+                self.report('is_magnetic is set, guessing magnetism')
+                self.ctx.inputs.is_magnetic = Bool(True)
+                self.ctx.inputs.spinlock_steps = Int(spinlock_steps)
             if use_oxi is not None:
                 self.report('Using oxidation states: {}'.format(use_oxi))
                 self.ctx.inputs.use_oxistates = Dict(dict=use_oxi)
