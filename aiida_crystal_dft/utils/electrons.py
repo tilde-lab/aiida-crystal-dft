@@ -225,7 +225,7 @@ def guess_spinlock(structure):
     transition_els = [e for e in elements if valence[e][1] in ('d', 'f')]
     if not transition_els:
         # no transition elements in structure, are nonmagnetic as of now
-        return 0
+        raise ValueError("Structure does not contain transition elements")
     return int(sum([composition[el] * unpaired_electrons(*valence[el]) for el in transition_els]))
 
 

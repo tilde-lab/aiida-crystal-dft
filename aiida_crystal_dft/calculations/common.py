@@ -125,9 +125,18 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
                 self.out('oxidation_states', Dict(dict=oxi_states))
 
             if self.inputs.is_magnetic:
-                params['scf']['spinlock'] = {}
-                params['scf']['spinlock']['SPINLOCK'] = [guess_spinlock(self.inputs.structure),
-                                                         int(self.inputs.spinlock_steps)]
+                try:
+                    spinlock = guess_spinlock(self.inputs.structure)
+                    params['scf']['spinlock'] = {}
+                    params['scf']['spinlock']['SPINLOCK'] = [spinlock,
+                                                             int(self.inputs.spinlock_steps)]
+                    # adding SPIN keywords if they're not present
+                    if 'single' in params['scf']:
+                        params['scf']['single'] = 'UHF'
+                    elif 'dft' in params['scf']:
+                        params['scf']['dft']['SPIN'] = True
+                except ValueError:
+                    self.logger.info("is_magnetic is True for non-magnetic structure")
             d12_filecontent = write_input(params,
                                           basis_dict['basis_family'], {})
         except (AttributeError, ValueError, NotImplementedError) as err:
