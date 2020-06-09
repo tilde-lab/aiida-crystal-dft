@@ -110,7 +110,7 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         params = self.inputs.parameters.get_dict()
         # check if both SPINLOCK and is_magnetic are present; in this case SPINLOCK takes precedence
         if 'spinlock' in params['scf'] and self.inputs.is_magnetic:
-            self.logger.warning('both SPINLOCK and is_magnetic are present')
+            self.logger.warning('Both SPINLOCK and is_magnetic are present, dropping is_magnetic')
             self.inputs.is_magnetic = False
         # create input files: d12, taking into account
         try:
