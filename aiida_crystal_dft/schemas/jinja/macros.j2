@@ -1,13 +1,14 @@
 {% macro variable(key, value) %}
-{{ key }}
+    {{ key }}
     {% if value is iterable and value is not string %}
-{{ value|join('  ') -}}
+        {{ value|join('  ') -}}
     {% else %}
-{{ value -}}
+        {{ value -}}
     {% endif %}
 {% endmacro %}
+
 {% macro optional_key(parent, key) %}
     {% if key in parent %}
-{{ parent[key] -}}
+        {{ parent[key] -}}
     {% endif %}
 {% endmacro %}

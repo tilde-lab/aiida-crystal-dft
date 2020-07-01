@@ -4,6 +4,8 @@
 {% for item in geometry.optimise.info_print -%}
     {{ item }}
 {% endfor -%}
-{% if 'convergence' in geometry.optimise %}{% for key, value in geometry.optimise.convergence.items() -%}
-    {{ macros.variable(key, value) }}
-{% endfor %}{% endif %}
+{% if 'convergence' in geometry.optimise %}
+    {% for key, value in geometry.optimise.convergence.items() -%}
+        {{ macros.variable(key, value) }}
+    {% endfor %}
+{% endif %}
