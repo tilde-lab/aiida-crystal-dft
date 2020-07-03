@@ -1,10 +1,4 @@
 {# Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file. #}
 OPTGEOM
-{{ macros.optional_key(geometry.optimise, 'type') -}}
-{{ macros.optional_key(geometry.optimise, 'hessian') -}}
-{{ macros.optional_key(geometry.optimise, 'gradient') -}}
-{% for item in geometry.optimise.info_print -%}
-    {{ item }}
-{% endfor -%}
-{{ macros.optional_key(geometry.optimise, 'convergence') -}}
+{{ macros.optimise_geometry(geometry.optimise) }}
 ENDOPT

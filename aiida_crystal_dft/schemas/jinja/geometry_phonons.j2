@@ -4,6 +4,11 @@ FREQCALC
 {% for item in geometry.phonons.info_print -%}
     {{ item }}
 {% endfor -%}
+{% if geometry.phonons.PREOPTGEOM %}
+    PREOPTGEOM
+    {{ macros.optimise_geometry(geometry.phonons.PREOPTGEOM) }}
+    END
+{% endif %}
 {% if 'INTENS' in geometry.phonons -%}
     INTENS
     {{ macros.optional_key(geometry.phonons.INTENS, 'technique') -}}

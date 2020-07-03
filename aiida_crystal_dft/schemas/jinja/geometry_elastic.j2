@@ -1,5 +1,10 @@
 {# Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file. #}
 {{ geometry.elastic_constants.type }}
+{% if geometry.elastic_constants.PREOPTGEOM %}
+    PREOPTGEOM
+    {{ macros.optimise_geometry(geometry.elastic_constants.PREOPTGEOM) }}
+    END
+{% endif %}
 {{ macros.optional_key(geometry.elastic_constants, 'convergence') -}}
 {{ macros.optional_key(geometry.elastic_constants, 'NUMDERIV') -}}
 {{ macros.optional_key(geometry.elastic_constants, 'STEPSIZE') -}}

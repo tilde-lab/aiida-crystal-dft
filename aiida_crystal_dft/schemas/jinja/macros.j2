@@ -1,11 +1,11 @@
 {# Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file. #}
 {% macro variable(key, value) %}
-    {% if value == True %}
+    {% if value == true %}
         {{ key -}}
     {% elif value is iterable and value is not string %}
         {{ key }}
         {{ value|join('  ') -}}
-    {% elif value != False %}
+    {% elif value is not sameas false %}
         {{ key }}
         {{ value -}}
     {% endif %}
@@ -36,4 +36,14 @@
     {% else %}
         {{ xc }}
     {% endif %}
+{% endmacro %}
+
+{% macro optimise_geometry(key) %}
+    {{ optional_key(key, 'type') -}}
+    {{ optional_key(key, 'hessian') -}}
+    {{ optional_key(key, 'gradient') -}}
+    {% for item in key.info_print -%}
+        {{ item }}
+    {% endfor -%}
+    {{ optional_key(key, 'convergence') -}}
 {% endmacro %}

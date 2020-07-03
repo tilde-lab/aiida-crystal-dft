@@ -172,6 +172,10 @@
                 "maxItems": 3
               }
             },
+            "PREOPTGEOM" : {
+              "description": "Pre-optimize geometry",
+              "$ref": "#/properties/geometry/properties/optimise"
+            },
             "INTENS": {
               "description": "IR intensities calculation",
               "type": [
@@ -249,6 +253,10 @@
               "type": "number",
               "minimum": 0,
               "exclusiveMinimum": true
+            },
+            "PREOPTGEOM" : {
+              "description": "Pre-optimize geometry",
+              "$ref": "#/properties/geometry/properties/optimise"
             },
             "convergence": {
               "description": "optimisation convergence criteria",
