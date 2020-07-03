@@ -9,7 +9,8 @@ from ase.data import chemical_symbols
 from aiida.engine import CalcJob
 from aiida.orm import Dict, Code, StructureData, SinglefileData, TrajectoryData, Bool
 from aiida.common import CodeInfo, CalcInfo, InputValidationError
-from aiida_crystal_dft.io.d12_write import write_input
+from aiida_crystal_dft.io.d12 import D12
+# from aiida_crystal_dft.io.d12_write import write_input
 from aiida_crystal_dft.io.f34 import Fort34
 from aiida_crystal_dft.data.basis import CrystalBasisData
 from aiida_crystal_dft.data.basis_family import CrystalBasisFamilyData
@@ -108,14 +109,13 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
             if self.inputs.guess_oxistates:
                 oxi_states = guess_oxistates(self.inputs.structure)
                 basis_dict['basis_family'].set_oxistates(oxi_states)
-            d12_filecontent = write_input(self.inputs.parameters.get_dict(),
-                                          basis_dict['basis_family'], {})
+            d12_file = D12(parameters=self.inputs.parameters.get_dict(), basis=basis_dict['basis_family'])
         except (AttributeError, ValueError, NotImplementedError) as err:
             raise InputValidationError(
                 "an input file could not be created from the parameters: {}".
                 format(err))
         with open(folder.get_abs_path(self.inputs.metadata.options.input_filename), 'w') as f:
-            f.write(d12_filecontent)
+            f.write(str(d12_file))
 
         # create input files: fort.34
         with open(folder.get_abs_path(self._GEOMETRY_FILE_NAME), 'w') as f:
