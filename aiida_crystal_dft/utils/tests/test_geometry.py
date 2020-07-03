@@ -33,7 +33,7 @@ def test_get_spacegroup(test_ase_structure):
     assert number == 225
 
 
-def test_get_primitive(test_structure_data):
+def test_get_primitive(test_magnetic_structure):
     from aiida_crystal_dft.utils.geometry import to_primitive
-    primitive_struct = to_primitive(test_structure_data)
+    primitive_struct = to_primitive(test_magnetic_structure)
     assert primitive_struct.get_composition() == {"Fe": 1, "O": 1}

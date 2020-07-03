@@ -19,7 +19,7 @@ def test_electronic_config():
     }
 
 
-def test_guess_oxistates(test_structure_data, test_mpds_structure):
+def test_guess_oxistates(test_structure_data):
     from aiida_crystal_dft.utils.electrons import guess_oxistates
     assert guess_oxistates(test_structure_data) == {"Mg": 2, "O": -2}
 
@@ -40,9 +40,9 @@ def test_get_valence_shell():
     assert get_valence_shell("Be", n=1, vacant=True) == ["s", "p"]
 
 
-def test_guess_spinlock(test_structure_data):
+def test_guess_spinlock(test_magnetic_structure):
     from aiida_crystal_dft.utils.electrons import guess_spinlock
-    assert guess_spinlock(test_structure_data) == 4
+    assert guess_spinlock(test_magnetic_structure) == 4
 
 
 def test_unpaired_electrons():

@@ -214,6 +214,17 @@ def test_mpds_structure(aiida_profile):
 
 
 @pytest.fixture
+def test_magnetic_structure(aiida_profile):
+    from aiida.orm import StructureData
+    ase_struct = crystal(
+        symbols=[26, 8],
+        basis=[[0, 0, 0], [0.5, 0.5, 0.5]],
+        spacegroup=225,
+        cellpar=[4.21, 4.21, 4.21, 90, 90, 90])
+    return StructureData(ase=ase_struct)
+
+
+@pytest.fixture
 def test_structure_data(aiida_profile, test_ase_structure):
     from aiida.orm import StructureData
     return StructureData(ase=test_ase_structure)
