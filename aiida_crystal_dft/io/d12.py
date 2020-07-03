@@ -2,7 +2,7 @@
 """
 #  Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file.
 
-from aiida_crystal_dft.schemas import read_schema, validate_with_json
+from aiida_crystal_dft.schemas import validate_with_json
 from aiida_crystal_dft.schemas.jinja import get_template
 
 
@@ -26,7 +26,7 @@ class D12(object):
             raise ValueError("Can not make input file out of empty dict")
         template = get_template('d12.j2')
         render = template.render(basis=self._basis.content, **self._input)
-        return '\n'.join([s.lstrip() for s in render.split('\n') if s != '\n'])
+        return '\n'.join([s.strip() for s in render.split('\n') if s.strip()])
 
     def write(self):
         """Writing input to file"""

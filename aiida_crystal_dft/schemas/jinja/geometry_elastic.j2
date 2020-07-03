@@ -1,11 +1,6 @@
-{% if 'convergence' in geometry.elastic_constants %}
-    {% for k, v in geometry.elastic_constants.convergence.items() -%}
-        {{ macros.variable(k, v) }}
-    {% endfor %}
-{% endif %}
-{% if 'NUMDERIV' in geometry.elastic_constants %}
-    {{ macros.variable('NUMDERIV', geometry.elastic_constants.NUMDERIV) }}
-{% endif %}
-{% if 'STEPSIZE' in geometry.elastic_constants %}
-    {{ macros.variable('STEPSIZE', geometry.elastic_constants.STEPSIZE) }}
-{% endif %}
+{# Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file. #}
+{{ geometry.elastic_constants.type }}
+{{ macros.optional_key(geometry.elastic_constants, 'convergence') -}}
+{{ macros.optional_key(geometry.elastic_constants, 'NUMDERIV') -}}
+{{ macros.optional_key(geometry.elastic_constants, 'STEPSIZE') -}}
+END

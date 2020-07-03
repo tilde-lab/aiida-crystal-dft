@@ -1,14 +1,39 @@
+{# Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file. #}
 {% macro variable(key, value) %}
-    {{ key }}
-    {% if value is iterable and value is not string %}
+    {% if value == True %}
+        {{ key -}}
+    {% elif value is iterable and value is not string %}
+        {{ key }}
         {{ value|join('  ') -}}
-    {% else %}
+    {% elif value != False %}
+        {{ key }}
         {{ value -}}
     {% endif %}
 {% endmacro %}
 
 {% macro optional_key(parent, key) %}
     {% if key in parent %}
-        {{ parent[key] -}}
+        {% if parent[key] is mapping %}
+            {% for k, v in parent[key].items() %}
+                {{ variable(k, v) }}
+            {% endfor %}
+        {% elif parent[key] is not string %}
+            {{ variable(key, parent[key]) }}
+        {% else %}
+            {{ parent[key] }}
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
+{% macro xc(xc) %}
+    {% if xc is iterable and xc is not string and xc|length == 2 %}
+        CORRELAT
+        {{ xc[0] }}
+        EXCHANGE
+        {{ xc[1] }}
+    {% elif 'LSRSH-PBE' in xc %}
+        {{ variable('LSRSH-PBE', xc['LSRSH-PBE']) }}
+    {% else %}
+        {{ xc }}
     {% endif %}
 {% endmacro %}

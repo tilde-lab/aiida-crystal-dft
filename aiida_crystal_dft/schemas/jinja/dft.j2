@@ -1,5 +1,13 @@
-{{ macros.optional_key(scf, 'single') }}
-{%- if 'dft' in scf %}
-DFT
-
+{# Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file. #}
+{{ macros.optional_key(scf, 'single') -}}
+{% if 'dft' in scf %}
+    DFT
+    {{ macros.xc(scf.dft.xc) -}}
+    {% if 'SPIN' in scf.dft and scf.dft.SPIN -%}
+        SPIN
+    {% endif %}
+    {{ macros.optional_key(scf.dft, 'grid') -}}
+    {{ macros.optional_key(scf.dft, 'grid_weights') -}}
+    {{ macros.optional_key(scf.dft, 'numerical') -}}
+    END
 {% endif %}

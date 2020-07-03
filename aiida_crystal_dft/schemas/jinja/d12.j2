@@ -1,3 +1,4 @@
+{# Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file. #}
 {% import 'macros.j2' as macros %}
 {{ title }}
 EXTERNAL
@@ -8,20 +9,14 @@ EXTERNAL
     {{ item }}
 {% endfor %}
 {% if geometry.optimise %}
-    OPTGEOM
     {% include 'geometry_optimise.j2' %}
-    ENDOPT
 {% endif %}
-{% if geometry.phonons -%}
-    FREQCALC
+{% if geometry.phonons %}
     {% include 'geometry_phonons.j2' %}
-    ENDFREQ
-{% endif -%}
+{% endif %}
 {% if geometry.elastic_constants %}
-    {{ geometry.elastic_constants.type }}
     {% include 'geometry_elastic.j2' %}
-    END
-{% endif -%}
+{% endif %}
 {% if "BASISSET" not in basis %}
     END
 {% endif %}
@@ -30,3 +25,12 @@ EXTERNAL
     END
 {% endif %}
 {% include 'dft.j2' %}
+SHRINK
+{{ scf.k_points|join('  ') }}
+{{ macros.optional_key(scf, 'numerical') -}}
+{{ macros.optional_key(scf, 'fock_mixing') -}}
+{{ macros.optional_key(scf, 'spinlock') -}}
+{% for item in scf.post_scf -%}
+    {{ item }}
+{% endfor -%}
+END

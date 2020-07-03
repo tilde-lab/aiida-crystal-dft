@@ -1,12 +1,12 @@
-{% if geometry.phonons.TEMPERAT -%}
-    {{ macros.variable('TEMPERAT', geometry.phonons.TEMPERAT) }}
-{% endif %}
-{%- for item in geometry.phonons.info_print -%}
+{# Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file. #}
+FREQCALC
+{{ macros.optional_key(geometry.phonons, 'TEMPERAT') -}}
+{% for item in geometry.phonons.info_print -%}
     {{ item }}
 {% endfor -%}
-{%- if 'INTENS' in geometry.phonons -%}
+{% if 'INTENS' in geometry.phonons -%}
     INTENS
-    {{ macros.optional_key(geometry.phonons.INTENS, 'technique') }}
+    {{ macros.optional_key(geometry.phonons.INTENS, 'technique') -}}
     {% if geometry.phonons.INTENS.INTRAMAN %}
         INTRAMAN
         {% if geometry.phonons.INTENS.INTRAMAN.INTCPHF %}
@@ -18,3 +18,4 @@
         {% endfor -%}
     {% endif -%}
 {% endif -%}
+ENDFREQ
