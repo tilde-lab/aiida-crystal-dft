@@ -129,6 +129,7 @@ def get_kpoints_path(structure):
     from aiida.plugins import DataFactory
     from aiida.tools import get_kpoints_path
     if isinstance(structure, DataFactory('structure')):
+        # print(get_kpoints_path(structure)["parameters"].get_dict())
         result = get_kpoints_path(structure)["parameters"].get_dict()
         return result["point_coords"], result["path"]
     else:
@@ -150,7 +151,7 @@ def get_shrink_kpoints_path(structure):
     # as points is a dictionary, get coords and labels separately
     point_labels = points.keys()
     # least common multiplier for all the denominators
-    shrink = reduce(lambda x, y: x * y // gcd(x, y), [Fraction(p).denominator
+    shrink = reduce(lambda x, y: x * y // gcd(x, y), [Fraction(p).limit_denominator(50).denominator
                                                       for lbl in point_labels for p in points[lbl]])
     point_coords = [[int(p*shrink) for p in points[lbl]] for lbl in point_labels]
     points = dict(zip(point_labels, point_coords))

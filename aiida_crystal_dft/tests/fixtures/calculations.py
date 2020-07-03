@@ -15,9 +15,9 @@ def crystal_calc(test_crystal_code, crystal_calc_parameters, test_structure_data
 
     inputs = AttributeDict()
     inputs.metadata = AttributeDict({'options':
-                                         {'resources':
-                                              {"num_machines": 1, "num_mpiprocs_per_machine": 1}
-                                          }
+                                     {'resources':
+                                      {"num_machines": 1, "num_mpiprocs_per_machine": 1}
+                                      }
                                      })
     inputs.code = test_crystal_code
     inputs.structure = test_structure_data
@@ -25,6 +25,7 @@ def crystal_calc(test_crystal_code, crystal_calc_parameters, test_structure_data
     inputs.basis_family = test_basis_family_predefined
     inputs.guess_oxistates = Bool(False)
     inputs.high_spin_preferred = Bool(False)
+    inputs.is_magnetic = Bool(True)
     calc = CrystalSerialCalculation(inputs)
     return calc
 
@@ -58,6 +59,7 @@ def calc_results():
                 with open(os.path.join(root_dir, entry), 'rb') as f:
                     data.put_object_from_filelike(f, entry, mode='wb')
         return data
+
     return get_results
 
 
@@ -84,6 +86,7 @@ def crystal_calc_node(crystal_calc, calc_results):
         retrieved.add_incoming(node, link_type=LinkType.CREATE, link_label='retrieved')
         retrieved.store()
         return node
+
     return get_calcnode
 
 
@@ -93,9 +96,9 @@ def properties_calc(test_properties_code, properties_calc_parameters, test_wavef
     from aiida_crystal_dft.calculations.properties import PropertiesCalculation
     inputs = AttributeDict()
     inputs.metadata = AttributeDict({'options':
-                                         {'resources':
-                                              {"num_machines": 1, "num_mpiprocs_per_machine": 1}
-                                          }
+                                     {'resources':
+                                      {"num_machines": 1, "num_mpiprocs_per_machine": 1}
+                                      }
                                      })
     inputs.code = test_properties_code
     inputs.parameters = properties_calc_parameters
@@ -127,6 +130,7 @@ def properties_calc_node(properties_calc, calc_results):
         retrieved.add_incoming(node, link_type=LinkType.CREATE, link_label='retrieved')
         retrieved.store()
         return node
+
     return get_calcnode
 
 
@@ -136,7 +140,8 @@ def crystal_calc_parameters():
     return Dict(dict={
         "title": "Crystal calc",
         "scf": {
-            "k_points": (8, 8)
+            "k_points": (8, 8),
+            # 'dft': {'xc': 'PBE0'}
         }
     })
 
@@ -187,12 +192,43 @@ def test_ase_structure():
     # MgO
     return crystal(
         symbols=[12, 8],
+        # symbols=[26, 8],
         basis=[[0, 0, 0], [0.5, 0.5, 0.5]],
         spacegroup=225,
         cellpar=[4.21, 4.21, 4.21, 90, 90, 90])
 
 
 @pytest.fixture
+def test_mpds_structure(aiida_profile):
+    from aiida.tools.dbimporters.plugins.mpds import MpdsDbImporter
+    from aiida.orm import StructureData
+    importer = MpdsDbImporter()
+    query = {'formulae': 'HgEr', 'sgs': 221}
+    res = next(importer.find(query))
+    ase_struct = crystal(
+        symbols=res['els_noneq'],
+        basis=res['basis_noneq'],
+        spacegroup=res['sg_n'],
+        cellpar=res['cell_abc'])
+    return StructureData(ase=ase_struct)
+
+
+@pytest.fixture
 def test_structure_data(aiida_profile, test_ase_structure):
     from aiida.orm import StructureData
     return StructureData(ase=test_ase_structure)
+
+
+@pytest.fixture
+def test_structure_issue_30(aiida_profile):
+    from .. import TEST_DIR
+    # from aiida_crystal_dft.io.f9 import Fort9
+    from aiida_crystal_dft.io.f34 import Fort34
+    name = os.path.join(TEST_DIR,
+                        "input_files",
+                        "issue_30",
+                        "fort.34")
+    # parser = Fort9(name)
+    struct = Fort34().read(name)
+    print(struct.space_group)
+    return struct.to_aiida()

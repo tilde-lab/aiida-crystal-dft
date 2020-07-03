@@ -86,6 +86,9 @@ class CrystalParser(Parser):
                 elif 'ALLOCATION' in error:
                     return self.exit_codes.ERROR_ALLOCATION
 
+                elif 'CLOSED SHELL RUN-SPIN POLARIZATION NOT ALLOWED' in error:
+                    return self.exit_codes.ERROR_CLOSED_SHELL_SPIN
+
                 elif error:
                     return self.exit_codes.ERROR_UNKNOWN
 

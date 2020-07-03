@@ -1,4 +1,4 @@
-#  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
+#  Copyright (c)  Andrey Sobolev, 2019-20. Distributed under MIT license, see LICENSE file.
 
 """
 The module describes basis set as the subclass of ParameterData
@@ -33,7 +33,7 @@ class CrystalBasisData(Dict):
     @property
     def md5(self):
         """ md5 hash of the basis set """
-        return self.get_attr('md5', default=None)
+        return self.get_attribute('md5', default=None)
 
     @property
     def element(self):
@@ -92,7 +92,7 @@ class CrystalBasisData(Dict):
         bases = cls.from_md5(md5_hash)
         if bases:
             return bases[0]
-        return cls(dict=basis.asDict()).store(use_cache=True)
+        return cls(dict=basis.asDict()).store()
 
     def set_oxistate(self, oxi_state, high_spin_preferred=False):
         """Set oxidation state for the basis"""
@@ -125,23 +125,26 @@ class CrystalBasisData(Dict):
         if self.from_md5(md5_hash):
             raise UniquenessError("Basis with MD5 hash {} has already found in the database!".format(md5_hash))
         self.set_attribute("md5", md5_hash)
-        return super(CrystalBasisData, self).store(with_transaction=with_transaction,
-                                                   use_cache=use_cache)
+        return super(CrystalBasisData, self).store(with_transaction=with_transaction)
 
     def _get_occupations(self):
-        """
-        A helper function providing a dictionary of orbital types and basis occupations
-        :return: a dictionary of [orbital type, occupation] elements
-        """
-        occs = [[orb[0][1], orb[0][3]] for orb in self.get_dict()['bs']]
-        result = {"s": [], "d": [], "f": []}
-        if any([occ[0] == 1 for occ in occs]):
-            result["sp"] = []
-        else:
-            result["p"] = []
-        for orb, e in occs:
-            result[orbital_data[orb]["l"]].append(e)
-        return result
+        """A wrapper for get_occupations function"""
+        return get_occupations(self.get_dict())
+
+
+def get_occupations(basis_dict):
+    """A helper function providing a dictionary of orbital types and basis occupations, given basis dictionary
+    :return: a dictionary of [orbital type, occupation] elements
+    """
+    occs = [[orb[0][1], orb[0][3]] for orb in basis_dict['bs']]
+    result = {"s": [], "d": [], "f": [], "g": []}
+    if any([occ[0] == 1 for occ in occs]):
+        result["sp"] = []
+    else:
+        result["p"] = []
+    for orb, e in occs:
+        result[orbital_data[orb]["l"]].append(e)
+    return result
 
 
 def get_valence_orbitals(occs, vacant=False):
@@ -196,7 +199,13 @@ def add_valence_electrons(n, occs, element, high_spin_preferred):
     # get electrons on last two orbitals
     for i_shell, shell in enumerate(shell_valence):
         orb = "sp" if shell in ("s", "p") and "sp" in i_valence else shell
-        n_e = occs[orb][i_valence[orb]]
+        try:
+            n_e = occs[orb][i_valence[orb]]
+        except KeyError:
+            # There are no empty orbitals to put electrons to, bad basis (eg, Hg per #38)
+            raise ValueError("Bad basis, no empty {} orbitals for the given oxidation state for element {}: {}".format(
+                orb, element, -n
+            ))
         if i_shell > 0 and n_e == max_e[orb]:
             # our bad, we erroneously found full orbitals as valence
             i_valence[orb] += 1

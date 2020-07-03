@@ -7,14 +7,13 @@ from abc import ABCMeta
 
 from ase.data import chemical_symbols
 from aiida.engine import CalcJob
-from aiida.orm import Dict, Code, StructureData, SinglefileData, TrajectoryData, Bool
+from aiida.orm import Dict, Code, StructureData, SinglefileData, TrajectoryData, Bool, Int
 from aiida.common import CodeInfo, CalcInfo, InputValidationError
 from aiida_crystal_dft.io.d12 import D12
-# from aiida_crystal_dft.io.d12_write import write_input
 from aiida_crystal_dft.io.f34 import Fort34
 from aiida_crystal_dft.data.basis import CrystalBasisData
 from aiida_crystal_dft.data.basis_family import CrystalBasisFamilyData
-from aiida_crystal_dft.utils.electrons import guess_oxistates
+from aiida_crystal_dft.utils.electrons import guess_oxistates, guess_spinlock
 
 
 class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
@@ -39,14 +38,18 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         spec.input('code', valid_type=Code)
         spec.input('structure', valid_type=StructureData, required=True)
         spec.input('parameters', valid_type=Dict, required=True)
-        spec.input('guess_oxistates', valid_type=Bool, required=False, default=Bool(False))
-        spec.input('high_spin_preferred', valid_type=Bool, required=False, default=Bool(False))
+        spec.input('guess_oxistates', valid_type=Bool, required=False, default=lambda: Bool(False))
+        spec.input('use_oxistates', valid_type=Dict, required=False)
+        spec.input('high_spin_preferred', valid_type=Bool, required=False, default=lambda: Bool(False))
+        spec.input('is_magnetic', valid_type=Bool, required=False, default=lambda: Bool(False))
+        spec.input('spinlock_steps', valid_type=Int, required=False, default=lambda: Int(5))
         spec.input_namespace('basis', valid_type=CrystalBasisData, required=False, dynamic=True)
         spec.input('basis_family', valid_type=CrystalBasisFamilyData, required=False)
 
         # output nodes
         spec.output('output_structure', valid_type=StructureData, required=False)
         spec.output('output_parameters', valid_type=Dict, required=True)
+        spec.output('oxidation_states', valid_type=Dict, required=True)
         spec.output('output_wavefunction', valid_type=SinglefileData, required=False)
         spec.output('output_trajectory', valid_type=TrajectoryData, required=False)
         spec.default_output_node = 'output_parameters'
@@ -65,13 +68,14 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         spec.exit_code(304, 'ERROR_NEIGHBOR_LIST_TOO_BIG', message='Neighbour list too large')
         spec.exit_code(305, 'ERROR_NO_G_VECTORS', message='No G-vectors left')
         spec.exit_code(306, 'ERROR_GEOMETRY_COLLAPSED', message='Collapsed geometry')
+        spec.exit_code(307, 'ERROR_CLOSED_SHELL_SPIN', message='Closed shell run - spin polarization not allowed')
         spec.exit_code(350, 'ERROR_ALLOCATION', message='Internal memory error')
         # 4xx - other errors
         spec.exit_code(400, 'ERROR_UNKNOWN', message='Unknown error')
         spec.exit_code(401, 'ERROR_NO_RETRIEVED_FOLDER', message='The retrieved folder data node could not be accessed')
 
     def _validate_basis_input(self, inputdict):
-        """Input schemas; returns the dict of validated data"""
+        """Input validation; returns the dict of validated data"""
         validated_dict = {}
 
         # basis family input
@@ -103,12 +107,36 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
 
     def _prepare_input_files(self, folder):
         basis_dict = self._validate_basis_input(dict(self.inputs))
+        params = self.inputs.parameters.get_dict()
+        # check if both SPINLOCK and is_magnetic are present; in this case SPINLOCK takes precedence
+        if 'spinlock' in params['scf'] and self.inputs.is_magnetic:
+            self.logger.warning('Both SPINLOCK and is_magnetic are present, dropping is_magnetic')
+            self.inputs.is_magnetic = False
         # create input files: d12, taking into account
         try:
             basis_dict['basis_family'].set_structure(self.inputs.structure)
-            if self.inputs.guess_oxistates:
+            if "use_oxistates" in self.inputs:
+                basis_dict['basis_family'].set_oxistates(self.inputs.use_oxistates.get_dict())
+                self.out('oxidation_states', Dict(dict=self.inputs.use_oxistates.get_dict()))
+            elif self.inputs.guess_oxistates:
                 oxi_states = guess_oxistates(self.inputs.structure)
                 basis_dict['basis_family'].set_oxistates(oxi_states)
+                # save oxidation states for future reference
+                self.out('oxidation_states', Dict(dict=oxi_states))
+
+            if self.inputs.is_magnetic:
+                try:
+                    spinlock = guess_spinlock(self.inputs.structure)
+                    params['scf']['spinlock'] = {}
+                    params['scf']['spinlock']['SPINLOCK'] = [spinlock,
+                                                             int(self.inputs.spinlock_steps)]
+                    # adding SPIN keywords if they're not present
+                    if 'single' in params['scf']:
+                        params['scf']['single'] = 'UHF'
+                    elif 'dft' in params['scf']:
+                        params['scf']['dft']['SPIN'] = True
+                except ValueError:
+                    self.logger.info("is_magnetic is True for non-magnetic structure")
             d12_file = D12(parameters=self.inputs.parameters.get_dict(), basis=basis_dict['basis_family'])
         except (AttributeError, ValueError, NotImplementedError) as err:
             raise InputValidationError(

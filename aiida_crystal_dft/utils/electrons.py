@@ -21,7 +21,7 @@ oxistate_weights = [
     {-1: 2},  # F
     {},  # Ne
     {-1: 1, 1: 2},  # Na
-    {1: 1, 2: 2},  # Mg
+    {0: 1, 1: 1, 2: 2},  # Mg
     {-2: 1, -1: 1, 1: 1, 2: 1, 3: 2},  # Al
     {-4: 2, -3: 1, -2: 1, -1: 1, 0: 1, 1: 1, 2: 1, 3: 1, 4: 2},  # Si
     {-3: 2, -2: 1, -1: 1, 0: 1, 1: 1, 2: 1, 3: 2, 4: 1, 5: 2},  # P
@@ -121,7 +121,8 @@ orbital_data = [{"l": "s", "max_e": 2},
                 {"l": "sp", "max_e": 8},
                 {"l": "p", "max_e": 6},
                 {"l": "d", "max_e": 10},
-                {"l": "f", "max_e": 14}
+                {"l": "f", "max_e": 14},
+                {"l": "g", "max_e": 18}
                 ]
 
 orbitals = ["1s", "2s", "2p", "3s", "3p", "4s", "3d", "4p", "5s",
@@ -205,4 +206,29 @@ def guess_oxistates(structure):
                            for i, el in enumerate(elements)])
                for state in product(*oxistates_element)
                if sum([x*y for x, y in zip(state, [composition[el] for el in elements])]) == 0}
+    if not weights:
+        raise ValueError("No electrically neutral state found for the following composition: {}".format(composition))
     return dict(zip(elements, sorted(weights.items(), key=lambda x: x[1], reverse=True)[0][0]))
+
+
+def guess_spinlock(structure):
+    """A function that tries to guess total spin of structure in case it is magnetic.
+    Works only with 3d and 4f elements"""
+    # get primitive structure
+    from aiida_crystal_dft.utils.geometry import to_primitive
+    composition = to_primitive(structure).get_composition()
+    elements = composition.keys()
+    # change valence electron number based on oxidation states
+    oxi_states = guess_oxistates(structure)
+    valence = {e: (electronic_config(e)[-1] - oxi_states[e], get_valence_shell(e)[0]) for e in elements}
+    # guess spinlock based on oxidation state and composition
+    transition_els = [e for e in elements if valence[e][1] in ('d', 'f')]
+    if not transition_els:
+        # no transition elements in structure, are nonmagnetic as of now
+        raise ValueError("Structure does not contain transition elements")
+    return int(sum([composition[el] * unpaired_electrons(*valence[el]) for el in transition_els]))
+
+
+def unpaired_electrons(n_e, shell):
+    """Returns the number of unpaired electrons out of n_e on the shell according to Hund rule"""
+    return max_e[shell]/2 - abs(n_e - max_e[shell]/2)

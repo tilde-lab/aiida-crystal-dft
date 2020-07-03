@@ -19,9 +19,15 @@ def test_electronic_config():
     }
 
 
-def test_guess_oxistates(test_structure_data):
+def test_guess_oxistates(test_structure_data, test_mpds_structure):
     from aiida_crystal_dft.utils.electrons import guess_oxistates
     assert guess_oxistates(test_structure_data) == {"Mg": 2, "O": -2}
+
+
+@pytest.mark.skip
+def test_guess_oxistates_mpds(test_mpds_structure):
+    from aiida_crystal_dft.utils.electrons import guess_oxistates
+    assert guess_oxistates(test_mpds_structure) == {"Er": 2, "Hg": -2}
 
 
 def test_get_valence_shell():
@@ -32,3 +38,17 @@ def test_get_valence_shell():
     assert get_valence_shell("Be") == ["s"]
     assert get_valence_shell("Be", n=1) == ["s", "s"]
     assert get_valence_shell("Be", n=1, vacant=True) == ["s", "p"]
+
+
+def test_guess_spinlock(test_structure_data):
+    from aiida_crystal_dft.utils.electrons import guess_spinlock
+    assert guess_spinlock(test_structure_data) == 4
+
+
+def test_unpaired_electrons():
+    from aiida_crystal_dft.utils.electrons import unpaired_electrons
+    assert unpaired_electrons(5, "d") == 5
+    assert unpaired_electrons(0, "d") == 0
+    assert unpaired_electrons(10, "d") == 0
+    assert unpaired_electrons(8, "d") == 2
+    assert unpaired_electrons(8, "f") == 6

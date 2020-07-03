@@ -16,11 +16,13 @@ inputs.crystal_code = Code.get_from_string('Pcrystal@torquessh')
 inputs.crystal_parameters = DataFactory('dict')(dict={
         "title": "Crystal calc",
         "scf": {
-            "k_points": (8, 8)
+            "k_points": (8, 8),
+            "single": "UHF"
         },
         "geometry": {
             "optimise": {
-                "type": "FULLOPTG"
+                "type": "FULLOPTG",
+                # "convergence": {"MAXCYCLE": 3},
             },
             "phonons": {
                 "ir": {
@@ -54,7 +56,8 @@ inputs.options = DataFactory('dict')(dict={
     'need_phonons': False,
     'need_elastic_constants': False,
     'need_electronic_properties': False,
-    'try_oxi_if_fails': True,
+    'try_oxi_if_fails': False,
+    'is_magnetic': True,
     'resources': {
         'num_machines': 1,
         'num_mpiprocs_per_machine': 2

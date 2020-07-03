@@ -1,4 +1,4 @@
-#  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
+#  Copyright (c)  Andrey Sobolev, 2019-20. Distributed under MIT license, see LICENSE file.
 
 """
 A test suite for bases
@@ -19,7 +19,7 @@ def test_trivial_basis(aiida_profile):
     assert basis.uuid == basis2.uuid
     assert basis2.element == "Mg"
     assert basis2.all_electron
-    assert basis2._get_occupations() == {'s': [2.0], 'sp': [8.0, 2.0], 'd': [], 'f': []}
+    assert basis2._get_occupations() == {'s': [2.0], 'sp': [8.0, 2.0], 'd': [], 'f': [], 'g': []}
 
 
 def test_ecp_basis(aiida_profile):
@@ -28,7 +28,7 @@ def test_ecp_basis(aiida_profile):
     basis = CrystalBasisData.from_file(file_name)
     assert basis.element == "Ag"
     assert not basis.all_electron
-    assert basis._get_occupations() == {'s': [], 'sp': [8.0, 1.0, 0.0], 'd': [10.0, 0.0], 'f': []}
+    assert basis._get_occupations() == {'s': [], 'sp': [8.0, 1.0, 0.0], 'd': [10.0, 0.0], 'f': [], 'g': []}
     assert basis.content() == """247 5
 HAYWSC
 0 1 3 8.0 1.0
@@ -63,24 +63,42 @@ HAYWSC
 0.207900   1.000000"""
 
 
+def test_4f_basis(aiida_profile):
+    # Test for bug #38
+    from aiida_crystal_dft.data.basis import CrystalBasisData, get_occupations
+    file_name = os.path.join(TEST_DIR, "input_files", "4f", "Eu.basis")
+    basis = CrystalBasisData.from_file(file_name)
+    assert basis.element == "Eu"
+    assert basis._get_occupations() == {'s': [], 'd': [10, 0], 'f': [6, 0, 0], 'g': [], 'sp': [8, 8, 0, 0, 0]}
+    basis_dict = basis.set_oxistate(-2)
+    assert get_occupations(basis_dict) == {'s': [], 'd': [10, 0], 'f': [8, 0, 0], 'g': [], 'sp': [8, 8, 0, 0, 0]}
+    basis_dict = basis.set_oxistate(2)
+    assert get_occupations(basis_dict) == {'s': [], 'd': [10, 0], 'f': [4, 0, 0], 'g': [], 'sp': [8, 8, 0, 0, 0]}
+    file_name = os.path.join(TEST_DIR, "input_files", "4f", "Hg.basis")
+    basis = CrystalBasisData.from_file(file_name)
+    assert basis.element == "Hg"
+    assert basis._get_occupations() == {'s': [2], 'd': [10, 0], 'f': [], 'g': [], 'p': [6]}
+
+
 def test_special_cases(aiida_profile):
     # CdY/221/cP2, Bug # 26
     from aiida_crystal_dft.data.basis import CrystalBasisData
     file_name = os.path.join(TEST_DIR, "input_files", "tzvp", "Cd.basis")
     basis = CrystalBasisData.from_file(file_name)
     assert basis.element == "Cd"
-    assert basis._get_occupations() == {'s': [2, 2, 0, 0], 'd': [10, 0, 0], 'f': [0], 'p': [6, 0, 0]}
+    assert basis._get_occupations() == {'s': [2, 2, 0, 0], 'd': [10, 0, 0], 'f': [0], 'p': [6, 0, 0], 'g': []}
     assert basis.set_oxistate(-2)
 
 
 def test_get_valence_orbitals():
     from aiida_crystal_dft.data.basis import get_valence_orbitals as func
-    assert func({'s': [], 'sp': [8.0, 1.0, 0.0], 'd': [10.0, 0.0], 'f': []}) == {'sp': 1, 'd': 0}
-    assert func({'s': [2.0, 2.0, 0.0, 0.0, 0.0], 'p': [0.0], 'd': [], 'f': []}) == {'s': 1, 'p': -1}
-    assert func({'s': [2.0], 'sp': [8.0, 2.0], 'd': [], 'f': []}) == {'sp': 1}
-    assert func({'s': [2, 2, 0, 0], 'd': [10, 0, 0], 'f': [0], 'p': [6, 0, 0]}) == {'d': 0, 'f': -1, 'p': 0, 's': 1}
-    assert func({'s': [2, 2, 0, 0], 'd': [10, 0, 0], 'f': [0], 'p': [6, 0, 0]}, vacant=True) == \
-           {'d': 1, 'f': 0, 'p': 1, 's': 2}
+    assert func({'s': [], 'sp': [8.0, 1.0, 0.0], 'd': [10.0, 0.0], 'f': [], 'g': []}) == {'sp': 1, 'd': 0}
+    assert func({'s': [2.0, 2.0, 0.0, 0.0, 0.0], 'p': [0.0], 'd': [], 'f': [], 'g': []}) == {'s': 1, 'p': -1}
+    assert func({'s': [2.0], 'sp': [8.0, 2.0], 'd': [], 'f': [], 'g': []}) == {'sp': 1}
+    assert func({'s': [2, 2, 0, 0], 'd': [10, 0, 0], 'f': [0], 'p': [6, 0, 0], 'g': []}) == \
+        {'d': 0, 'f': -1, 'p': 0, 's': 1}
+    assert func({'s': [2, 2, 0, 0], 'd': [10, 0, 0], 'f': [0], 'p': [6, 0, 0], 'g': []}, vacant=True) == \
+        {'d': 1, 'f': 0, 'p': 1, 's': 2}
 
 
 def test_remove_valence_electrons():
@@ -107,4 +125,3 @@ def test_add_valence_electrons():
         {'s': [], 'sp': [8.0, 4.0, 0.0], 'd': [10.0, 0.0], 'f': []}
     with pytest.raises(ValueError):
         func(12, {'s': [], 'sp': [8.0, 1.0, 0.0], 'd': [10.0, 0.0], 'f': []}, "Ag", False)
-
