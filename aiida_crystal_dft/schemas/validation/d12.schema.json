@@ -603,6 +603,10 @@
               "description": "All bielectronic integrals computed exactly",
               "type": "boolean"
             },
+            "NOSHIFT": {
+              "description": "No eigenvalue level shift",
+              "type": "boolean"
+            },
             "FMIXING": {
               "description": "Fock/KS matrix (cycle i and i-1) mixing",
               "type": "integer",
