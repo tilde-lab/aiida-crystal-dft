@@ -4,6 +4,7 @@
 
 from aiida_crystal_dft.schemas import validate_with_json
 from aiida_crystal_dft.schemas.jinja import get_template
+from aiida_crystal_dft.data import CrystalBasisFamilyData
 
 
 class D12(object):
@@ -25,7 +26,7 @@ class D12(object):
         if self._input is None:
             raise ValueError("Can not make input file out of empty dict")
         template = get_template('d12.j2')
-        render = template.render(basis=self._basis.content, **self._input)
+        render = template.render(basis=self._basis, **self._input)
         return '\n'.join([s.strip() for s in render.split('\n') if s.strip()]) + '\n'
 
     def write(self):
@@ -33,7 +34,7 @@ class D12(object):
         if self._input is None:
             raise ValueError("No ParameterData is associated with the input")
         if self._basis is None:
-            raise ValueError("No BasisSet is associated with the input")
+            raise ValueError("No BasisSets or BasisFamily is associated with the input")
 
     def use_parameters(self, parameters):
         """A ParameterData (or a simple dict) to use for making INPUT"""
@@ -43,4 +44,10 @@ class D12(object):
 
     def use_basis(self, basis):
         """A BasisSetData to use for making INPUT"""
-        self._basis = basis
+        # a valid basis should be either BasisFamily, or the list of BasisSets
+        if isinstance(basis, CrystalBasisFamilyData):
+            self._basis = basis.content
+        elif isinstance(basis, (list, tuple)) and all([hasattr(o, 'content') for o in basis]):
+            self._basis = "\n".join([b.content for b in basis] + ["99 0\n", ])
+        else:
+            raise ValueError("Basis must be a BasisFamily or a list of BasisSets")

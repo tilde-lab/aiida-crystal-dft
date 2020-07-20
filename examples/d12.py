@@ -29,8 +29,9 @@ inputs = {"title": "Crystal calc",
               },
           }}
 
-basis_class = namedtuple("basis", field_names="content")
-basis = basis_class(content="\n".join([basis_mg, basis_o, "99 0\n"]))
+basis = namedtuple("basis", field_names="content,all_electron")
+mg = basis(content=basis_mg, all_electron=True)
+o = basis(content=basis_o, all_electron=True)
 
-d12 = D12(parameters=inputs, basis=basis)
+d12 = D12(parameters=inputs, basis=[mg, o])
 print(d12)
