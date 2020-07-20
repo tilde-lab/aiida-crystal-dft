@@ -26,7 +26,7 @@ class BaseCrystalWorkChain(WorkChain):
         spec.input('parameters', valid_type=get_data_class('dict'), required=True)
         spec.input('basis_family', valid_type=get_data_class('crystal_dft.basis_family'), required=True)
         spec.input('clean_workdir', valid_type=get_data_class('bool'),
-                   required=False, default=get_data_node('bool', False))
+                   required=False, default=lambda: get_data_node('bool', False))
         spec.input('options', valid_type=get_data_class('dict'), required=True, help="Calculation options")
 
         # define workchain routine
@@ -255,7 +255,7 @@ class BasePropertiesWorkChain(WorkChain):
                                                                      last_calc.pk))
 
             if name in last_calc.outputs:
-                node = last_calc.outputs[name]
+                # node = last_calc.outputs[name]
                 self.out(name, last_calc.outputs[name])
                 # self.report("attaching the node {}<{}> as '{}'".format(node.__class__.__name__, node.pk, name))
         return
