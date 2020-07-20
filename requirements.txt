@@ -1,0 +1,7 @@
+numpy ~= 1.17.5
+aiida-core >= 1.1
+pycrystal >= 1.0.6
+packaging
+seekpath
+mpds_client
+pyparsing > 2.3.1
