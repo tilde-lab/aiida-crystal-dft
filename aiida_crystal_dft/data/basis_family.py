@@ -4,7 +4,7 @@
 A module describing the CRYSTAL basis family (Str on steroids)
 """
 import os
-
+from collections import Counter
 from ase.data import atomic_numbers
 from aiida.orm import Group, Data
 from aiida.plugins import DataFactory
@@ -77,8 +77,9 @@ class CrystalBasisFamilyData(Data):
                             format(self.name))
         elements = [basis.element for basis in basis_sets]
         if len(set(elements)) != len(elements):
-            raise ValueError("Trying to add more than one basis set for some element to basis family {}".
-                             format(self.name))
+            several_bases = [el for el, n in Counter(elements).items() if n > 1]
+            raise ValueError("Trying to add more than one basis set for element(s): {} to basis family {}".
+                             format(", ".join(several_bases), self.name))
         # check for element uniqueness within the existent group
         if not group_created:
             elements_in_group = set([basis.element for basis in group.nodes])
