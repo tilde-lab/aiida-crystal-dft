@@ -1,3 +1,4 @@
 include setup.json
 recursive-include aiida_crystal_dft/tests/ *
 include aiida_crystal_dft/schemas/validation/*.json
+include aiida_crystal_dft/schemas/jinja/*.j2
