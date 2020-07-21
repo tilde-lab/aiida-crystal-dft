@@ -61,12 +61,19 @@ def listfamilies(element, list_pks, with_description):
     """List available families of CRYSTAL Basis Set files."""
 
     basis_family_cls = get_data_class('crystal_dft.basis_family')
-    groups = basis_family_cls.get_families(filter_elements=element)
+    bases, groups = basis_family_cls.get_families(filter_elements=element)
     table = [['Family', 'Num Basis Sets']]
     if with_description:
         table[0].append('Description')
     if list_pks:
         table[0].append('Pks')
+    for basis in bases:
+        row = [basis.name, '--']
+        if with_description:
+            row.append('Predefined')
+        if list_pks:
+            row.append('')
+        table.append(row)
     for group in groups:
         row = [group.label, len(group.nodes)]
         if with_description:

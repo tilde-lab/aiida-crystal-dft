@@ -5,20 +5,20 @@ A module describing the CRYSTAL basis family (Str on steroids)
 """
 import os
 from collections import Counter
-from ase.data import atomic_numbers
+from ase.data import atomic_numbers, chemical_symbols
 from aiida.orm import Group, Data
 from aiida.plugins import DataFactory
 from aiida_crystal_dft.utils import get_automatic_user
 from aiida_crystal_dft.data.basis import CrystalBasisData
 
 
-BASIS_FAMILY_KWDS = [
-    "STO-3G",
-    "STO-6G",
-    "POB-DZVP",
-    "POB-DZVPP",
-    "POB-TZVP"
-]
+BASIS_FAMILY_KWDS = {
+    "STO-3G": list(range(1, 54)),
+    "STO-6G": list(range(1, 37)),
+    "POB-DZVP": list(range(1, 36)) + [49, 74],
+    "POB-DZVPP": list(range(1, 36)) + [49, 83],
+    "POB-TZVP": list(range(1, 36)) + [49, 83]
+}
 
 BASIS_FAMILY_TYPE = 'crystal_dft.basis_family'
 
@@ -35,11 +35,14 @@ class CrystalBasisFamilyData(Data):
         self.oxi_states = None
 
     @classmethod
-    def _get(cls, name):
+    def _get(cls, name=None):
         # check if we can find the basis family
         from aiida.orm.querybuilder import QueryBuilder
         qb = QueryBuilder()
-        qb.append(cls, filters={'attributes.name': {'==': name}})
+        filters = {}
+        if name is not None:
+            filters['attributes.name'] = {'==': name}
+        qb.append(cls, filters=filters)
         return [res for [res] in qb.all()]
 
     @classmethod
@@ -235,13 +238,17 @@ class CrystalBasisFamilyData(Data):
         if user is not None:
             group_query_params['user'] = user
         basis_groups = Group.objects.find(filters=group_query_params)
+        predefined_bases = cls._get()
         if isinstance(filter_elements, str):
             filter_elements = [filter_elements]
         if filter_elements is not None:
             actual_filter_elements = {_.capitalize() for _ in filter_elements}
             basis_groups = [g for g in basis_groups if actual_filter_elements.issubset({b.element for b in g.nodes})]
-        groups = [(g.label, g) for g in basis_groups]
+            predefined_bases = [b for b in predefined_bases if
+                                actual_filter_elements.issubset({chemical_symbols[n]
+                                                                 for n in BASIS_FAMILY_KWDS[b.name]})]
         # Sort by name
-        groups.sort()
-        # Return the groups, without name
-        return [_[1] for _ in groups]
+        basis_groups.sort(key=lambda x: x.label)
+        predefined_bases.sort(key=lambda x: x.name)
+        # Return the predefined bases and groups, without name
+        return predefined_bases, basis_groups
