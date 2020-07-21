@@ -14,6 +14,9 @@ basis_mg = """12 3
 basis_o = """8 2
 1 0 3 2.0 0.0
 1 1 3 6.0 0.0"""
+basis_str = """BASISSET
+POB-TZVP
+"""
 
 inputs = {"title": "Crystal calc",
           "scf": {
@@ -33,5 +36,5 @@ basis = namedtuple("basis", field_names="content,all_electron")
 mg = basis(content=basis_mg, all_electron=True)
 o = basis(content=basis_o, all_electron=True)
 
-d12 = D12(parameters=inputs, basis=[mg, o])
+d12 = D12(parameters=inputs, basis=basis_str)
 print(d12)

@@ -49,5 +49,7 @@ class D12(object):
             self._basis = basis.content
         elif isinstance(basis, (list, tuple)) and all([hasattr(o, 'content') for o in basis]):
             self._basis = "\n".join([b.content for b in basis] + ["99 0\n", ])
+        elif isinstance(basis, str):
+            self._basis = basis
         else:
             raise ValueError("Basis must be a BasisFamily or a list of BasisSets")
