@@ -238,7 +238,7 @@ class CrystalBasisFamilyData(Data):
         if user is not None:
             group_query_params['user'] = user
         basis_groups = Group.objects.find(filters=group_query_params)
-        predefined_bases = cls._get()
+        predefined_bases = [b for b in cls._get() if b.predefined]
         if isinstance(filter_elements, str):
             filter_elements = [filter_elements]
         if filter_elements is not None:
