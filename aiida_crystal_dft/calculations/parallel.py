@@ -7,6 +7,8 @@ from aiida_crystal_dft.calculations.common import CrystalCommonCalculation
 
 class CrystalParallelCalculation(CrystalCommonCalculation):
 
+    _ERROR_FILE_NAME = 'OUTPUT'
+
     def prepare_for_submission(self, folder):
         """
         Create input files.

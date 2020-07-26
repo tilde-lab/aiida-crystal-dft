@@ -25,7 +25,8 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
     """
     _INPUT_FILE_NAME = 'INPUT'
     _GEOMETRY_FILE_NAME = 'fort.34'
-    _OUTPUT_FILE_NAME = 'crystal.out'
+    _OUTPUT_FILE_NAME = 'OUTPUT'
+    _ERROR_FILE_NAME = '_scheduler-stderr.txt'
     _BASIS_PREFIX = 'basis_'
 
     @classmethod
@@ -57,6 +58,7 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         # input, output files and parser name
         spec.input('metadata.options.input_filename', valid_type=str, default=cls._INPUT_FILE_NAME)
         spec.input('metadata.options.output_filename', valid_type=str, default=cls._OUTPUT_FILE_NAME)
+        spec.input('metadata.options.scheduler_stderr', valid_type=str, default=cls._ERROR_FILE_NAME)
         spec.input('metadata.options.parser_name', valid_type=str, default='crystal_dft')
 
         # exit codes
