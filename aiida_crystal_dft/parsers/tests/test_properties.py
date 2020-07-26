@@ -2,9 +2,6 @@
 """Tests for properties parser
 """
 
-# noinspection PyUnresolvedReferences
-from aiida_crystal_dft.tests.fixtures import *
-
 
 def test_properties_parser(properties_calc_node):
     from aiida.plugins import DataFactory

@@ -2,8 +2,6 @@
 """
 Tests for DOS utility functions
 """
-# noinspection PyUnresolvedReferences
-from aiida_crystal_dft.tests.fixtures import *
 from aiida_crystal_dft.utils.dos import get_dos_projections_atoms
 
 

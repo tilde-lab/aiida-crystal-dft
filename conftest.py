@@ -8,6 +8,13 @@ from aiida.manage.fixtures import fixture_manager
 import pytest
 
 
+pytest_plugins = [
+   "aiida_crystal_dft.tests.fixtures.basis",
+   "aiida_crystal_dft.tests.fixtures.calculations",
+   "aiida_crystal_dft.tests.fixtures.code",
+]
+
+
 @pytest.fixture(scope='session')
 def aiida_profile():
     """setup a test profile for the duration of the tests"""

@@ -1,7 +1,6 @@
 #   Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 
-# noinspection PyUnresolvedReferences
-from aiida_crystal_dft.tests.fixtures import *
+import pytest
 
 
 def test_store_calc(properties_calc_node):

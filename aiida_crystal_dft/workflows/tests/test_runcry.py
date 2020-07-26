@@ -2,7 +2,7 @@
 """Tests for runcry workchain calculations
 """
 
-from aiida_crystal_dft.tests.fixtures import *
+import pytest
 
 
 @pytest.mark.skip

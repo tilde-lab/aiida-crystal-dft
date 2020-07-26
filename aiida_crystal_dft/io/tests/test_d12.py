@@ -1,8 +1,5 @@
 #  Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file.
 
-# noinspection PyUnresolvedReferences
-from aiida_crystal_dft.tests.fixtures import *
-
 
 def test_input_full(test_basis_family_predefined):
     from aiida_crystal_dft.tests import d12_input, d12_expected

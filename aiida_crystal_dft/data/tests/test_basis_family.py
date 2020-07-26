@@ -1,6 +1,7 @@
 #  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 
-from aiida_crystal_dft.tests.fixtures import *
+import os
+import pytest
 
 
 def test_predefined_basis_family(aiida_profile):

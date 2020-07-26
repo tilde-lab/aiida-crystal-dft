@@ -2,8 +2,7 @@
 """
 Tests for data helper utils
 """
-# noinspection PyUnresolvedReferences
-from aiida_crystal_dft.tests.fixtures import *
+import pytest
 
 
 def test_electronic_config():

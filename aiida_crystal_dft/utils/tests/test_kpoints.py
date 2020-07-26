@@ -1,6 +1,6 @@
 #   Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 
-from aiida_crystal_dft.tests.fixtures import *
+import pytest
 from aiida_crystal_dft.utils.kpoints import get_special_kpoints, \
     get_kpoints_path, get_kpoints_from_shrink, get_shrink_kpoints_path, construct_kpoints_path, \
     get_explicit_kpoints_path

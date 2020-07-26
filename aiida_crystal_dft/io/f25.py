@@ -3,20 +3,20 @@
 A parser for fort.25 bands and DOS files
 """
 import numpy as np
-from pyparsing import *
+import pyparsing as pp
 
 from aiida_crystal_dft.io import _parse_string
 
-pc = pyparsing_common
+pc = pp.pyparsing_common
 
 __all__ = ["Fort25"]
 
 
 def band_parser():
-    header = (pc.integer + Word(alphas) + 2 * pc.integer + 3 * pc.sci_real).setResultsName('header')
+    header = (pc.integer + pp.Word(pp.alphas) + 2 * pc.integer + 3 * pc.sci_real).setResultsName('header')
     e = (2 * pc.sci_real).setResultsName('energy')
     k_path = (6 * pc.signed_integer).setResultsName('path')
-    bands = OneOrMore(pc.sci_real).setResultsName('data')
+    bands = pp.OneOrMore(pc.sci_real).setResultsName('data')
     return header + e + k_path + bands
 
 

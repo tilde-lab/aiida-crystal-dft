@@ -1,6 +1,6 @@
 #  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 
-from aiida_crystal_dft.tests.fixtures import *
+import os
 from aiida_crystal_dft.io.d3 import D3
 
 

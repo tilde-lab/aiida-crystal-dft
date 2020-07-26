@@ -2,8 +2,6 @@
 """
 
 import pytest
-# noinspection PyUnresolvedReferences
-from aiida_crystal_dft.tests.fixtures import *
 
 
 @pytest.mark.skip

@@ -1,8 +1,5 @@
 #   Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 
-# noinspection PyUnresolvedReferences
-from aiida_crystal_dft.tests.fixtures import *
-
 
 def test_crystal_parser(crystal_calc_node):
     from aiida.plugins import DataFactory

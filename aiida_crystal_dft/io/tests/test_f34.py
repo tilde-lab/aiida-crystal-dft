@@ -2,8 +2,7 @@
 """
 A test for fort.34 reader and writer
 """
-# noinspection PyUnresolvedReferences
-from aiida_crystal_dft.tests.fixtures import *
+import os
 
 
 def test_from_ase(aiida_profile, test_ase_structure):
@@ -61,5 +60,3 @@ def test_read():
     assert reader.centring == 5
     assert reader.n_symops == 48
     assert reader.space_group == 225
-
-
