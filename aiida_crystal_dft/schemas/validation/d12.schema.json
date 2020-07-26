@@ -17,6 +17,11 @@
       "description": "Geometry input, manipulation and optimisation control",
       "type": "object",
       "additionalProperties": false,
+      "oneOf": [
+        {"required": ["optimise"]},
+        {"required": ["phonons"]},
+        {"required": ["elastic_constants"]}
+      ],
       "properties": {
         "info_print": {
           "description": "keywords for printing",
@@ -189,8 +194,7 @@
                   "type": "string",
                   "enum": [
                     "INTPOL",
-                    "INTLOC",
-                    "INTCPHF"
+                    "INTLOC"
                   ]
                 },
                 "INTRAMAN": {
