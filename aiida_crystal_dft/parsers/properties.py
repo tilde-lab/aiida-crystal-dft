@@ -101,5 +101,8 @@ class PropertiesParser(Parser):
 
         from aiida.plugins import DataFactory
         array_data = DataFactory("array")()
-        array_data.set_array("dos", np.vstack((data["e"], data["dos"])))
+        array = [data["e"], data["dos_up"]]
+        if data['dos_down'] is not None:
+            array.append(-1 * data['dos_down'])
+        array_data.set_array("dos", np.vstack(array))
         return array_data

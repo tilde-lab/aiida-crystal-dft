@@ -80,22 +80,30 @@ def _parse_bands(data):
 
 def _parse_dos(data):
     """Density of states parser. The parser used is the same as for bands"""
-    dos = []
+    i_proj = 0
+    spin = 0
+    dos = [[], []]
     result = {
         "e_fermi": 0.,
         "e": None,
-        "dos": None,
+        "dos_up": None,
+        "dos_down": None
     }
     for datum in data:
         parsed_data = _parse_string(dos_parser(), datum)
         _, _, _, n, de, _, e_fermi = parsed_data["header"]
         e0, _ = parsed_data["energy"]
+        i, *_ = parsed_data["proj"]
+        if i <= i_proj:
+            spin += 1
+        i_proj = i
         if result["e"] is None:
             result["e"] = np.linspace(e0, e0 + de * (n - 1), n)
             result["e_fermi"] = e_fermi
         else:
             assert (e0, de, n) == (result["e"][0], result["e"][1] - result["e"][0], len(result["e"]))
             assert result["e_fermi"] == e_fermi
-        dos.append(np.array(parsed_data["data"].asList()))
-    result["dos"] = np.vstack(dos)
+        dos[spin].append(np.array(parsed_data["data"].asList()))
+    dos = [np.vstack(dos_i) if dos_i else None for dos_i in dos]
+    result["dos_up"], result["dos_down"] = dos
     return result

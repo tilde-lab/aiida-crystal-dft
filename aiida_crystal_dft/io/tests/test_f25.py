@@ -58,7 +58,8 @@ def test_read_dos():
     dos = result["DOSS"]
     assert dos["e_fermi"] == -0.146404
     assert len(dos["e"]) == 302
-    assert dos["dos"].shape == (3, 302)
+    assert dos["dos_up"].shape == (3, 302)
+    assert dos["dos_down"] is None
 
 
 def test_read_spinpolarized_dos():
@@ -71,4 +72,5 @@ def test_read_spinpolarized_dos():
     dos = result["DOSS"]
     assert dos["e_fermi"] == -0.122904
     assert len(dos["e"]) == 25002
-    assert dos["dos"].shape == (2, 25002)
+    assert dos["dos_up"].shape == (1, 25002)
+    assert dos["dos_down"].shape == (1, 25002)
