@@ -59,3 +59,16 @@ def test_read_dos():
     assert dos["e_fermi"] == -0.146404
     assert len(dos["e"]) == 302
     assert dos["dos"].shape == (3, 302)
+
+
+def test_read_spinpolarized_dos():
+    file_name = os.path.join(TEST_DIR,
+                             "output_files",
+                             "spinpolarized.fort.25")
+    parser = Fort25(file_name)
+    result = parser.parse()
+    assert result["DOSS"]
+    dos = result["DOSS"]
+    assert dos["e_fermi"] == -0.122904
+    assert len(dos["e"]) == 25002
+    assert dos["dos"].shape == (2, 25002)

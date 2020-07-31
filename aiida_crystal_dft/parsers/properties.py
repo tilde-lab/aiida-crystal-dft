@@ -16,7 +16,6 @@ class PropertiesParser(Parser):
     _linkname_bands = "output_bands"
     _linkname_dos = "output_dos"
 
-    # pylint: disable=protected-access
     def __init__(self, calc_node):
         """
         Initialize Parser instance
@@ -33,7 +32,6 @@ class PropertiesParser(Parser):
         self._nodes = []
         super(PropertiesParser, self).__init__(calc_node)
 
-    # pylint: disable=protected-access
     def parse(self, retrieved_temporary_folder=None, **kwargs):
         """
         Parse outputs, store results in database.

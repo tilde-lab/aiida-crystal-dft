@@ -20,6 +20,14 @@ def band_parser():
     return header + e + k_path + bands
 
 
+def dos_parser():
+    header = (pc.integer + pp.Word(pp.alphas) + pp.Literal("1") + pc.integer + 3 * pc.sci_real).setResultsName('header')
+    e = (2 * pc.sci_real).setResultsName('energy')
+    projections = (6 * pc.signed_integer).setResultsName('proj')
+    data = pp.OneOrMore(pc.sci_real).setResultsName('data')
+    return header + e + projections + data
+
+
 class Fort25(object):
 
     def __init__(self, file):
@@ -79,7 +87,7 @@ def _parse_dos(data):
         "dos": None,
     }
     for datum in data:
-        parsed_data = _parse_string(band_parser(), datum)
+        parsed_data = _parse_string(dos_parser(), datum)
         _, _, _, n, de, _, e_fermi = parsed_data["header"]
         e0, _ = parsed_data["energy"]
         if result["e"] is None:
