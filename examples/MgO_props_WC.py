@@ -3,7 +3,8 @@
 """ This is a test of base workchain submission for CRYSTAL properties calculation
 """
 
-from aiida.plugins import DataFactory, Code, load_node
+from aiida.plugins import DataFactory
+from aiida.orm import Code, load_node
 from aiida.engine import submit
 from aiida_crystal_dft.workflows.base import BasePropertiesWorkChain
 

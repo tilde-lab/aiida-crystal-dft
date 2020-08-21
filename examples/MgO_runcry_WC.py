@@ -9,7 +9,8 @@ import os
 import json
 from mpds_client.retrieve_MPDS import MPDSDataRetrieval
 
-from aiida.plugins import DataFactory, Code
+from aiida.plugins import DataFactory
+from aiida.orm import Code
 from aiida.engine import submit
 from aiida_crystal_dft.workflows.runcry import RunCryWorkChain
 from aiida_crystal_dft.tests import TEST_DIR
@@ -59,4 +60,4 @@ inputs.options = DataFactory('parameter')(dict={
 
 calc = submit(RunCryWorkChain, **inputs)
 print("submitted WorkChain; calc=WorkCalculation(PK={})".format(
-    calc.dbnode.pk))
+    calc.pk))

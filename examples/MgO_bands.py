@@ -2,11 +2,10 @@
 
 #  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 
-from aiida.plugins import DataFactory, Code
-from aiida.orm import load_node
-from aiida.orm import SinglefileData
+from aiida.plugins import DataFactory
+from aiida.orm import load_node, SinglefileData, Code
 
-ParameterData = DataFactory('parameter')
+Dict = DataFactory('parameter')
 # get code
 code = Code.get_from_string('properties@torquessh')
 
