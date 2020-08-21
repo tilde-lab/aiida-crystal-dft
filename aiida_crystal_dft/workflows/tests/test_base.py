@@ -4,7 +4,7 @@
 import pytest
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_crystal_wc_run(test_crystal_code, crystal_calc_parameters, test_structure_data):
     from aiida_crystal_dft.workflows.base import BaseCrystalWorkChain
     from aiida.plugins import DataFactory

@@ -94,9 +94,9 @@ class CrystalParser(Parser):
 
         # parameters should be parsed first, as the results
         if self.is_parallel:
-            results_file = self.node.get_option('scheduler_stderr')
+            results_file = self._node.get_option('scheduler_stderr')
         else:
-            results_file = self.node.get_option('output_filename')
+            results_file = self._node.get_option('output_filename')
 
         with folder.open(results_file) as f:
             self.add_node(self._linkname_parameters, f, self.parse_stdout)
