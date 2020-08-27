@@ -33,4 +33,4 @@ inputs.options = DataFactory('parameter')(dict={
 
 calc = submit(BasePropertiesWorkChain, **inputs)
 print("submitted WorkChain; calc=WorkCalculation(PK={})".format(
-    calc.dbnode.pk))
+    calc.pk))
