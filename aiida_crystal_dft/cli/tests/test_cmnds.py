@@ -9,7 +9,10 @@ from aiida_crystal_dft.tests import TEST_DIR
 def test_predefined_basis_family(new_database):
     runner = CliRunner()
     result1 = runner.invoke(basis_set, ['createpredefined'])
-    assert 'STO-6G, POB-DZVP, POB-DZVPP, POB-TZVP' in result1.output
+    assert 'STO-6G' in result1.output
+    assert 'POB-DZVP' in result1.output
+    assert 'POB-DZVPP' in result1.output
+    assert 'POB-TZVP' in result1.output
     result2 = runner.invoke(basis_set, ['createpredefined'])
     assert 'Created 0 predefined basis families' in result2.output
 
