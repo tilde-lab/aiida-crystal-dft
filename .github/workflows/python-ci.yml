@@ -11,12 +11,15 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.5, 3.6, 3.7, 3.8]
-
+    services:
+      rabbitmq:
+        image: rabbitmq
+        ports:
+          - 5672:5672
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
