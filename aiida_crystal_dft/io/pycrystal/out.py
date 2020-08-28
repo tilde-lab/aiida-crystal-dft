@@ -50,11 +50,11 @@ class OutFileParser(object):
         # add phonon data from pycrystal output
         if self.info["phonons"]["ph_eigvecs"] is not None:
             out_params['phonons'] = {
-                'dfp_displacements': self.info["phonons"]["dfp_disps"],   # What is this?
-                'dfp_magnitude': self.info["phonons"]["dfp_magnitude"],   # What is this?
+                'dfp_displacements': self.info["phonons"]["dfp_disps"],
+                'dfp_magnitude': self.info["phonons"]["dfp_magnitude"],
                 'dielectric_tensor': self.info["phonons"]["dielectric_tensor"],
-                'is_mode_active_ir': [mode == 'A' for mode in self.info['phonons']['ir_active']],
-                'is_mode_active_raman': [mode == 'A' for mode in self.info['phonons']['raman_active']],
+                'ir_active': self.info['phonons']['ir_active'],
+                'raman_active': self.info['phonons']['raman_active'],
                 'irreducible_representations': self.info['phonons']['irreps'],
                 'modes_freqs': self.info["phonons"]["modes"],
                 'modes_freqs_units': 'cm**(-1)',
