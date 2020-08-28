@@ -29,6 +29,7 @@ class PropertiesCalculation(CalcJob):
         spec.input('structure', valid_type=StructureData, required=False)
         # output nodes
         spec.output('output_bands', valid_type=BandsData, required=False)
+        spec.output('output_bands_down', valid_type=BandsData, required=False)
         spec.output('output_dos', valid_type=ArrayData, required=False)
         # input, output files and parser name
         spec.input('metadata.options.input_filename', valid_type=str, default=cls._INPUT_FILE_NAME)

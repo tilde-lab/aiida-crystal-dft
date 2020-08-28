@@ -57,11 +57,14 @@ class Fort25(object):
 def _parse_bands(data):
     """Band structure parser"""
     bands = []
+    bands_down = []
     result = {
         "n_bands": 0,
+        "e_fermi": 0,
         "n_k": [],
         "path": [],
-        "bands": None
+        "bands": None,
+        "bands_down": None
     }
     for datum in data:
         parsed_data = _parse_string(band_parser(), datum)
@@ -70,11 +73,19 @@ def _parse_bands(data):
         else:
             # hope no bands just materialize out of thin air
             assert result["n_bands"] == parsed_data["header"][2]
+        result["e_fermi"] = float(parsed_data["header"][-1])
         # gather k-point quantities for each segment
         result["n_k"].append(parsed_data["header"][3])
-        result["path"].append((tuple(parsed_data["path"][:3]), tuple(parsed_data["path"][3:])))
-        bands.append(np.array(parsed_data["data"].asList()).reshape(result["n_k"][-1], result["n_bands"]))
+        path_segment = (tuple(parsed_data["path"][:3]), tuple(parsed_data["path"][3:]))
+        if path_segment not in result["path"]:
+            result["path"].append(path_segment)
+            bands.append(np.array(parsed_data["data"].asList()).reshape(result["n_k"][-1], result["n_bands"]))
+        else:
+            # we have two bands!
+            bands_down.append(np.array(parsed_data["data"].asList()).reshape(result["n_k"][-1], result["n_bands"]))
+
     result["bands"] = np.vstack(bands)
+    result["bands_down"] = np.vstack(bands_down) if bands_down else None
     return result
 
 

@@ -14,6 +14,7 @@ class PropertiesParser(Parser):
     Parser class for parsing output of CRYSTAL calculation.
     """
     _linkname_bands = "output_bands"
+    _linkname_bands_down = "output_bands_down"
     _linkname_dos = "output_dos"
 
     def __init__(self, calc_node):
@@ -61,12 +62,15 @@ class PropertiesParser(Parser):
                           result.get("DOSS", None),
                           self.parse_dos)
 
-    def add_node(self, link_name, file_name, callback):
+    def add_node(self, link_names, file_name, callback):
         """Adds nodes to parser results"""
+        if isinstance(link_names, str):
+            link_names = [link_names, ]
         try:
-            self.out(link_name, callback(file_name))
+            for link_name, node in zip(link_names, callback(file_name)):
+                self.out(link_name, node)
         except (ValueError, NotImplementedError) as err:
-            self.logger.warning("Exception {} was raised while parsing {}".format(err, link_name))
+            self.logger.warning("Exception {} was raised while parsing {}".format(err, file_name))
 
     def parse_bands(self, bands):
         """Parse bands from fort.25 file"""
@@ -91,7 +95,12 @@ class PropertiesParser(Parser):
         bands_data = DataFactory('array.bands')()
         bands_data.set_kpointsdata(k_points)
         bands_data.set_bands(bands["bands"])
-        return bands_data
+        bands_down_data = None
+        if bands["bands_down"] is not None:
+            bands_down_data = DataFactory('array.bands')()
+            bands_down_data.set_kpointsdata(k_points)
+            bands_down_data.set_bands(bands["bands_down"])
+        return bands_data, bands_down_data
 
     def parse_dos(self, data):
         """A function that returns ArrayData with densities of states. The array should have shape (nproj+2, ne),
@@ -105,4 +114,4 @@ class PropertiesParser(Parser):
         if data['dos_down'] is not None:
             array.append(-1 * data['dos_down'])
         array_data.set_array("dos", np.vstack(array))
-        return array_data
+        return array_data,
