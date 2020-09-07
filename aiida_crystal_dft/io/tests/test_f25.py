@@ -58,6 +58,7 @@ def test_read_dos():
     dos = result["DOSS"]
     assert dos["e_fermi"] == -0.146404
     assert len(dos["e"]) == 302
+    assert dos["e"][0] != 0.
     assert dos["dos_up"].shape == (3, 302)
     assert dos["dos_down"] is None
 

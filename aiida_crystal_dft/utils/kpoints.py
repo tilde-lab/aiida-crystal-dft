@@ -129,7 +129,6 @@ def get_kpoints_path(structure):
     from aiida.plugins import DataFactory
     from aiida.tools import get_kpoints_path
     if isinstance(structure, DataFactory('structure')):
-        # print(get_kpoints_path(structure)["parameters"].get_dict())
         result = get_kpoints_path(structure)["parameters"].get_dict()
         return result["point_coords"], result["path"]
     else:

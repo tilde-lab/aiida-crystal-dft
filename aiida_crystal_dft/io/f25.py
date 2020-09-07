@@ -97,22 +97,26 @@ def _parse_dos(data):
     result = {
         "e_fermi": 0.,
         "e": None,
+        "e0": None,
+        "de": None,
         "dos_up": None,
         "dos_down": None
     }
     for datum in data:
         parsed_data = _parse_string(dos_parser(), datum)
-        _, _, _, n, de, _, e_fermi = parsed_data["header"]
-        e0, _ = parsed_data["energy"]
+        _, _, _, n, _, de, e_fermi = parsed_data["header"]
+        _, e0 = parsed_data["energy"]
         i, *_ = parsed_data["proj"]
         if i <= i_proj:
             spin += 1
         i_proj = i
         if result["e"] is None:
-            result["e"] = np.linspace(e0, e0 + de * (n - 1), n)
+            result["e0"] = e0
+            result["de"] = de
+            result["e"] = np.linspace(e0, e0 + de * (n-1), n)
             result["e_fermi"] = e_fermi
         else:
-            assert (e0, de, n) == (result["e"][0], result["e"][1] - result["e"][0], len(result["e"]))
+            assert (e0, de, n) == (result["e0"], result["de"], len(result["e"]))
             assert result["e_fermi"] == e_fermi
         dos[spin].append(np.array(parsed_data["data"].asList()))
     dos = [np.vstack(dos_i) if dos_i else None for dos_i in dos]
