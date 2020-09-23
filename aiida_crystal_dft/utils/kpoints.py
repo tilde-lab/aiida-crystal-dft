@@ -115,7 +115,19 @@ SPECIAL_K = {
         "M": (0.5, 0.5, -0.5),
         "P": (0.5, 0.5, 0.5),
         "X": (0., 0., 0.5)
-    }
+    },
+
+    # FIXME: below is just a stub, see https://github.com/tilde-lab/aiida-crystal-dft/issues/46
+    ("orthorhombic", "A"): {
+        "Z": (0.5, 0.5, 0.),
+        "Y": (0.5, 0., 0.5),
+        "T": (0., 0.5, 0.5)
+    },
+    ("orthorhombic", "C"): {
+        "Z": (0.5, 0.5, 0.),
+        "Y": (0.5, 0., 0.5),
+        "T": (0., 0.5, 0.5)
+    },
 }
 
 
@@ -174,7 +186,7 @@ def construct_kpoints_path(cell, path, shrink, k_number, symprec=None):
     path = get_kpoints_from_shrink(path, shrink)
     continuous = get_continuity(path)
     # symmetry information
-    sg_symbol, sg_number = get_spacegroup(symprec, *cell)
+    sg_symbol, sg_number = get_spacegroup(*cell, symprec)
     special_k = {v: k for k, v in get_special_kpoints(sg_symbol, sg_number).items()}
     special_k[(0., 0., 0.)] = 'G'  # add Gamma-point
     result = []
