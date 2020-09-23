@@ -47,8 +47,8 @@ class D12(object):
         # a valid basis should be either BasisFamily, or the list of BasisSets
         if isinstance(basis, CrystalBasisFamilyData):
             self._basis = basis.content
-        elif isinstance(basis, (list, tuple)) and all([hasattr(o, 'content') for o in basis]):
-            self._basis = "\n".join([b.content for b in basis] + ["99 0\n", ])
+        elif isinstance(basis, (list, tuple)) and all([hasattr(item, 'content') for item in basis]):
+            self._basis = "\n".join([item.content for item in basis] + ["99 0\n", ])
         elif isinstance(basis, str):
             self._basis = basis
         else:
