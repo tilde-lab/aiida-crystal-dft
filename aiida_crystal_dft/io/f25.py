@@ -56,14 +56,14 @@ class Fort25(object):
 
 def _parse_bands(data):
     """Band structure parser"""
-    bands = []
+    bands_up = []
     bands_down = []
     result = {
         "n_bands": 0,
         "e_fermi": 0,
         "n_k": [],
         "path": [],
-        "bands": None,
+        "bands_up": None,
         "bands_down": None
     }
     for datum in data:
@@ -79,12 +79,12 @@ def _parse_bands(data):
         path_segment = (tuple(parsed_data["path"][:3]), tuple(parsed_data["path"][3:]))
         if path_segment not in result["path"]:
             result["path"].append(path_segment)
-            bands.append(np.array(parsed_data["data"].asList()).reshape(result["n_k"][-1], result["n_bands"]))
+            bands_up.append(np.array(parsed_data["data"].asList()).reshape(result["n_k"][-1], result["n_bands"]))
         else:
-            # we have two bands!
+            # we have two band types
             bands_down.append(np.array(parsed_data["data"].asList()).reshape(result["n_k"][-1], result["n_bands"]))
 
-    result["bands"] = np.vstack(bands)
+    result["bands_up"] = np.vstack(bands_up)
     result["bands_down"] = np.vstack(bands_down) if bands_down else None
     return result
 
