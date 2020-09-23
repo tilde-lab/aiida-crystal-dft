@@ -5,6 +5,9 @@ import numpy as np
 import spglib
 from ase import Atoms
 
+
+SYMPREC = 1e-04
+
 CRYSTAL_TYPE_MAP = {
     "triclinic":    1,
     "monoclinic":   2,
@@ -16,10 +19,10 @@ CRYSTAL_TYPE_MAP = {
 }
 
 
-def get_spacegroup(cell, positions, numbers):
+def get_spacegroup(cell, positions, numbers, symprec=None):
     """Returns Pearson symbol and intl number corresponding to the given structure"""
     cell = (cell, positions, numbers)
-    sg = spglib.get_spacegroup(cell).split()
+    sg = spglib.get_spacegroup(cell, symprec=symprec or SYMPREC).split()
     return sg[0], int(sg[1][1:-1])
 
 

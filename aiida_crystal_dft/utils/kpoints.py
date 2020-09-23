@@ -161,7 +161,7 @@ def get_kpoints_from_shrink(path, shrink):
     return [[[x/shrink for x in point] for point in segment] for segment in path]
 
 
-def construct_kpoints_path(cell, path, shrink, k_number):
+def construct_kpoints_path(cell, path, shrink, k_number, symprec=None):
     """
     Constructs a path description value that can be used for getting explicit k-points
     :param cell: A cell (in spglib sense) for which k-points path is calculated
@@ -174,7 +174,7 @@ def construct_kpoints_path(cell, path, shrink, k_number):
     path = get_kpoints_from_shrink(path, shrink)
     continuous = get_continuity(path)
     # symmetry information
-    sg_symbol, sg_number = get_spacegroup(*cell)
+    sg_symbol, sg_number = get_spacegroup(symprec, *cell)
     special_k = {v: k for k, v in get_special_kpoints(sg_symbol, sg_number).items()}
     special_k[(0., 0., 0.)] = 'G'  # add Gamma-point
     result = []
