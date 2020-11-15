@@ -94,7 +94,8 @@ class PropertiesParser(Parser):
         # ...and finally populate bands data
         bands_data = DataFactory('array.bands')()
         bands_data.set_kpointsdata(k_points)
-        bands_data.set_bands(bands["bands"])
+        bands_data.set_bands(bands["bands_up"])
+        # TODO: Deal with bands_down?
         bands_down_data = None
         if bands["bands_down"] is not None:
             bands_down_data = DataFactory('array.bands')()

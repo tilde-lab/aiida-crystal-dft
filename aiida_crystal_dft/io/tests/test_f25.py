@@ -18,7 +18,7 @@ def test_read_bands():
     bands = result["BAND"]
     assert bands["n_bands"] == 14
     assert bands["n_k"] == [7, 2, 8, 6, 5, 3]
-    assert bands["bands"].shape == (31, 14)
+    assert bands["bands_up"].shape == (31, 14)
 
 
 def test_read_broken_path_bands():
@@ -31,7 +31,7 @@ def test_read_broken_path_bands():
     bands = result["BAND"]
     assert bands["n_bands"] == 25
     assert bands["n_k"] == [7, 2, 8, 6, 5, 3]
-    assert bands["bands"].shape == (31, 25)
+    assert bands["bands_up"].shape == (31, 25)
 
 
 def test_read_negative_path_bands():
@@ -44,7 +44,7 @@ def test_read_negative_path_bands():
     bands = result["BAND"]
     assert bands["n_bands"] == 86
     assert bands["n_k"] == [8, 5]
-    assert bands["bands"].shape == (13, 86)
+    assert bands["bands_up"].shape == (13, 86)
 
 
 def test_read_dos():
