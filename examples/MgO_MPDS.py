@@ -2,39 +2,17 @@
 
 """ This is a test of base workchain submission for CRYSTAL calculation
 """
-
+import os
+import yaml
 from aiida.plugins import DataFactory
-from aiida.orm import Code
 from aiida.engine import submit
-from mpds_aiida.workflows.crystal import MPDSCrystalWorkchain
+from mpds_aiida.workflows.mpds import MPDSStructureWorkChain
 
+cwd = os.path.dirname(__file__)
+inputs = MPDSStructureWorkChain.get_builder()
+with open(f'{cwd}/MgO_MPDS.yml') as f:
+    inputs.workchain_options = yaml.load(f.read(), Loader=yaml.SafeLoader)
 
-inputs = MPDSCrystalWorkchain.get_builder()
-inputs.crystal_code = Code.get_from_string('Pcrystal@torquessh')
-# inputs.properties_code = Code.get_from_string('properties@torquessh')
-
-inputs.crystal_parameters = DataFactory('dict')(dict={
-        "title": "Crystal calc",
-        "scf": {
-            "k_points": (8, 8),
-            "single": "UHF"
-        },
-        "geometry": {
-            "optimise": {
-                "type": "FULLOPTG",
-                # "convergence": {"MAXCYCLE": 3},
-            },
-            "phonons": {
-                "ir": {
-                    "type": "INTCPHF"
-                },
-                "raman": True
-            },
-            "elastic_constants": {
-                "type": "ELASTCON"
-            }
-        }
-})
 # inputs.properties_parameters = DataFactory('dict')(dict={
 #         "band": {
 #             "shrink": 8,
@@ -44,27 +22,13 @@ inputs.crystal_parameters = DataFactory('dict')(dict={
 #             "n_e": 100
 #         }
 # })
-
-inputs.basis_family, _ = DataFactory('crystal_dft.basis_family').get_or_create('MINIMAL')
 inputs.mpds_query = DataFactory('dict')(dict={
-        "formulae": "MgO",
-        "sgs": 225
-    }
+    "formulae": "MgO",
+    "sgs": 225
+}
 )
-
-inputs.options = DataFactory('dict')(dict={
-    'need_phonons': False,
-    'need_elastic_constants': False,
-    'need_electronic_properties': False,
-    'try_oxi_if_fails': False,
-    'is_magnetic': True,
-    'resources': {
-        'num_machines': 1,
-        'num_mpiprocs_per_machine': 2
-    }
-    })
 inputs.metadata = {"label": "MgO/225"}
-
-calc = submit(MPDSCrystalWorkchain, **inputs)
+# noinspection PyTypeChecker
+calc = submit(MPDSStructureWorkChain, **inputs)
 print("submitted WorkChain; calc=WorkCalculation(PK={})".format(
     calc.pk))

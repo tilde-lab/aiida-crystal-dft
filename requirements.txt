@@ -1,11 +1,11 @@
-numpy
+numpy >= 1.17.5
 aiida-core >= 1.1
 pycrystal >= 1.0.6
 packaging
 seekpath
 mpds_client >= 0.24
 pyparsing > 2.3.1
-ase >= 3.19.3
+ase >= 3.19
 spglib >= 1.16.0
 jinja2 >= 2.10
 jsonschema >= 3.0.1

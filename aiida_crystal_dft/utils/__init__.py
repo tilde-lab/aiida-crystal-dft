@@ -1,6 +1,7 @@
 """
 common utilities
 """
+import collections.abc
 
 
 def get_keys(dct, keys, default=None, raise_error=False):
@@ -44,3 +45,19 @@ def get_data_class(data_type):
 def get_automatic_user():
     from aiida.orm import User
     return User.objects.get_default()
+
+
+def recursive_update(d, u):
+    """
+    Recursive update of a dict (per https://stackoverflow.com/a/3233356/1027367)
+    :param d: The dictionary to be updated
+    :param u: The dictionary with which to update
+    :return: The updated dictionary
+    """
+    for k, v in u.items():
+        if isinstance(v, collections.abc.Mapping):
+            d[k] = recursive_update(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d
+
