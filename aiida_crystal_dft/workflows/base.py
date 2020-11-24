@@ -5,7 +5,7 @@ from aiida.plugins import CalculationFactory
 from aiida.orm import Code, Bool, Dict, Int
 from aiida.common.extendeddicts import AttributeDict
 from aiida.engine import WorkChain, append_, while_
-from aiida_crystal_dft.utils import get_data_node, get_data_class
+from aiida_crystal_dft.utils import get_data_node, get_data_class, not_
 from aiida_crystal_dft.utils.kpoints import get_shrink_kpoints_path
 from aiida_crystal_dft.utils.dos import get_dos_projections_atoms
 
@@ -15,6 +15,7 @@ class BaseCrystalWorkChain(WorkChain):
 
     _serial_calculation = 'crystal_dft.serial'
     _parallel_calculation = 'crystal_dft.parallel'
+    _number_restarts = 1
 
     @classmethod
     def define(cls, spec):
@@ -30,7 +31,8 @@ class BaseCrystalWorkChain(WorkChain):
         spec.input('options', valid_type=get_data_class('dict'), required=True, help="Calculation options")
 
         # define workchain routine
-        spec.outline(while_(cls.not_converged)(
+        spec.outline(cls.init_inputs,
+                     while_(not_(cls._converged))(
                         cls.init_calculation,
                         cls.run_calculation,
                      ),
@@ -49,78 +51,73 @@ class BaseCrystalWorkChain(WorkChain):
         spec.exit_code(300, 'ERROR_CRYSTAL', message='CRYSTAL error')
         spec.exit_code(400, 'ERROR_UNKNOWN', message='Unknown error')
 
+    def init_inputs(self):
+
+        self.ctx.running_calc = 0
+        # prepare inputs
+        self.ctx.inputs = AttributeDict()
+        self.ctx.inputs.code = self.inputs.code
+        self.ctx.inputs.parameters = self.inputs.parameters
+        self.ctx.inputs.basis_family = self.inputs.basis_family
+        label = self.inputs.metadata.get('label', 'CRYSTAL calc')
+        # work with options
+        options_dict = self.inputs.options.get_dict()
+        # oxidation states
+        self.ctx.try_oxi = options_dict.pop('try_oxi_if_fails', False)
+        use_oxi = options_dict.pop('use_oxidation_states', None)
+        if use_oxi is not None:
+            self.report(f'{label}: Using oxidation states: {use_oxi}')
+            self.ctx.inputs.use_oxistates = Dict(dict=use_oxi)
+        self.ctx.high_spin_preferred = options_dict.pop('high_spin_preferred', False)
+        # magnetism
+        is_magnetic = options_dict.pop('is_magnetic', False)
+        spinlock_steps = options_dict.pop('spinlock_steps', 5)
+        if is_magnetic:
+            self.report(f'{label}: is_magnetic is set, guessing magnetism')
+            self.ctx.inputs.is_magnetic = Bool(True)
+            self.ctx.inputs.spinlock_steps = Int(spinlock_steps)
+
+        # get calculation entry_point
+        try:
+            self.ctx.calculation = self._parallel_calculation \
+                if (options_dict['resources']['num_machines'] > 1
+                    or options_dict['resources']['num_mpiprocs_per_machine'] > 1) else self._serial_calculation
+        except KeyError:
+            self.ctx.calculation = self._parallel_calculation
+
+        # remaining options are passed down to calculations
+        self.ctx.options = options_dict
+
     def init_calculation(self):
         """Create input dictionary for the calculation, deal with restart (later?)"""
         # count number of previous calculations
-        if "calc_number" not in self.ctx:
-            self.ctx.calc_number = 1
-        else:
-            self.ctx.calc_number += 1
-
-        # prepare inputs
-        self.ctx.inputs = AttributeDict()
-
-        # set the code
-        self.ctx.inputs.code = self.inputs.code
-
-        # set the (primitive?) structure
+        self.ctx.running_calc += 1
+        # set the structure
         self.ctx.inputs.structure = self.inputs.structure
-
-        # set parameters
-        self.ctx.inputs.parameters = self.inputs.parameters
-
-        # set basis
-        self.ctx.inputs.basis_family = self.inputs.basis_family
-
-        # set settings
-        if 'options' in self.inputs:
-            options_dict = self.inputs.options.get_dict()
-            label = options_dict.pop('label', '')
-            description = options_dict.pop('description', '')
-            try_oxi = options_dict.pop('try_oxi_if_fails', False)
-            use_oxi = options_dict.pop('use_oxidation_states', None)
-            high_spin_preferred = options_dict.pop('high_spin_preferred', False)
-            is_magnetic = options_dict.pop('is_magnetic', False)
-            spinlock_steps = options_dict.pop('spinlock_steps', 5)
-            if is_magnetic:
-                self.report('is_magnetic is set, guessing magnetism')
-                self.ctx.inputs.is_magnetic = Bool(True)
-                self.ctx.inputs.spinlock_steps = Int(spinlock_steps)
-            if use_oxi is not None:
-                self.report('Using oxidation states: {}'.format(use_oxi))
-                self.ctx.inputs.use_oxistates = Dict(dict=use_oxi)
-            elif self.ctx.calc_number > 1 and try_oxi:
-                # elif try_oxi:
-                self.report('Trying to guess oxidation states')
-                self.ctx.inputs.guess_oxistates = Bool(try_oxi)
-                self.ctx.inputs.high_spin_preferred = Bool(high_spin_preferred)
-            self.ctx.inputs.metadata = AttributeDict({'options': options_dict,
-                                                      'label': '{} [{}]'.format(label, self.ctx.calc_number),
-                                                      'description': description})
+        # deal with oxidation states
+        if self.ctx.running_calc > 1 and self.ctx.try_oxi:
+            self.report('Trying to guess oxidation states')
+            self.ctx.inputs.guess_oxistates = Bool(True)
+            self.ctx.inputs.high_spin_preferred = Bool(self.ctx.high_spin_preferred)
+        # set metadata
+        label = self.inputs.metadata.get('label', 'CRYSTAL calc')
+        description = self.inputs.metadata.get('description', '')
+        self.ctx.inputs.metadata = AttributeDict({'options': self.ctx.options,
+                                                  'label': '{} [{}]'.format(label, self.ctx.running_calc),
+                                                  'description': description})
 
     def not_converged(self):
-        return not self.converged()
+        return not self._converged()
 
-    def converged(self):
+    def _converged(self):
         """Check if calculation has converged"""
         if "calculations" not in self.ctx:
             return False  # if no calculations have run
-        return self.ctx.calculations[-1].exit_status == 0 or self.ctx.calc_number == 2
+        return self.ctx.calculations[-1].exit_status == 0 or self.ctx.calc_number == self._number_restarts
 
     def run_calculation(self):
         """Run a calculation from self.ctx.inputs"""
-        options = self.inputs.options.get_dict()
-
-        # check if it's a serial or parallel calculation (as of now, pretty simple)
-        try:
-            if options['resources']['num_machines'] > 1 or options['resources']['num_mpiprocs_per_machine'] > 1:
-                calculation = self._parallel_calculation
-            else:
-                calculation = self._serial_calculation
-        except KeyError:
-            calculation = self._parallel_calculation
-
-        process = CalculationFactory(calculation)
+        process = CalculationFactory(self.ctx.calculation)
         running = self.submit(process, **self.ctx.inputs)
         return self.to_context(calculations=append_(running))
 
@@ -128,6 +125,15 @@ class BaseCrystalWorkChain(WorkChain):
         """Process calculation results; adapted from aiida_vasp"""
         # return the results of the last calculation
         last_calc = self.ctx.calculations[-1]
+        # check exit status of a last calc
+        if last_calc.exit_status != 0:
+            self.report(f'The calculations failed with exit message: {last_calc.exit_message}')
+            exit_status = last_calc.exit_status // 100
+            if exit_status == 3:
+                return self.exit_codes.ERROR_CRYSTAL
+            else:
+                return self.exit_codes.UNKNOWN_ERROR
+
         for name, port in self.spec().outputs.items():
             if port.required and name not in last_calc.outputs:
                 self.report('The spec specifies the output {} as required '
@@ -149,7 +155,7 @@ class BaseCrystalWorkChain(WorkChain):
                 calculation.outputs.remote_folder._clean()
                 cleaned_calcs.append(calculation)
             except ValueError as ex:
-                self.logger.warning("Exception catched while cleaning remote folders: {}".format(ex))
+                self.logger.warning("Exception caught while cleaning remote folders: {}".format(ex))
         if cleaned_calcs:
             self.report('Cleaned remote folders of calculations: {}'.format(' '.join(map(str, cleaned_calcs))))
 

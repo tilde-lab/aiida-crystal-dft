@@ -61,3 +61,8 @@ def recursive_update(d, u):
             d[k] = v
     return d
 
+
+def not_(f):
+    def wrapped(*args, **kwds):
+        return not f(*args, **kwds)
+    return wrapped
