@@ -55,6 +55,20 @@ class CrystalParser(Parser):
         except NotExistent:
             return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
 
+        # parameters should be parsed first, as the results
+        if self.is_parallel:
+            results_file = self._node.get_option('scheduler_stderr')
+        else:
+            results_file = self._node.get_option('output_filename')
+
+        # Check if we can parse results file, the error message if not
+        try:
+            with folder.open(results_file) as f:
+                print(out.OutFileParser(f).get_parameters())
+        except out.CRYSTOUT_Error as ex:
+            if 'Inadequate elastic calculation' in ex.msg:
+                return self.exit_codes.ERROR_REOPTIMIZATION_NEEDED
+
         # Check for error file contents
         scf_failed = False
         if 'fort.87' in folder.list_object_names():
@@ -91,12 +105,6 @@ class CrystalParser(Parser):
 
                 elif error:
                     return self.exit_codes.ERROR_UNKNOWN
-
-        # parameters should be parsed first, as the results
-        if self.is_parallel:
-            results_file = self._node.get_option('scheduler_stderr')
-        else:
-            results_file = self._node.get_option('output_filename')
 
         with folder.open(results_file) as f:
             self.add_node(self._linkname_parameters, f, self.parse_stdout)

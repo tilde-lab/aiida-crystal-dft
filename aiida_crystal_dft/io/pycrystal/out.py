@@ -2,7 +2,7 @@
 Pycrystal-based CRYSTAL output parser
 """
 import pkg_resources
-from pycrystal import CRYSTOUT
+from pycrystal import CRYSTOUT, CRYSTOUT_Error
 
 
 class OutFileParser(object):

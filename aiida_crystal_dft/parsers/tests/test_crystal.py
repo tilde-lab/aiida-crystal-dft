@@ -27,6 +27,14 @@ def test_crystal_parser(crystal_calc_node):
     assert nodes[parser._linkname_trajectory].numsteps == 13
 
 
+def test_parser_failed_elastic(crystal_calc_node):
+    from aiida_crystal_dft.parsers.cry_pycrystal import CrystalParser
+    calcnode = crystal_calc_node(prefix='failed_elastic')
+    parser = CrystalParser(calcnode)
+    exit_code = parser.parse()
+    assert exit_code.status == 360
+
+
 def test_crystal_raman_parser(crystal_calc_node):
     from aiida.plugins import DataFactory
     from aiida_crystal_dft.parsers.cry_pycrystal import CrystalParser

@@ -72,6 +72,8 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         spec.exit_code(306, 'ERROR_GEOMETRY_COLLAPSED', message='Collapsed geometry')
         spec.exit_code(307, 'ERROR_CLOSED_SHELL_SPIN', message='Closed shell run - spin polarization not allowed')
         spec.exit_code(350, 'ERROR_ALLOCATION', message='Internal memory error')
+        spec.exit_code(360, 'ERROR_REOPTIMIZATION_NEEDED', message='Inadequate elastic calculation: additional'
+                                                                   ' optimization needed')
         # 4xx - other errors
         spec.exit_code(400, 'ERROR_UNKNOWN', message='Unknown error')
         spec.exit_code(401, 'ERROR_NO_RETRIEVED_FOLDER', message='The retrieved folder data node could not be accessed')

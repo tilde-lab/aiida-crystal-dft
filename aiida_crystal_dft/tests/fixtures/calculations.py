@@ -69,7 +69,7 @@ def crystal_calc_node(crystal_calc, calc_results):
     from aiida.orm import CalcJobNode
     from aiida.common.links import LinkType
 
-    def get_calcnode(files=None):
+    def get_calcnode(files=None, prefix="mgo_sto3g"):
         computer = crystal_calc.inputs.code.get_remote_computer()
         process_type = 'aiida.calculations:{}'.format('crystal_dft.serial')
         node = CalcJobNode(computer=computer, process_type=process_type)
@@ -82,7 +82,7 @@ def crystal_calc_node(crystal_calc, calc_results):
         node.add_incoming(crystal_calc.inputs.parameters, link_type=LinkType.INPUT_CALC, link_label='parameters')
         node.add_incoming(crystal_calc.inputs.basis_family, link_type=LinkType.INPUT_CALC, link_label='basis_family')
         node.store()
-        retrieved = calc_results(files)
+        retrieved = calc_results(files, prefix)
         retrieved.add_incoming(node, link_type=LinkType.CREATE, link_label='retrieved')
         retrieved.store()
         return node

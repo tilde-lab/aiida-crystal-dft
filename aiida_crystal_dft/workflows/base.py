@@ -113,7 +113,7 @@ class BaseCrystalWorkChain(WorkChain):
         """Check if calculation has converged"""
         if "calculations" not in self.ctx:
             return False  # if no calculations have run
-        return self.ctx.calculations[-1].exit_status == 0 or self.ctx.calc_number == self._number_restarts
+        return self.ctx.calculations[-1].exit_status == 0 or self.ctx.running_calc == self._number_restarts
 
     def run_calculation(self):
         """Run a calculation from self.ctx.inputs"""
@@ -126,7 +126,7 @@ class BaseCrystalWorkChain(WorkChain):
         # return the results of the last calculation
         last_calc = self.ctx.calculations[-1]
         # check exit status of a last calc
-        if last_calc.exit_status != 0:
+        if last_calc.exit_status not in (None, 0):
             self.report(f'The calculations failed with exit message: {last_calc.exit_message}')
             exit_status = last_calc.exit_status // 100
             if exit_status == 3:
