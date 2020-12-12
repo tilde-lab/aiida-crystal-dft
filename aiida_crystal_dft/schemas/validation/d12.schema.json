@@ -607,10 +607,6 @@
               "description": "All bielectronic integrals computed exactly",
               "type": "boolean"
             },
-            "NOSHIFT": {
-              "description": "No eigenvalue level shift",
-              "type": "boolean"
-            },
             "FMIXING": {
               "description": "Fock/KS matrix (cycle i and i-1) mixing",
               "type": "integer",
@@ -636,9 +632,8 @@
               "items": [
                 {
                   "description": "The level shifter is set to ISHIFT*0.1 hartree",
-                  "type": "integer",
-                  "minimum": 0,
-                  "exclusiveMinimum": true
+                  "type": "number",
+                  "minimum": 0
                 },
                 {
                   "description": "locking on/off",

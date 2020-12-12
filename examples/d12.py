@@ -23,8 +23,7 @@ inputs = {"title": "Crystal calc",
               "k_points": (16, 48),
               "numerical": {"TOLINTEG": (8, 8, 8, 8, 30),
                             "FMIXING": 70,
-                            "SMEAR": 0.001,
-                            "NOSHIFT": True}
+                            "SMEAR": 0.001}
           },
           "geometry": {
               "optimise": {
