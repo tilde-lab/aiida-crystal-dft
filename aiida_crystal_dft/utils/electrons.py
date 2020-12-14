@@ -217,7 +217,7 @@ def guess_oxistates(structure):
                for state in product(*oxistates_element)
                if sum([x*y for x, y in zip(state, [composition[el] for el in elements])]) == 0}
     if not weights:
-        raise ValueError("No electrically neutral state found for the following composition: {}".format(composition))
+        raise NotImplementedError("No electrically neutral state found for the following composition: {}".format(composition))
     return dict(zip(elements, sorted(weights.items(), key=lambda x: x[1], reverse=True)[0][0]))
 
 
@@ -235,7 +235,7 @@ def guess_spinlock(structure):
     transition_els = [e for e in elements if valence[e][1] in ('d', 'f')]
     if not transition_els:
         # no transition elements in structure, are nonmagnetic as of now
-        raise ValueError("Structure does not contain transition elements")
+        raise NotImplementedError("Structure does not contain transition elements")
     return int(sum([composition[el] * unpaired_electrons(*valence[el]) for el in transition_els]))
 
 
