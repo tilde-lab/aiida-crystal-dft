@@ -36,7 +36,7 @@ class OutFileParser(object):
             'energy_accuracy_units': 'eV',
             'converged_electronic': self.info['scf_conv'],
             'converged_ionic': self.info['ion_conv'],
-            'monkhorst_pack_grid': [int(i) for i in self.info['k'].split('x')],
+            'monkhorst_pack_grid': self.info['k'],
             'number_of_atoms': self.info['n_atoms'],
             'number_of_atomic_orbitals': self.info['n_ao'],
             'number_of_electrons': self.info['n_electrons'],
