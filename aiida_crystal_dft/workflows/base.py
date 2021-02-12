@@ -1,4 +1,4 @@
-""" Base workflows for CRYSTAL code. These are meant to handle failures/restarts/etc...
+""" Base workflows for the CRYSTAL code. Handles the failures, restarts, etc.
 """
 
 from aiida.plugins import CalculationFactory
@@ -52,16 +52,18 @@ class BaseCrystalWorkChain(WorkChain):
         spec.exit_code(400, 'ERROR_UNKNOWN', message='Unknown error')
 
     def init_inputs(self):
-
         self.ctx.running_calc = 0
+
         # prepare inputs
         self.ctx.inputs = AttributeDict()
         self.ctx.inputs.code = self.inputs.code
         self.ctx.inputs.parameters = self.inputs.parameters
         self.ctx.inputs.basis_family = self.inputs.basis_family
         label = self.inputs.metadata.get('label', 'CRYSTAL calc')
+
         # work with options
         options_dict = self.inputs.options.get_dict()
+
         # oxidation states
         self.ctx.try_oxi = options_dict.pop('try_oxi_if_fails', False)
         use_oxi = options_dict.pop('use_oxidation_states', None)
@@ -69,13 +71,13 @@ class BaseCrystalWorkChain(WorkChain):
             self.report(f'{label}: Using oxidation states: {use_oxi}')
             self.ctx.inputs.use_oxistates = Dict(dict=use_oxi)
         self.ctx.high_spin_preferred = options_dict.pop('high_spin_preferred', False)
+
         # magnetism
         is_magnetic = options_dict.pop('is_magnetic', False)
-        spinlock_steps = options_dict.pop('spinlock_steps', 5)
         if is_magnetic:
             self.report(f'{label}: is_magnetic is set, guessing magnetism')
             self.ctx.inputs.is_magnetic = Bool(True)
-            self.ctx.inputs.spinlock_steps = Int(spinlock_steps)
+            self.ctx.inputs.spinlock_steps = Int(options_dict.pop('spinlock_steps', 5))
 
         # get calculation entry_point
         try:
@@ -92,13 +94,16 @@ class BaseCrystalWorkChain(WorkChain):
         """Create input dictionary for the calculation, deal with restart (later?)"""
         # count number of previous calculations
         self.ctx.running_calc += 1
+
         # set the structure
         self.ctx.inputs.structure = self.inputs.structure
+
         # deal with oxidation states
         if self.ctx.running_calc > 1 and self.ctx.try_oxi:
             self.report('Trying to guess oxidation states')
             self.ctx.inputs.guess_oxistates = Bool(True)
             self.ctx.inputs.high_spin_preferred = Bool(self.ctx.high_spin_preferred)
+
         # set metadata
         label = self.inputs.metadata.get('label', 'CRYSTAL calc')
         description = self.inputs.metadata.get('description', '')
@@ -125,6 +130,7 @@ class BaseCrystalWorkChain(WorkChain):
         """Process calculation results; adapted from aiida_vasp"""
         # return the results of the last calculation
         last_calc = self.ctx.calculations[-1]
+
         # check exit status of a last calc
         if last_calc.exit_status not in (None, 0):
             self.report(f'The calculations failed with exit message: {last_calc.exit_message}')

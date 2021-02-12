@@ -1,6 +1,6 @@
 #  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 """
-A workchain (almost?) copying the workflow of runcry executable
+A workchain (almost?) copying the workflow of runcry shell script
 """
 
 from aiida.engine import WorkChain
@@ -11,13 +11,14 @@ from aiida_crystal_dft.workflows.base import BaseCrystalWorkChain, BasePropertie
 
 
 class RunCryWorkChain(WorkChain):
-    """Run a kind of calculation associated with runcry script, namely, run CRYSTAL and properties in the same run.
+    """Run a kind of calculation associated with runcry shell script, namely, run CRYSTAL and properties in the same run.
     Try to make an intelligent guess of band and dos input in case it is asked for, but not provided.
     """
 
     @classmethod
     def define(cls, spec):
         super(RunCryWorkChain, cls).define(spec)
+
         # define inputs
         spec.input('crystal_code', valid_type=Code)
         spec.input('properties_code', valid_type=Code)
@@ -25,11 +26,13 @@ class RunCryWorkChain(WorkChain):
         spec.input('crystal_parameters', valid_type=get_data_class('parameter'), required=True)
         spec.input('properties_parameters', valid_type=get_data_class('parameter'), required=True)
         spec.input('options', valid_type=get_data_class('parameter'), required=True, help="Calculation options")
+
         # define workchain routine
         spec.outline(cls.init_inputs,
                      cls.run_crystal_calc,
                      cls.run_properties_calc,
                      cls.retrieve_results)
+
         # define outputs
         spec.expose_outputs(BaseCrystalWorkChain)
         spec.expose_outputs(BasePropertiesWorkChain)
@@ -38,12 +41,14 @@ class RunCryWorkChain(WorkChain):
         self.ctx.inputs = AttributeDict()
         self.ctx.inputs.crystal = AttributeDict()
         self.ctx.inputs.properties = AttributeDict()
+
         # set the crystal workchain inputs
         self.ctx.inputs.crystal.code = self.inputs.crystal_code
         self.ctx.inputs.crystal.structure = self.inputs.structure
         self.ctx.inputs.crystal.parameters = self.inputs.crystal_parameters
         self.ctx.inputs.crystal.basis_family = self.inputs.basis_family
         self.ctx.inputs.crystal.options = self.inputs.options
+
         # set the properties workchain inputs
         self.ctx.inputs.properties.code = self.inputs.properties_code
         self.ctx.inputs.properties.parameters = self.inputs.properties_parameters

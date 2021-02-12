@@ -32,7 +32,7 @@ class OutFileParser(object):
             'exchange_correlation': self.info['H'],
             'energy': self.info['energy'],
             'energy_units': 'eV',
-            'energy_accuracy': abs(self.info['e_accuracy']),
+            'energy_accuracy': abs(self.info['e_accuracy']) if self.info['e_accuracy'] else None,
             'energy_accuracy_units': 'eV',
             'converged_electronic': self.info['scf_conv'],
             'converged_ionic': self.info['ion_conv'],

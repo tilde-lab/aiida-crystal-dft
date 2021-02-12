@@ -139,9 +139,11 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
                         params['scf']['single'] = 'UHF'
                     elif 'dft' in params['scf']:
                         params['scf']['dft']['SPIN'] = True
-                except ValueError:
+                except NotImplementedError:
                     self.logger.info("is_magnetic is True for non-magnetic structure")
+
             d12_file = D12(parameters=self.inputs.parameters.get_dict(), basis=basis_dict['basis_family'])
+
         except (AttributeError, ValueError, NotImplementedError) as err:
             raise InputValidationError(
                 "an input file could not be created from the parameters: {}".
