@@ -12,6 +12,11 @@
       "required": [
         "dos"
       ]
+    },
+    {
+      "required": [
+        "boltztra"
+      ]
     }
   ],
   "properties": {
@@ -196,6 +201,35 @@
         "n_e",
         "first",
         "last"
+      ]
+    },
+    "boltztra": {
+      "description": "Electron transport properties via semiclassical Boltzmann transport theory",
+      "type": "object",
+      "properties": {
+       "trange": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3
+       },
+       "murange": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3
+       },
+       "tdfrange": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3
+       },
+       "relaxtim": {
+          "type": "integer"
+       }
+      },
+      "required": [
+        "trange",
+        "murange",
+        "tdfrange"
       ]
     }
   }

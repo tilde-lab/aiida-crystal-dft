@@ -12,6 +12,7 @@ from aiida_crystal_dft.utils import get_automatic_user
 from aiida_crystal_dft.data.basis import CrystalBasisData
 
 
+# predefined basis sets in CRYSTAL17
 BASIS_FAMILY_KWDS = {
     "STO-3G": list(range(1, 54)),
     "STO-6G": list(range(1, 37)),

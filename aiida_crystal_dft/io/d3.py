@@ -72,6 +72,7 @@ class D3(object):
         lines = self._band_block_str()
         lines += self._newk_block_str()
         lines += self._dos_block_str()
+        lines += self._boltz_block_str()
         lines.append("END")
         return u"\n".join(lines)
 
@@ -109,7 +110,7 @@ class D3(object):
         lines = [
             "NEWK",
             "{0[0]} {0[1]}".format(newk["k_points"]),
-            "{} {}".format(int(newk.get("fermi", True)), 0)  # 0 is the default for NPR
+            "{} {}".format(int(newk.get("fermi", True)), 0) # NB default value
         ]
         return lines
 
@@ -123,11 +124,29 @@ class D3(object):
                                           dos["n_e"],
                                           dos["first"],
                                           dos["last"],
-                                          dos.get("store", 1),
-                                          dos.get("n_poly", 16),
+                                          dos.get("store", 1), # NB default value
+                                          dos.get("n_poly", 16), # NB default value
                                           int(dos.get("print", False))
                                           ),
         ]
         lines += [("{} " * (len(proj_i) + 1)).format(-1 * len(proj_i), *proj_i) for proj_i in dos["projections_atoms"]]
         lines += [("{} " * (len(proj_i) + 1)).format(len(proj_i), *proj_i) for proj_i in dos["projections_orbitals"]]
+        return lines
+
+    def _boltz_block_str(self):
+        boltz = self._parameters.get("boltztra", None)
+        if boltz is None:
+            return []
+        lines = [
+            "BOLTZTRA",
+            "TRANGE",
+            "%s %s %s" % tuple(boltz['trange']),
+            "MURANGE",
+            "%s %s %s" % tuple(boltz['murange']),
+            "TDFRANGE",
+            "%s %s %s" % tuple(boltz['tdfrange']),
+            "RELAXTIM",
+            str(boltz.get('relaxtim', 10)), # NB default value
+            "END"
+        ]
         return lines

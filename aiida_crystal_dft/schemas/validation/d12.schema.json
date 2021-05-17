@@ -206,7 +206,7 @@
                   "additionalProperties": false,
                   "properties": {
                     "INTCPHF": {
-                      "description": "A Coupled-Perturbed Hartree–Fock/Kohn–Sham approach calculation",
+                      "description": "A Coupled-Perturbed Hartree-Fock/Kohn-Sham approach calculation",
                       "type": "boolean"
                     },
                     "options": {
