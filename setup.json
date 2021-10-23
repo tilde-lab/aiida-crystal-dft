@@ -48,7 +48,7 @@
     "include_package_data": true,
     "setup_requires": ["reentry"],
     "reentry_register": true,
-    "install_requires": {
+    "install_requires": [
         "numpy >= 1.17.5",
         "scipy >= 1.2.1",
         "aiida-core>=1.0.1,<2.0.0",
@@ -62,7 +62,7 @@
         "click >= 7.1.1",
         "packaging",
         "seekpath"
-    },
+    ],
     "extras_require": {
         "testing": [
             "mock==2.0.0",
