@@ -1,6 +1,6 @@
 numpy >= 1.17.5
 aiida-core >= 1.1
-pycrystal >= 1.0.6
+pycrystal >= 1.0.10
 packaging
 seekpath
 mpds_client >= 0.24
