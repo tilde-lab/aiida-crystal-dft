@@ -10,6 +10,9 @@ from aiida_crystal_dft.utils.kpoints import get_shrink_kpoints_path
 from aiida_crystal_dft.utils.dos import get_dos_projections_atoms
 
 
+DEFAULT_TITLE = 'CRYSTAL run by AiiDA'
+
+
 class BaseCrystalWorkChain(WorkChain):
     """Run CRYSTAL calculation"""
 
@@ -59,7 +62,7 @@ class BaseCrystalWorkChain(WorkChain):
         self.ctx.inputs.code = self.inputs.code
         self.ctx.inputs.parameters = self.inputs.parameters
         self.ctx.inputs.basis_family = self.inputs.basis_family
-        label = self.inputs.metadata.get('label', 'CRYSTAL calc')
+        label = self.inputs.metadata.get('label', DEFAULT_TITLE)
 
         # work with options
         options_dict = self.inputs.options.get_dict()
@@ -105,7 +108,7 @@ class BaseCrystalWorkChain(WorkChain):
             self.ctx.inputs.high_spin_preferred = Bool(self.ctx.high_spin_preferred)
 
         # set metadata
-        label = self.inputs.metadata.get('label', 'CRYSTAL calc')
+        label = self.inputs.metadata.get('label', DEFAULT_TITLE)
         description = self.inputs.metadata.get('description', '')
         self.ctx.inputs.metadata = AttributeDict({'options': self.ctx.options,
                                                   'label': '{} [{}]'.format(label, self.ctx.running_calc),
@@ -206,7 +209,7 @@ class BasePropertiesWorkChain(WorkChain):
         # set options
         if 'options' in self.inputs:
             options_dict = self.inputs.options.get_dict()
-            label = options_dict.pop('label', '')
+            label = options_dict.pop('label', DEFAULT_TITLE)
             description = options_dict.pop('description', '')
             self.ctx.inputs.metadata = AttributeDict({'options': options_dict,
                                                       'label': label,
