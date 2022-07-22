@@ -71,6 +71,10 @@ class CrystalCommonCalculation(CalcJob, metaclass=ABCMeta):
         spec.exit_code(305, 'ERROR_NO_G_VECTORS', message='No G-vectors left')
         spec.exit_code(306, 'ERROR_GEOMETRY_COLLAPSED', message='Collapsed geometry')
         spec.exit_code(307, 'ERROR_CLOSED_SHELL_SPIN', message='Closed shell run - spin polarization not allowed')
+        spec.exit_code(308, 'ERROR_HESSIAN_PARAMETERS_NOT_DEFINED', message='Parameters for model hessian not defined')
+        spec.exit_code(309, 'ERROR_FERMI_ENERGY', message='Fermi energy not in interval')
+        spec.exit_code(310, 'ERROR_MADELUNG_SUMS', message='Insufficient indices for Madelung sums')
+
         spec.exit_code(350, 'ERROR_ALLOCATION', message='Internal memory error')
         spec.exit_code(360, 'ERROR_REOPTIMIZATION_NEEDED', message='Inadequate elastic calculation: additional'
                                                                    ' optimization needed')

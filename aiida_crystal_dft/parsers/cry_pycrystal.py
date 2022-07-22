@@ -97,6 +97,15 @@ class CrystalParser(Parser):
                 elif 'SMALLDIST' in error:
                     return self.exit_codes.ERROR_GEOMETRY_COLLAPSED
 
+                elif 'PARAMETERS FOR MODEL HESSIAN NOT DEFINED' in error:
+                    return self.exit_codes.ERROR_HESSIAN_PARAMETERS_NOT_DEFINED
+
+                elif 'FERMI ENERGY NOT IN INTERVAL' in error:
+                    return self.exit_codes.ERROR_FERMI_ENERGY
+
+                elif 'RECIPROCAL' in error:
+                    return self.exit_codes.ERROR_MADELUNG_SUMS
+
                 elif 'ALLOCATION' in error:
                     return self.exit_codes.ERROR_ALLOCATION
 
