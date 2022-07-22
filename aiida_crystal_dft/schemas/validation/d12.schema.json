@@ -8,7 +8,7 @@
   ],
   "additionalProperties": false,
   "properties": {
-    "title": {
+    "label": {
       "description": "the title of the run",
       "type": "string"
     },
