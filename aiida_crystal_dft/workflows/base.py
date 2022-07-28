@@ -28,6 +28,8 @@ class BaseCrystalWorkChain(WorkChain):
         spec.input('code', valid_type=Code)
         spec.input('structure', valid_type=get_data_class('structure'), required=True)
         spec.input('parameters', valid_type=get_data_class('dict'), required=True)
+        spec.input('restart_params', valid_type=get_data_class('dict'), required=False,
+                   default=lambda: get_data_node('dict', {}))
         spec.input('basis_family', valid_type=get_data_class('crystal_dft.basis_family'), required=True)
         spec.input('clean_workdir', valid_type=get_data_class('bool'),
                    required=False, default=lambda: get_data_node('bool', False))
@@ -35,9 +37,10 @@ class BaseCrystalWorkChain(WorkChain):
 
         # define workchain routine
         spec.outline(cls.init_inputs,
-                     while_(not_(cls._converged))(
+                     while_(cls.runnable)(
                         cls.init_calculation,
                         cls.run_calculation,
+                        cls.check_results
                      ),
                      cls.retrieve_results,
                      cls.finalize)
@@ -62,6 +65,8 @@ class BaseCrystalWorkChain(WorkChain):
         self.ctx.inputs.code = self.inputs.code
         self.ctx.inputs.parameters = self.inputs.parameters
         self.ctx.inputs.basis_family = self.inputs.basis_family
+        self.ctx.is_restart = False
+        self.ctx.restart_params = self.inputs.restart_params
         label = self.inputs.metadata.get('label', DEFAULT_TITLE)
 
         # work with options
@@ -94,7 +99,7 @@ class BaseCrystalWorkChain(WorkChain):
         self.ctx.options = options_dict
 
     def init_calculation(self):
-        """Create input dictionary for the calculation, deal with restart (later?)"""
+        """Create input dictionary for the calculation, deal with restart"""
         # count number of previous calculations
         self.ctx.running_calc += 1
 
@@ -114,20 +119,26 @@ class BaseCrystalWorkChain(WorkChain):
                                                   'label': '{} [{}]'.format(label, self.ctx.running_calc),
                                                   'description': description})
 
-    def not_converged(self):
-        return not self._converged()
-
-    def _converged(self):
-        """Check if calculation has converged"""
+    def runnable(self):
+        """Check if calculation is runnable, either as the original or as the restart"""
         if "calculations" not in self.ctx:
-            return False  # if no calculations have run
-        return self.ctx.calculations[-1].exit_status == 0 or self.ctx.running_calc == self._number_restarts
+            return True  # if no calculations have run
+        return self.ctx.running_calc < 2 and str(self.ctx.calculations[-1].exit_status) in list(self.ctx.restart_params.keys())
 
     def run_calculation(self):
         """Run a calculation from self.ctx.inputs"""
         process = CalculationFactory(self.ctx.calculation)
         running = self.submit(process, **self.ctx.inputs)
         return self.to_context(calculations=append_(running))
+
+    def check_results(self):
+        """Check the calculation results, amend calculation inputs and make it restart if needed"""
+        last_calc = self.ctx.calculations[-1]
+        self.report(f"exit status: {self.ctx.calculations[-1].exit_status}")
+
+        if not self.ctx.is_restart and str(self.ctx.calculations[-1].exit_status) in list(self.ctx.restart_params.keys()):
+            self.ctx.is_restart = True
+            self.report('Calculation is not converged and restart parameters are given: calc scheduled for restart')
 
     def retrieve_results(self):
         """Process calculation results; adapted from aiida_vasp"""
