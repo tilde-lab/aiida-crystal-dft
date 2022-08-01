@@ -29,7 +29,7 @@ class BaseCrystalWorkChain(WorkChain):
         spec.input('structure', valid_type=get_data_class('structure'), required=True)
         spec.input('parameters', valid_type=get_data_class('dict'), required=True)
         spec.input('restart_params', valid_type=get_data_class('dict'), required=False,
-                   default=lambda: get_data_node('dict', {}))
+                   default=lambda: get_data_class('dict')(dict={}))
         spec.input('basis_family', valid_type=get_data_class('crystal_dft.basis_family'), required=True)
         spec.input('clean_workdir', valid_type=get_data_class('bool'),
                    required=False, default=lambda: get_data_node('bool', False))
@@ -99,18 +99,24 @@ class BaseCrystalWorkChain(WorkChain):
         self.ctx.options = options_dict
 
     def init_calculation(self):
-        """Create input dictionary for the calculation, deal with restart"""
+        if not self.ctx.is_restart:
+            self._init_calculation()
+        else:
+            self._restart_calculation()
+
+    def _init_calculation(self):
+        """Create input dictionary for the calculation"""
         # count number of previous calculations
         self.ctx.running_calc += 1
 
         # set the structure
         self.ctx.inputs.structure = self.inputs.structure
 
-        # deal with oxidation states
-        if self.ctx.running_calc > 1 and self.ctx.try_oxi:
-            self.report('Trying to guess oxidation states')
-            self.ctx.inputs.guess_oxistates = Bool(True)
-            self.ctx.inputs.high_spin_preferred = Bool(self.ctx.high_spin_preferred)
+        # # deal with oxidation states
+        # if self.ctx.running_calc > 1 and self.ctx.try_oxi:
+        #     self.report('Trying to guess oxidation states')
+        #     self.ctx.inputs.guess_oxistates = Bool(True)
+        #     self.ctx.inputs.high_spin_preferred = Bool(self.ctx.high_spin_preferred)
 
         # set metadata
         label = self.inputs.metadata.get('label', DEFAULT_TITLE)
@@ -119,11 +125,26 @@ class BaseCrystalWorkChain(WorkChain):
                                                   'label': '{} [{}]'.format(label, self.ctx.running_calc),
                                                   'description': description})
 
+    def _restart_calculation(self):
+        self.ctx.running_calc += 1
+        last_calc = self.ctx.calculations[-1]
+        self.report(f'Remote folder: {last_calc.get_outgoing().get_node_by_label("remote_folder")}')
+        self.ctx.inputs.parameters = get_data_class('dict')(dict=self.ctx.restart_params[str(last_calc.exit_status)])
+        label = self.inputs.metadata.get('label', DEFAULT_TITLE)
+        description = self.inputs.metadata.get('description', '')
+        self.ctx.inputs.metadata = AttributeDict({'options': self.ctx.options,
+                                                  'label': '{} [{}] - restart'.format(label, self.ctx.running_calc),
+                                                  'description': description})
+        # self.ctx.inputs.remote_folder = last_calc.get_outgoing().get_node_by_label('remote_folder')
+
+    def can_restart(self):
+        return str(self.ctx.calculations[-1].exit_status) in list(self.ctx.restart_params.keys())
+
     def runnable(self):
         """Check if calculation is runnable, either as the original or as the restart"""
         if "calculations" not in self.ctx:
             return True  # if no calculations have run
-        return self.ctx.running_calc < 2 and str(self.ctx.calculations[-1].exit_status) in list(self.ctx.restart_params.keys())
+        return self.ctx.running_calc < 2 and self.can_restart()
 
     def run_calculation(self):
         """Run a calculation from self.ctx.inputs"""
@@ -133,10 +154,7 @@ class BaseCrystalWorkChain(WorkChain):
 
     def check_results(self):
         """Check the calculation results, amend calculation inputs and make it restart if needed"""
-        last_calc = self.ctx.calculations[-1]
-        self.report(f"exit status: {self.ctx.calculations[-1].exit_status}")
-
-        if not self.ctx.is_restart and str(self.ctx.calculations[-1].exit_status) in list(self.ctx.restart_params.keys()):
+        if not self.ctx.is_restart and self.can_restart():
             self.ctx.is_restart = True
             self.report('Calculation is not converged and restart parameters are given: calc scheduled for restart')
 
