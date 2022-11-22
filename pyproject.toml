@@ -1,0 +1,94 @@
+[build-system]
+# build the package with [flit](https://flit.readthedocs.io)
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "aiida-crystal-dft"
+dynamic = ["version"]  # read from aiida_crystal_dft/__init__.py
+description = """Yet another AiiDA plugin for CRYSTAL code, mainly intended for use with the cloud infrastructures
+(currently, MPDS)"""
+authors = [{name = "Andrey Sobolev, based on aiida-crystal17 plugin by Chris Sewell", email = "as@tilde.pro"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: AiiDA",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Information Analysis"
+]
+keywords = ["aiida", "plugin"]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy >= 1.17.5",
+    "scipy >= 1.2.1",
+    "aiida-core >= 2.0.2",
+    "pycrystal >= 1.0.10",
+    "mpds_client >= 0.24",
+    "pyparsing > 2.3.1",
+    "ase >= 3.19",
+    "spglib >= 1.16.0",
+    "jinja2 >= 2.10",
+    "jsonschema >= 3.0.1",
+    "click >= 7.1.1",
+    "packaging",
+    "seekpath"
+]
+[project.optional_dependencies]
+   testing = [
+        "mock==2.0.0",
+        "pgtest>=1.1.0",
+        "sqlalchemy-diff==0.1.3",
+        "pytest==3.6.3",
+        "wheel>=0.31",
+        "coverage",
+        "pytest",
+        "pytest-cov",
+        "pytest-timeout"
+    ]
+    pre-commit = [
+        "pre-commit==1.10.5",
+        "yapf==0.22.0",
+        "prospector==1.1.2",
+        "pylint==1.8.4"
+    ]
+    docs = [
+        "sphinx"
+    ]
+
+[project.urls]
+Source = "https://github.com/tilde-lab/aiida-crystal-dft"
+
+[project.entry-points."aiida.data"]
+    "crystal_dft.basis" = "aiida_crystal_dft.data.basis:CrystalBasisData"
+    "crystal_dft.basis_family" = "aiida_crystal_dft.data.basis_family:CrystalBasisFamilyData"
+
+[project.entry-points."aiida.calculations"]
+    "crystal_dft.serial" = "aiida_crystal_dft.calculations.serial:CrystalSerialCalculation"
+    "crystal_dft.parallel" = "aiida_crystal_dft.calculations.parallel:CrystalParallelCalculation"
+    "crystal_dft.properties" = "aiida_crystal_dft.calculations.properties:PropertiesCalculation"
+
+[project.entry-points."aiida.parsers"]
+    "crystal_dft" = "aiida_crystal_dft.parsers.cry_pycrystal:CrystalParser"
+    "crystal_dft.properties" = "aiida_crystal_dft.parsers.properties:PropertiesParser"
+
+[project.entry-points."aiida.workflows"]
+    "crystal_dft.base" = "aiida_crystal_dft.workflows.base:BaseCrystalWorkChain"
+
+[project.entry-points."aiida.cmdline.data"]
+    "crystal_dft" = "aiida_crystal_dft.cli.basis:basis_set"
+
+[tool.flit.module]
+name = "mpds_aiida"

@@ -3,49 +3,26 @@
 
 import os
 import pytest
-from aiida_crystal_dft.tests import MOCK_DIR
+from aiida_crystal_dft.tests import OUTPUT_FILES_DIR
 
 
 @pytest.fixture
-def test_computer(aiida_profile, new_workdir):
-    from aiida.orm import Computer
-    from aiida.common import NotExistent
-    try:
-        computer = Computer.objects.get(name='localhost')
-    except NotExistent:
-        computer = Computer(
-                name='localhost',
-                description='localhost computer set up by aiida_crystal tests',
-                hostname='localhost',
-                workdir=new_workdir,
-                transport_type='local',
-                scheduler_type='direct')
-    return computer
+def mock_crystal_code(mock_code_factory):
+    """Creates a mock CRYSTAL code
+    """
+    return mock_code_factory(
+        label='Pcrystal',
+        data_dir_abspath=OUTPUT_FILES_DIR,
+        entry_point='crystal_dft.parallel',
+        ignore_files=('_aiidasubmit.sh', )
+    )
 
 
 @pytest.fixture
-def test_crystal_code(test_computer):
-    from aiida.orm import Code
-    if not test_computer.pk:
-        test_computer.store()
-    code = Code()
-    code.label = 'crystal'
-    code.description = 'CRYSTAL code'
-    mock_exec = os.path.join(MOCK_DIR, 'crystal')
-    code.set_remote_computer_exec((test_computer, mock_exec))
-    code.set_input_plugin_name('crystal_dft.serial')
-    return code
-
-
-@pytest.fixture
-def test_properties_code(test_computer):
-    from aiida.orm import Code
-    if not test_computer.pk:
-        test_computer.store()
-    code = Code()
-    code.label = 'properties'
-    code.description = 'CRYSTAL properties code'
-    mock_exec = os.path.join(MOCK_DIR, 'crystal')
-    code.set_remote_computer_exec((test_computer, mock_exec))
-    code.set_input_plugin_name('crystal_dft.properties')
-    return code
+def mock_properties_code(mock_code_factory):
+    return mock_code_factory(
+        label='properties',
+        data_dir_abspath=OUTPUT_FILES_DIR,
+        entry_point='crystal_dft.properties',
+        ignore_files=('_aiidasubmit.sh', )
+    )

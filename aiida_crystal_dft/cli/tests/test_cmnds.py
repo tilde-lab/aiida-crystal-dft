@@ -6,7 +6,7 @@ from aiida_crystal_dft.cli.basis import basis_set
 from aiida_crystal_dft.tests import TEST_DIR
 
 
-def test_predefined_basis_family(new_database):
+def test_predefined_basis_family(aiida_profile_clean):
     runner = CliRunner()
     result1 = runner.invoke(basis_set, ['createpredefined'])
     assert 'STO-6G' in result1.output
@@ -17,7 +17,7 @@ def test_predefined_basis_family(new_database):
     assert 'Created 0 predefined basis families' in result2.output
 
 
-def test_upload_to_basis_family(new_database):
+def test_upload_to_basis_family(aiida_profile):
     path = os.path.join(TEST_DIR, "input_files", "311g")
     runner = CliRunner()
     result1 = runner.invoke(basis_set, [

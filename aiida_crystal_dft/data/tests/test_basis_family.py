@@ -6,16 +6,17 @@ import pytest
 
 def test_predefined_basis_family(aiida_profile):
     from aiida.plugins import DataFactory
-    bf, _ = DataFactory('crystal_dft.basis_family').get_or_create('STO-3G')
-    bf2, _ = DataFactory('crystal_dft.basis_family').get_or_create('STO-3G')
+    basis_family_class = DataFactory('crystal_dft.basis_family')
+    bf, _ = basis_family_class.get_or_create('STO-3G')
+    bf2, _ = basis_family_class.get_or_create('STO-3G')
     assert bf2.uuid == bf.uuid
     assert bf.content == "BASISSET\nSTO-3G\n"
     assert bf2.content == "BASISSET\nSTO-3G\n"
     assert bf2.predefined
     with pytest.raises(ValueError):
-        DataFactory('crystal_dft.basis_family')(name='STO-3G')
+        basis_family_class(name='STO-3G')
     with pytest.raises(ValueError):
-        DataFactory('crystal_dft.basis_family').get_or_create(name='STO-6G', basis_sets=["bs1", "bs2"])
+        basis_family_class.get_or_create(name='STO-6G', basis_sets=["bs1", "bs2"])
 
 
 def test_basis_family(aiida_profile, test_structure_data):

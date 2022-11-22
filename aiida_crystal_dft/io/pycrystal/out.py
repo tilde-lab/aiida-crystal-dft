@@ -1,6 +1,7 @@
 """
 Pycrystal-based CRYSTAL output parser
 """
+import io
 import pkg_resources
 from pycrystal import CRYSTOUT, CRYSTOUT_Error
 
@@ -10,7 +11,7 @@ class OutFileParser(object):
     parser_info = pkg_resources.require("pycrystal")[0].version
 
     def __init__(self, file):
-        if not isinstance(file, str):
+        if not isinstance(file, (str, io.StringIO)):
             file_name = file.name
             file.close()
         else:

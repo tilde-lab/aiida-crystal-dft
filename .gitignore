@@ -62,3 +62,4 @@ docs/_build/
 target/
 
 # Project specific
+.aiida_testing_config.yml

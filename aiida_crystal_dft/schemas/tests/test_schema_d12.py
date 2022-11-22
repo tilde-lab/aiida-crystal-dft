@@ -27,7 +27,7 @@ def test_toplevel_pass():
 
 def test_full_pass():
     data = {
-        "title": "a title",
+        "label": "a title",
         "geometry": {
             "info_print": ["ATOMSYMM", "SYMMOPS"],
             "info_external": ["STRUCPRT"],

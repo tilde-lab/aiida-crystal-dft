@@ -3,23 +3,23 @@
 import pytest
 
 
-def test_store_calc(properties_calc_node):
-    calc = properties_calc_node()
-    calc.store()
-    assert calc.pk is not None
-    assert calc.inputs.code.pk is not None
-    assert calc.inputs.parameters.pk is not None
-    assert calc.inputs.wavefunction.pk is not None
+# def test_store_calc(properties_calc_node):
+#     calc = properties_calc_node()
+#     calc.store()
+#     assert calc.pk is not None
+#     assert calc.inputs.code.pk is not None
+#     assert calc.inputs.parameters.pk is not None
+#     assert calc.inputs.wavefunction.pk is not None
 
 
-def test_validate_input(test_properties_code, properties_calc_parameters, test_wavefunction):
+def test_validate_input(mock_properties_code, properties_calc_parameters, test_wavefunction):
     from aiida.common.extendeddicts import AttributeDict
     from aiida_crystal_dft.calculations.properties import PropertiesCalculation
     inputs = AttributeDict()
     with pytest.raises(ValueError):
         PropertiesCalculation(inputs)
     inputs.metadata = {'options': {'resources': {'num_machines': 1, 'num_mpiprocs_per_machine': 1}}}
-    inputs.code = test_properties_code
+    inputs.code = mock_properties_code
     with pytest.raises(ValueError):
         PropertiesCalculation(inputs)
     inputs.wavefunction = test_wavefunction
@@ -29,11 +29,13 @@ def test_validate_input(test_properties_code, properties_calc_parameters, test_w
     assert PropertiesCalculation(inputs)
 
 
-def test_submit(properties_calc):
+def test_submit(properties_calc_inputs):
     from aiida.common.folders import SandboxFolder
+    from aiida.plugins import CalculationFactory
+    properties_calc = CalculationFactory("crystal_dft.properties")(properties_calc_inputs)
     with SandboxFolder() as folder:
-        calcinfo = properties_calc.prepare_for_submission(folder=folder)
-        assert properties_calc._PROPERTIES_FILE_NAME in calcinfo['retrieve_list']
+        calc_info = properties_calc.prepare_for_submission(folder=folder)
+        assert properties_calc._PROPERTIES_FILE_NAME in calc_info['retrieve_list']
         assert properties_calc._WAVEFUNCTION_FILE_NAME in folder.get_content_list()
         assert properties_calc._INPUT_FILE_NAME in folder.get_content_list()
         with folder.open(properties_calc._INPUT_FILE_NAME) as f:

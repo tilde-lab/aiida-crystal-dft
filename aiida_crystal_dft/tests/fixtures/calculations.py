@@ -8,26 +8,27 @@ from ase.spacegroup import crystal
 
 
 @pytest.fixture
-def crystal_calc(test_crystal_code, crystal_calc_parameters, test_structure_data, test_basis_family_predefined):
+def crystal_calc_inputs(mock_crystal_code, crystal_calc_parameters, test_structure_data, test_basis_family_predefined):
     from aiida.common.extendeddicts import AttributeDict
     from aiida.orm import Bool
-    from aiida_crystal_dft.calculations.serial import CrystalSerialCalculation
 
     inputs = AttributeDict()
-    inputs.metadata = AttributeDict({'options':
-                                     {'resources':
-                                      {"num_machines": 1, "num_mpiprocs_per_machine": 1}
-                                      }
-                                     })
-    inputs.code = test_crystal_code
+    inputs.metadata = AttributeDict({
+        'options': {
+            'resources': {
+                "num_machines": 1,
+                "num_mpiprocs_per_machine": 1
+            }
+        }
+    })
+    inputs.code = mock_crystal_code
     inputs.structure = test_structure_data
     inputs.parameters = crystal_calc_parameters
     inputs.basis_family = test_basis_family_predefined
     inputs.guess_oxistates = Bool(False)
     inputs.high_spin_preferred = Bool(False)
     inputs.is_magnetic = Bool(True)
-    calc = CrystalSerialCalculation(inputs)
-    return calc
+    return inputs
 
 
 @pytest.fixture
@@ -63,35 +64,35 @@ def calc_results():
     return get_results
 
 
+# @pytest.fixture
+# def crystal_calc_node(crystal_calc_inputs, calc_results):
+#     """Returns CalcJobNode corresponding to CrystalCalc CalcJob"""
+#     from aiida.orm import CalcJobNode
+#     from aiida.common.links import LinkType
+#
+#     def get_calcnode(files=None, prefix="mgo_sto3g"):
+#         computer = crystal_calc.inputs.code.get_remote_computer()
+#         process_type = 'aiida.calculations:{}'.format('crystal_dft.serial')
+#         node = CalcJobNode(computer=computer, process_type=process_type)
+#         node.set_process_label('CrystalSerialCalculation')
+#         node.set_attribute('input_filename', 'INPUT')
+#         node.set_attribute('output_filename', 'crystal.out')
+#         node.set_option('resources', {'num_machines': 1, 'num_mpiprocs_per_machine': 1})
+#         node.add_incoming(crystal_calc.inputs.code, link_type=LinkType.INPUT_CALC, link_label='code')
+#         node.add_incoming(crystal_calc.inputs.structure, link_type=LinkType.INPUT_CALC, link_label='structure')
+#         node.add_incoming(crystal_calc.inputs.parameters, link_type=LinkType.INPUT_CALC, link_label='parameters')
+#         node.add_incoming(crystal_calc.inputs.basis_family, link_type=LinkType.INPUT_CALC, link_label='basis_family')
+#         node.store()
+#         retrieved = calc_results(files, prefix)
+#         retrieved.add_incoming(node, link_type=LinkType.CREATE, link_label='retrieved')
+#         retrieved.store()
+#         return node
+#
+#     return get_calcnode
+
+
 @pytest.fixture
-def crystal_calc_node(crystal_calc, calc_results):
-    """Returns CalcJobNode corresponding to CrystalCalc CalcJob"""
-    from aiida.orm import CalcJobNode
-    from aiida.common.links import LinkType
-
-    def get_calcnode(files=None, prefix="mgo_sto3g"):
-        computer = crystal_calc.inputs.code.get_remote_computer()
-        process_type = 'aiida.calculations:{}'.format('crystal_dft.serial')
-        node = CalcJobNode(computer=computer, process_type=process_type)
-        node.set_process_label('CrystalSerialCalculation')
-        node.set_attribute('input_filename', 'INPUT')
-        node.set_attribute('output_filename', 'crystal.out')
-        node.set_option('resources', {'num_machines': 1, 'num_mpiprocs_per_machine': 1})
-        node.add_incoming(crystal_calc.inputs.code, link_type=LinkType.INPUT_CALC, link_label='code')
-        node.add_incoming(crystal_calc.inputs.structure, link_type=LinkType.INPUT_CALC, link_label='structure')
-        node.add_incoming(crystal_calc.inputs.parameters, link_type=LinkType.INPUT_CALC, link_label='parameters')
-        node.add_incoming(crystal_calc.inputs.basis_family, link_type=LinkType.INPUT_CALC, link_label='basis_family')
-        node.store()
-        retrieved = calc_results(files, prefix)
-        retrieved.add_incoming(node, link_type=LinkType.CREATE, link_label='retrieved')
-        retrieved.store()
-        return node
-
-    return get_calcnode
-
-
-@pytest.fixture
-def properties_calc(test_properties_code, properties_calc_parameters, test_wavefunction):
+def properties_calc_inputs(mock_properties_code, properties_calc_parameters, test_wavefunction):
     from aiida.common.extendeddicts import AttributeDict
     from aiida_crystal_dft.calculations.properties import PropertiesCalculation
     inputs = AttributeDict()
@@ -100,45 +101,44 @@ def properties_calc(test_properties_code, properties_calc_parameters, test_wavef
                                       {"num_machines": 1, "num_mpiprocs_per_machine": 1}
                                       }
                                      })
-    inputs.code = test_properties_code
+    inputs.code = mock_properties_code
     inputs.parameters = properties_calc_parameters
     inputs.wavefunction = test_wavefunction
-    calc = PropertiesCalculation(inputs)
-    return calc
+    return inputs
 
 
-@pytest.fixture
-def properties_calc_node(properties_calc, calc_results):
-    """Returns CalcJobNode corresponding to PropertiesCalc CalcJob"""
-    from aiida.orm import CalcJobNode
-    from aiida.common.links import LinkType
-    computer = properties_calc.inputs.code.get_remote_computer()
-    process_type = 'aiida.calculations:{}'.format('crystal_dft.properties')
-
-    def get_calcnode(files=None):
-        node = CalcJobNode(computer=computer, process_type=process_type)
-        node.set_process_label('PropertiesCalculation')
-        node.set_option('resources', {'num_machines': 1, 'num_mpiprocs_per_machine': 1})
-        node.set_attribute('input_filename', 'INPUT')
-        node.set_attribute('output_filename', '_scheduler-stderr.txt')
-        node.set_attribute('error_filename', '_scheduler-stderr.txt')
-        node.add_incoming(properties_calc.inputs.code, link_type=LinkType.INPUT_CALC, link_label='code')
-        node.add_incoming(properties_calc.inputs.parameters, link_type=LinkType.INPUT_CALC, link_label='parameters')
-        node.add_incoming(properties_calc.inputs.wavefunction, link_type=LinkType.INPUT_CALC, link_label='wavefunction')
-        node.store()
-        retrieved = calc_results(files)
-        retrieved.add_incoming(node, link_type=LinkType.CREATE, link_label='retrieved')
-        retrieved.store()
-        return node
-
-    return get_calcnode
+# @pytest.fixture
+# def properties_calc_node(properties_calc, calc_results):
+#     """Returns CalcJobNode corresponding to PropertiesCalc CalcJob"""
+#     from aiida.orm import CalcJobNode
+#     from aiida.common.links import LinkType
+#     computer = properties_calc.inputs.code.get_remote_computer()
+#     process_type = 'aiida.calculations:{}'.format('crystal_dft.properties')
+#
+#     def get_calcnode(files=None):
+#         node = CalcJobNode(computer=computer, process_type=process_type)
+#         node.set_process_label('PropertiesCalculation')
+#         node.set_option('resources', {'num_machines': 1, 'num_mpiprocs_per_machine': 1})
+#         node.set_attribute('input_filename', 'INPUT')
+#         node.set_attribute('output_filename', '_scheduler-stderr.txt')
+#         node.set_attribute('error_filename', '_scheduler-stderr.txt')
+#         node.add_incoming(properties_calc.inputs.code, link_type=LinkType.INPUT_CALC, link_label='code')
+#         node.add_incoming(properties_calc.inputs.parameters, link_type=LinkType.INPUT_CALC, link_label='parameters')
+#         node.add_incoming(properties_calc.inputs.wavefunction, link_type=LinkType.INPUT_CALC, link_label='wavefunction')
+#         node.store()
+#         retrieved = calc_results(files)
+#         retrieved.add_incoming(node, link_type=LinkType.CREATE, link_label='retrieved')
+#         retrieved.store()
+#         return node
+#
+#     return get_calcnode
 
 
 @pytest.fixture
 def crystal_calc_parameters():
     from aiida.orm import Dict
     return Dict(dict={
-        "title": "Crystal calc",
+        "label": "Crystal calc",
         "scf": {
             "k_points": (8, 8),
             # 'dft': {'xc': 'PBE0'}
