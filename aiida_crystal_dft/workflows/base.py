@@ -248,7 +248,7 @@ class BasePropertiesWorkChain(WorkChain):
         """Set defaults to calculation parameters"""
         parameters_dict = parameters.get_dict()
         from aiida_crystal_dft.io.f9 import Fort9
-        with self.inputs.wavefunction.open() as f:
+        with self.inputs.wavefunction.open(mode='rb') as f:
             file_name = f.name
         wf = Fort9(file_name)
         if 'band' in parameters_dict:

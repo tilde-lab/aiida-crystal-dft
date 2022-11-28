@@ -5,12 +5,12 @@ import pytest
 
 
 # @pytest.mark.skip
-def test_crystal_wc_run(test_crystal_code, crystal_calc_parameters, test_structure_data):
+def test_crystal_wc_run(mock_crystal_code, crystal_calc_parameters, test_structure_data):
     from aiida_crystal_dft.workflows.base import BaseCrystalWorkChain
     from aiida.plugins import DataFactory
     from aiida.engine import run
     inputs = BaseCrystalWorkChain.get_builder()
-    inputs.code = test_crystal_code
+    inputs.code = mock_crystal_code
     inputs.parameters = crystal_calc_parameters
     inputs.basis_family, _ = DataFactory('crystal_dft.basis_family').get_or_create('STO-3G')
     inputs.structure = test_structure_data
@@ -20,12 +20,12 @@ def test_crystal_wc_run(test_crystal_code, crystal_calc_parameters, test_structu
     run(BaseCrystalWorkChain, **inputs)
 
 
-def test_props_wc_run(test_properties_code, properties_calc_parameters, test_wavefunction):
+def test_props_wc_run(mock_properties_code, properties_calc_parameters, test_wavefunction):
     from aiida_crystal_dft.workflows.base import BasePropertiesWorkChain
     from aiida.plugins import DataFactory
     from aiida.engine import run
     inputs = BasePropertiesWorkChain.get_builder()
-    inputs.code = test_properties_code
+    inputs.code = mock_properties_code
     inputs.parameters = properties_calc_parameters
     inputs.wavefunction = test_wavefunction
     inputs.options = DataFactory('dict')(dict={

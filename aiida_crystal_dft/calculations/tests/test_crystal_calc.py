@@ -2,13 +2,13 @@
 import pytest
 
 
-# def test_store_calc(crystal_calc_node):
-#     calc = crystal_calc_node()
-#     calc.store()
-#     assert calc.pk is not None
-#     assert calc.inputs.code.pk is not None
-#     assert calc.inputs.parameters.pk is not None
-#     assert calc.inputs.structure.pk is not None
+def test_store_calc(crystal_calc_node):
+    calc = crystal_calc_node()
+    calc.store()
+    assert calc.pk is not None
+    assert calc.inputs.code.pk is not None
+    assert calc.inputs.parameters.pk is not None
+    assert calc.inputs.structure.pk is not None
 
 
 def test_validate_input(mock_crystal_code, test_structure_data, crystal_calc_parameters, test_basis_family_predefined):
