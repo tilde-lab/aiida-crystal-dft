@@ -1,6 +1,6 @@
 [build-system]
 # build the package with [flit](https://flit.readthedocs.io)
-requires = ["flit_core >=3.4,<4"]
+requires = ["flit_core >=3.4,<4", "reentry"]
 build-backend = "flit_core.buildapi"
 
 [project]
@@ -19,11 +19,9 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.5",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Chemistry",
     "Topic :: Scientific/Engineering :: Physics",
@@ -46,27 +44,30 @@ dependencies = [
     "packaging",
     "seekpath"
 ]
-[project.optional_dependencies]
-   testing = [
-        "mock==2.0.0",
-        "pgtest>=1.1.0",
-        "sqlalchemy-diff==0.1.3",
-        "pytest==3.6.3",
-        "wheel>=0.31",
-        "coverage",
-        "pytest",
-        "pytest-cov",
-        "pytest-timeout"
-    ]
-    pre-commit = [
-        "pre-commit==1.10.5",
-        "yapf==0.22.0",
-        "prospector==1.1.2",
-        "pylint==1.8.4"
-    ]
-    docs = [
-        "sphinx"
-    ]
+[project.optional-dependencies]
+testing = [
+    "mock==2.0.0",
+    "pgtest>=1.1.0",
+    "sqlalchemy-diff==0.1.3",
+    "pytest>=6.2.0",
+    "wheel>=0.31",
+    "aiida-testing-dev",
+    "coverage",
+    "flake8",
+    "pytest",
+    "pytest-cov",
+    "pytest-timeout",
+    "reentry"
+]
+pre-commit = [
+    "pre-commit==1.10.5",
+    "yapf==0.22.0",
+    "prospector==1.1.2",
+    "pylint==1.8.4"
+]
+docs = [
+    "sphinx"
+]
 
 [project.urls]
 Source = "https://github.com/tilde-lab/aiida-crystal-dft"
@@ -91,4 +92,4 @@ Source = "https://github.com/tilde-lab/aiida-crystal-dft"
     "crystal_dft" = "aiida_crystal_dft.cli.basis:basis_set"
 
 [tool.flit.module]
-name = "mpds_aiida"
+name = "aiida_crystal_dft"
