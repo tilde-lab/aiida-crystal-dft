@@ -91,4 +91,4 @@ Source = "https://github.com/tilde-lab/aiida-crystal-dft"
     "crystal_dft" = "aiida_crystal_dft.cli.basis:basis_set"
 
 [tool.flit.module]
-name = "mpds_aiida"
+name = "aiida_crystal_dft"
