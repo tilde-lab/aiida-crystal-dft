@@ -46,7 +46,7 @@ dependencies = [
     "packaging",
     "seekpath"
 ]
-[project.optional_dependencies]
+[project.optional-dependencies]
    testing = [
         "mock==2.0.0",
         "pgtest>=1.1.0",
