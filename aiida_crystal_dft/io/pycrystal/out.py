@@ -16,8 +16,10 @@ class OutFileParser(object):
             file.close()
         else:
             file_name = file
+
         if not CRYSTOUT.acceptable(file_name):
             raise FileNotFoundError("{} is not a valid CRYSTAL output file".format(file_name))
+
         result = CRYSTOUT(file_name)
         self.info = result.info
 

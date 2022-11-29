@@ -1,6 +1,5 @@
-{# Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file. #}
 {% import 'macros.j2' as macros %}
-{{ label|default('CRYSTAL by AiiDA') }}
+{{ label | default('CRYSTAL by AiiDA') }}
 EXTERNAL
 {% if geometry %}
     {% for item in geometry.info_print %}
@@ -28,7 +27,7 @@ EXTERNAL
 {% endif %}
 {% include 'dft.j2' %}
 SHRINK
-{{ scf.k_points|join(' ') }}
+{{ scf.k_points | join(' ') }}
 {{ macros.optional_key(scf, 'numerical') -}}
 {{ macros.optional_key(scf, 'fock_mixing') -}}
 {{ macros.optional_key(scf, 'spinlock') -}}

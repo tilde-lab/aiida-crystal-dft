@@ -1,9 +1,17 @@
-{# Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file. #}
+{% if geometry.phonons.SCELPHONO %}
+    SCELPHONO
+    {% for row in geometry.phonons.SCELPHONO %}
+        {{ row | join(' ') }}
+    {% endfor %}
+{% endif %}
 FREQCALC
 {{ macros.optional_key(geometry.phonons, 'TEMPERAT') -}}
 {% for item in geometry.phonons.info_print -%}
     {{ item }}
 {% endfor -%}
+{% if geometry.phonons.SCELPHONO %}
+    DISPERSI
+{% endif %}
 {% if geometry.phonons.PREOPTGEOM %}
     PREOPTGEOM
     {{ macros.optimise_geometry(geometry.phonons.PREOPTGEOM) }}

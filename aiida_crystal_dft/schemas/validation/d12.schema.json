@@ -167,19 +167,33 @@
                 ]
               }
             },
-            "TEMPERAT" : {
+            "TEMPERAT": {
               "description": "Temperature range for frequency calculation",
               "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
               "items": {
                 "type": "number",
-                "minimum": 0,
-                "minItems": 3,
-                "maxItems": 3
+                "minimum": 0
               }
             },
-            "PREOPTGEOM" : {
+            "PREOPTGEOM": {
               "description": "Pre-optimize geometry",
               "$ref": "#/properties/geometry/properties/optimise"
+            },
+            "SCELPHONO": {
+              "description": "Request phonon dispersion and set supercell matrix 3x3 according to the frozen-phonon method (keyword DISPERSI automatically added)",
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "integer"
+                }
+              }
             },
             "INTENS": {
               "description": "IR intensities calculation",
@@ -258,7 +272,7 @@
               "minimum": 0,
               "exclusiveMinimum": true
             },
-            "PREOPTGEOM" : {
+            "PREOPTGEOM": {
               "description": "Pre-optimize geometry",
               "$ref": "#/properties/geometry/properties/optimise"
             },

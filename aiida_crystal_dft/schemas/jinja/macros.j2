@@ -1,10 +1,9 @@
-{# Copyright (c)  Andrey Sobolev, 2020. Distributed under MIT license, see LICENSE file. #}
 {% macro variable(key, value) %}
     {% if value == true %}
         {{ key -}}
     {% elif value is iterable and value is not string %}
         {{ key }}
-        {{ value|join('  ') -}}
+        {{ value | join('  ') -}}
     {% elif value is not sameas false %}
         {{ key }}
         {{ value -}}
@@ -26,7 +25,7 @@
 {% endmacro %}
 
 {% macro xc(xc) %}
-    {% if xc is iterable and xc is not string and xc|length == 2 %}
+    {% if xc is iterable and xc is not string and xc | length == 2 %}
         CORRELAT
         {{ xc[0] }}
         EXCHANGE
