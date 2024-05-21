@@ -182,8 +182,8 @@ class CrystalBasisFamilyData(Data):
         basis_strings.append("99 0\n")
         return "\n".join(basis_strings)
 
-    def store(self, with_transaction=True, use_cache=None):
-        return super(CrystalBasisFamilyData, self).store(with_transaction=with_transaction)
+    def store(self):
+        return super(CrystalBasisFamilyData, self).store()
 
     @classmethod
     def create_predefined(cls):

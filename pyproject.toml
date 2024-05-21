@@ -41,8 +41,7 @@ dependencies = [
     "jinja2 >= 2.10",
     "jsonschema >= 3.0.1",
     "click >= 7.1.1",
-    "packaging",
-    "seekpath"
+    "packaging"
 ]
 [project.optional-dependencies]
 testing = [

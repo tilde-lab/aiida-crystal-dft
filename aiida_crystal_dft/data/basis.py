@@ -117,7 +117,7 @@ class CrystalBasisData(Dict):
                     basis_dict["bs"][i][0][3] = o
         return basis_dict
 
-    def store(self, with_transaction=True, use_cache=None):
+    def store(self):
         # check if the dictionary has needed keys (may be it's incomplete?)
         if ("header" not in self.get_dict()) or ("bs" not in self.get_dict()):
             raise ValueError("Basis set for element {} does not contain required keys".format(self.element))
@@ -125,7 +125,7 @@ class CrystalBasisData(Dict):
         if self.from_md5(md5_hash):
             raise UniquenessError("Basis with MD5 hash {} has already found in the database!".format(md5_hash))
         self.set_attribute("md5", md5_hash)
-        return super(CrystalBasisData, self).store(with_transaction=with_transaction)
+        return super(CrystalBasisData, self).store()
 
     def _get_occupations(self):
         """A wrapper for get_occupations function"""

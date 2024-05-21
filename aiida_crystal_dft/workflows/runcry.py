@@ -1,6 +1,6 @@
 #  Copyright (c)  Andrey Sobolev, 2019. Distributed under MIT license, see LICENSE file.
 """
-A workchain (almost?) copying the workflow of runcry shell script
+A workchain (almost?) copying the CRYSTAL's runcry shell script
 """
 
 from aiida.engine import WorkChain
