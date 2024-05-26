@@ -44,7 +44,7 @@ def get_data_class(data_type):
 
 def get_automatic_user():
     from aiida.orm import User
-    return User.objects.get_default()
+    return User.collection.get_default()
 
 
 def recursive_update(d, u):

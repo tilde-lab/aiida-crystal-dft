@@ -74,8 +74,8 @@ def crystal_calc_node(aiida_localhost, crystal_calc_inputs, calc_results):
         process_type = 'aiida.calculations:{}'.format('crystal_dft.serial')
         node = CalcJobNode(computer=aiida_localhost, process_type=process_type)
         node.set_process_label('CrystalSerialCalculation')
-        node.set_attribute('input_filename', 'INPUT')
-        node.set_attribute('output_filename', 'crystal.out')
+        node.base.attributes.set('input_filename', 'INPUT')
+        node.base.attributes.set('output_filename', 'crystal.out')
         node.set_option('resources', {'num_machines': 1, 'num_mpiprocs_per_machine': 1})
         node.add_incoming(crystal_calc_inputs.code, link_type=LinkType.INPUT_CALC, link_label='code')
         # store inputs
@@ -120,9 +120,9 @@ def properties_calc_node(aiida_localhost, properties_calc_inputs, calc_results):
         node = CalcJobNode(computer=aiida_localhost, process_type=process_type)
         node.set_process_label('PropertiesCalculation')
         node.set_option('resources', {'num_machines': 1, 'num_mpiprocs_per_machine': 1})
-        node.set_attribute('input_filename', 'INPUT')
-        node.set_attribute('output_filename', '_scheduler-stderr.txt')
-        node.set_attribute('error_filename', '_scheduler-stderr.txt')
+        node.base.attributes.set('input_filename', 'INPUT')
+        node.base.attributes.set('output_filename', '_scheduler-stderr.txt')
+        node.base.attributes.set('error_filename', '_scheduler-stderr.txt')
         # store inputs
         for calc_input in ("parameters", "wavefunction"):
             properties_calc_inputs[calc_input].store()
