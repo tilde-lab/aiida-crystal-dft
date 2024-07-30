@@ -157,22 +157,22 @@ class CrystalParser(Parser):
             return None
         return DataFactory('singlefile')(file=f)
 
-def parse_out_trajectory(self, _):
-    try:
-        ase_structs = self.stdout_parser.get_trajectory()
-        if not ase_structs:
-            return None
-        structs = [DataFactory('structure')(ase=struct) for struct in ase_structs]
-        traj = DataFactory('array.trajectory')()
-        traj.set_structurelist(structs)
-        return traj
-    except ValueError as e:
-        # Fix for calculation with SCELPHO keyword;
-        # Scince supercell have more atoms than regular cell;
-        # traj.set_structurelist(structs) will throw an error https://github.com/aiidateam/aiida-core/blob/71422eb872040a9ba23047d2ec031f6deaa6a7cc/src/aiida/orm/nodes/data/array/trajectory.py#L202 
-        # There are no reason for tracking trajectory in phonon calculation, so it will return None
-        if "Phonon" in self._node.label:
-            self._logger.warning(f"Caught ValueError for node with label '{self._node.label}': {e}")
-            return None
-        else:
-            raise e
+    def parse_out_trajectory(self, _):
+        try:
+            ase_structs = self.stdout_parser.get_trajectory()
+            if not ase_structs:
+                return None
+            structs = [DataFactory('structure')(ase=struct) for struct in ase_structs]
+            traj = DataFactory('array.trajectory')()
+            traj.set_structurelist(structs)
+            return traj
+        except ValueError as e:
+            # Fix for calculation with SCELPHO keyword;
+            # Scince supercell have more atoms than regular cell;
+            # traj.set_structurelist(structs) will throw an error https://github.com/aiidateam/aiida-core/blob/71422eb872040a9ba23047d2ec031f6deaa6a7cc/src/aiida/orm/nodes/data/array/trajectory.py#L202 
+            # There are no reason for tracking trajectory in phonon calculation, so it will return None
+            if "Phonon" in self._node.label:
+                self._logger.warning(f"Caught ValueError for node with label '{self._node.label}': {e}")
+                return None
+            else:
+                raise e
