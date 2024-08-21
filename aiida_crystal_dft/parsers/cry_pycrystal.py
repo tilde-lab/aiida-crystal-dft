@@ -158,10 +158,18 @@ class CrystalParser(Parser):
         return DataFactory('singlefile')(file=f)
 
     def parse_out_trajectory(self, _):
-        ase_structs = self.stdout_parser.get_trajectory()
-        if not ase_structs:
-            return None
-        structs = [DataFactory('structure')(ase=struct) for struct in ase_structs]
-        traj = DataFactory('array.trajectory')()
-        traj.set_structurelist(structs)
-        return traj
+        try:
+            ase_structs = self.stdout_parser.get_trajectory()
+            if not ase_structs:
+                return None
+            structs = [DataFactory('structure')(ase=struct) for struct in ase_structs]
+            traj = DataFactory('array.trajectory')()
+            traj.set_structurelist(structs)
+            return traj
+        except ValueError as exc:
+            # fix for SCELPHONO keyword, since a supercell has more atoms than a regular cell
+            bz_points = self.stdout_parser.info['phonons'].get(['modes'], {})
+            if bz_points and len(bz_points) > 1:
+                return None
+            else:
+                raise exc
