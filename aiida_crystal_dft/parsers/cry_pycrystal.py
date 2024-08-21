@@ -68,7 +68,7 @@ class CrystalParser(Parser):
         except out.CRYSTOUT_Error as ex:
             if 'Inadequate elastic calculation' in ex.msg:
                 return self.exit_codes.ERROR_REOPTIMIZATION_NEEDED
-        # TODO: refactor this later
+
         # Check for error file contents
         scf_failed = False
         if 'fort.87' in folder.list_object_names():
@@ -166,14 +166,10 @@ class CrystalParser(Parser):
             traj = DataFactory('array.trajectory')()
             traj.set_structurelist(structs)
             return traj
-        except ValueError as e:
-            # Fix for calculation with SCELPHO keyword;
-            # Scince supercell have more atoms than regular cell;
-            # traj.set_structurelist(structs) will throw an error https://github.com/aiidateam/aiida-core/blob/71422eb872040a9ba23047d2ec031f6deaa6a7cc/src/aiida/orm/nodes/data/array/trajectory.py#L202
-            # There are no reason for tracking trajectory in phonon calculation, so it will return None
-            modes = self.stdout_parser.info['phonons'].get(['modes'], {})
-            if modes and len(modes) > 1:
-                self._logger.warning(f"Caught ValueError for node with label '{self._node.label}': {e}")
+        except ValueError as exc:
+            # fix for SCELPHONO keyword, since a supercell has more atoms than a regular cell
+            bz_points = self.stdout_parser.info['phonons'].get(['modes'], {})
+            if bz_points and len(bz_points) > 1:
                 return None
             else:
-                raise e
+                raise exc
