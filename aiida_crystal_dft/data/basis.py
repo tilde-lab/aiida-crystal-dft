@@ -33,7 +33,7 @@ class CrystalBasisData(Dict):
     @property
     def md5(self):
         """ md5 hash of the basis set """
-        return self.get_attribute('md5', default=None)
+        return self.base.attributes.get('md5', default=None)
 
     @property
     def element(self):
@@ -124,7 +124,7 @@ class CrystalBasisData(Dict):
         md5_hash = md5(self.get_dict())
         if self.from_md5(md5_hash):
             raise UniquenessError("Basis with MD5 hash {} has already found in the database!".format(md5_hash))
-        self.set_attribute("md5", md5_hash)
+        self.base.attributes.set("md5", md5_hash)
         return super(CrystalBasisData, self).store()
 
     def _get_occupations(self):

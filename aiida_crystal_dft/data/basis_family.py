@@ -72,7 +72,7 @@ class CrystalBasisFamilyData(Data):
 
     def add(self, basis_sets):
         """Adds basis sets to family"""
-        group, group_created = Group.objects.get_or_create(label=self.name,
+        group, group_created = Group.collection.get_or_create(label=self.name,
                                                            type_string=BASIS_FAMILY_TYPE,
                                                            user=get_automatic_user())
         # validate basis sets
@@ -104,18 +104,18 @@ class CrystalBasisFamilyData(Data):
 
     @property
     def group(self):
-        _group, _ = Group.objects.get_or_create(label=self.name,
+        _group, _ = Group.collection.get_or_create(label=self.name,
                                                 type_string=BASIS_FAMILY_TYPE,
                                                 user=get_automatic_user())
         return _group
 
     @property
     def name(self):
-        return self.get_attribute("name", default=None)
+        return self.base.attributes.get("name", default=None)
 
     @name.setter
     def name(self, value):
-        self.set_attribute("name", value)
+        self.base.attributes.set("name", value)
 
     def set_name(self, name):
         # check name for this instance
@@ -238,7 +238,7 @@ class CrystalBasisFamilyData(Data):
         group_query_params = {"type_string": BASIS_FAMILY_TYPE}
         if user is not None:
             group_query_params['user'] = user
-        basis_groups = Group.objects.find(filters=group_query_params)
+        basis_groups = Group.collection.find(filters=group_query_params)
         predefined_bases = [b for b in cls._get() if b.predefined]
         if isinstance(filter_elements, str):
             filter_elements = [filter_elements]
