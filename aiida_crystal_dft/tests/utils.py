@@ -6,7 +6,7 @@ from aiida.common import NotExistent
 
 def get_current_user():
     """Returns the current AiiDA user"""
-    return User.objects.get_default()
+    return User.collection.get_default()
 
 
 def get_authinfo(computer):
