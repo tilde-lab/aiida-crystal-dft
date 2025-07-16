@@ -10,7 +10,7 @@ from aiida_crystal_dft.cli import options
 
 @verdi_data.group('crystal')
 def basis_set():
-    """Commandline interface for working with Crystal Basis Set Data"""
+    """CLI for working with Crystal Basis Set Data"""
 
 
 @basis_set.command()

@@ -81,7 +81,7 @@ Source = "https://github.com/tilde-lab/aiida-crystal-dft"
     "crystal_dft.properties" = "aiida_crystal_dft.calculations.properties:PropertiesCalculation"
 
 [project.entry-points."aiida.parsers"]
-    "crystal_dft" = "aiida_crystal_dft.parsers.cry_pycrystal:CrystalParser"
+    "crystal_dft" = "aiida_crystal_dft.parsers.crystal:CrystalParser"
     "crystal_dft.properties" = "aiida_crystal_dft.parsers.properties:PropertiesParser"
 
 [project.entry-points."aiida.workflows"]
