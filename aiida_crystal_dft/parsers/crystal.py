@@ -6,7 +6,7 @@ from aiida.parsers.parser import Parser
 from aiida.common import OutputParsingError, NotExistent
 from aiida.plugins import CalculationFactory, DataFactory
 
-from aiida_crystal_dft.io.pycrystal import out
+from aiida_crystal_dft.io.out import OutFileParser, CRYSTOUT_Error
 from aiida_crystal_dft.io.f34 import Fort34
 
 
@@ -64,8 +64,8 @@ class CrystalParser(Parser):
         # Check if we can parse results file, the error message if not
         try:
             with folder.open(results_file) as f:
-                print(out.OutFileParser(f).get_parameters())
-        except out.CRYSTOUT_Error as ex:
+                print(OutFileParser(f).get_parameters())
+        except CRYSTOUT_Error as ex:
             if 'Inadequate elastic calculation' in ex.msg:
                 return self.exit_codes.ERROR_REOPTIMIZATION_NEEDED
 
@@ -139,7 +139,7 @@ class CrystalParser(Parser):
             self.out(link_name, parse_result)
 
     def parse_stdout(self, f):
-        self.stdout_parser = out.OutFileParser(f)
+        self.stdout_parser = OutFileParser(f)
         params = self.stdout_parser.get_parameters()
         # raise flag if structure (atomic and electronic) is good
         self.converged_electronic = params['converged_electronic']
@@ -158,10 +158,18 @@ class CrystalParser(Parser):
         return DataFactory('singlefile')(file=f)
 
     def parse_out_trajectory(self, _):
-        ase_structs = self.stdout_parser.get_trajectory()
-        if not ase_structs:
-            return None
-        structs = [DataFactory('structure')(ase=struct) for struct in ase_structs]
-        traj = DataFactory('array.trajectory')()
-        traj.set_structurelist(structs)
-        return traj
+        try:
+            ase_structs = self.stdout_parser.get_trajectory()
+            if not ase_structs:
+                return None
+            structs = [DataFactory('structure')(ase=struct) for struct in ase_structs]
+            traj = DataFactory('array.trajectory')()
+            traj.set_structurelist(structs)
+            return traj
+        except ValueError as exc:
+            # fix for SCELPHONO keyword, since a supercell has more atoms than a regular cell
+            bz_points = self.stdout_parser.info['phonons'].get(['modes'], {})
+            if bz_points and len(bz_points) > 1:
+                return None
+            else:
+                raise exc

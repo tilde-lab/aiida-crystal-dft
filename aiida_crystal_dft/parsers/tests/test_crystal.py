@@ -3,7 +3,7 @@
 
 def test_crystal_parser(crystal_calc_inputs):
     from aiida.plugins import DataFactory, CalculationFactory
-    from aiida_crystal_dft.parsers.cry_pycrystal import CrystalParser
+    from aiida_crystal_dft.parsers.crystal import CrystalParser
     from aiida.engine import run_get_node
     _, calc_node = run_get_node(CalculationFactory("crystal_dft.parallel"), **crystal_calc_inputs)
 
@@ -30,7 +30,7 @@ def test_crystal_parser(crystal_calc_inputs):
 
 
 def test_parser_failed_elastic(crystal_calc_node):
-    from aiida_crystal_dft.parsers.cry_pycrystal import CrystalParser
+    from aiida_crystal_dft.parsers.crystal import CrystalParser
     calcnode = crystal_calc_node(prefix='failed_elastic')
     parser = CrystalParser(calcnode)
     exit_code = parser.parse()
@@ -39,7 +39,7 @@ def test_parser_failed_elastic(crystal_calc_node):
 
 def test_crystal_raman_parser(crystal_calc_node):
     from aiida.plugins import DataFactory
-    from aiida_crystal_dft.parsers.cry_pycrystal import CrystalParser
+    from aiida_crystal_dft.parsers.crystal import CrystalParser
     calcnode = crystal_calc_node(files={'crystal.out': 'mgo_sto3g/raman'})
     parser = CrystalParser(calcnode)
 
@@ -55,7 +55,7 @@ def test_crystal_raman_parser(crystal_calc_node):
 
 def test_crystal_elastic_parser(crystal_calc_node):
     from aiida.plugins import DataFactory
-    from aiida_crystal_dft.parsers.cry_pycrystal import CrystalParser
+    from aiida_crystal_dft.parsers.crystal import CrystalParser
     calcnode = crystal_calc_node(files={'crystal.out': 'mgo_sto3g/elastic'})
     parser = CrystalParser(calcnode)
 

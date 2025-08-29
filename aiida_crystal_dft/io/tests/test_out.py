@@ -4,7 +4,7 @@ A test of pycrystal-based output parser
 
 import os
 # from pprint import pprint
-from aiida_crystal_dft.io.pycrystal.out import OutFileParser
+from aiida_crystal_dft.io.out import OutFileParser
 from aiida_crystal_dft.tests import TEST_DIR
 
 
