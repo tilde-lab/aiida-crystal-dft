@@ -137,6 +137,13 @@ def get_centering_code(sg_number, sg_symbol):
 def to_primitive(structure):
     """Returns aiida StructureData with primitive cell"""
     from aiida.orm import StructureData
-    cell, positions, numbers = spglib.find_primitive(structure.get_ase())
+    ase_struct = structure.get_ase()
+    # Always convert to tuple of (cell, positions, numbers) for spglib compatibility
+    cell = ase_struct.get_cell()
+    positions = ase_struct.get_scaled_positions()
+    numbers = ase_struct.get_atomic_numbers()
+    cell_tuple = (cell, positions, numbers)
+    primitive = spglib.find_primitive(cell_tuple)
+    cell, positions, numbers = primitive
     ase_struct = Atoms(numbers, scaled_positions=positions, cell=cell, pbc=True)
     return StructureData(ase=ase_struct)
