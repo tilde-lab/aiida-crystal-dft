@@ -139,6 +139,7 @@ def to_primitive(structure):
     from aiida.orm import StructureData
     ase_struct = structure.get_ase()
     # Always convert to tuple of (cell, positions, numbers) for spglib compatibility
+    # this is universal for non-magnetic structures
     cell = ase_struct.get_cell()
     positions = ase_struct.get_scaled_positions()
     numbers = ase_struct.get_atomic_numbers()
