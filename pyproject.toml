@@ -37,7 +37,7 @@ dependencies = [
     "mpds_client >= 0.24",
     "pyparsing > 2.3.1",
     "ase >= 3.19",
-    "spglib == 2.0.2",
+    "spglib",
     "jinja2 >= 2.10",
     "jsonschema >= 3.0.1",
     "click >= 7.1.1",
