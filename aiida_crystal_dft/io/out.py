@@ -31,7 +31,7 @@ class OutFileParser(object):
         """
         out_params = {
             'creator_name': "CRYSTAL",
-            'creator_version': self.info['prog'],
+            'creator_version': self.info["prog"] if self.info.get("prog") else self.info["program"], # its called prog in older versions of pycrystal
             'exchange_correlation': self.info['H'],
             'energy': self.info['energy'],
             'energy_units': 'eV',
