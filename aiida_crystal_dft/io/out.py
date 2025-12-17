@@ -31,7 +31,7 @@ class OutFileParser(object):
         """
         out_params = {
             'creator_name': "CRYSTAL",
-            'creator_version': self.info['prog'],
+            'creator_version': self.info["program"]
             'exchange_correlation': self.info['H'],
             'energy': self.info['energy'],
             'energy_units': 'eV',
