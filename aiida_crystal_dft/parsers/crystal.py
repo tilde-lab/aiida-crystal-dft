@@ -168,7 +168,7 @@ class CrystalParser(Parser):
             return traj
         except ValueError as exc:
             # fix for SCELPHONO keyword, since a supercell has more atoms than a regular cell
-            bz_points = self.stdout_parser.info['phonons'].get(['modes'], {})
+            bz_points = self.stdout_parser.info['phonons'].get('modes', {})
             if bz_points and len(bz_points) > 1:
                 return None
             else:
