@@ -6,9 +6,8 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "aiida-crystal-dft"
 dynamic = ["version"]  # read from aiida_crystal_dft/__init__.py
-description = """Yet another AiiDA plugin for CRYSTAL code, mainly intended for use with the cloud infrastructures
-(currently, MPDS)"""
-authors = [{name = "Andrey Sobolev, based on aiida-crystal17 plugin by Chris Sewell", email = "as@tilde.pro"}]
+description = "Yet another AiiDA plugin for CRYSTAL code, mainly intended for use with the MPDS online ecosystem"
+authors = [{name = "Andrey Sobolev"}]
 readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = [
@@ -22,6 +21,8 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Chemistry",
     "Topic :: Scientific/Engineering :: Physics",
@@ -32,7 +33,7 @@ requires-python = ">=3.8"
 dependencies = [
     "numpy >= 1.17.5",
     "scipy >= 1.2.1",
-    "aiida-core >= 2.0.2",
+    "aiida-core == 2.6.4",
     "pycrystal >= 1.1.0",
     "mpds_client >= 0.24",
     "pyparsing > 2.3.1",
@@ -43,6 +44,7 @@ dependencies = [
     "click >= 7.1.1",
     "packaging"
 ]
+
 [project.optional-dependencies]
 testing = [
     "mock==2.0.0",
