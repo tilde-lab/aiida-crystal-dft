@@ -12,7 +12,8 @@ class PropertiesCalculation(CalcJob):
     """
     AiiDA calculation plugin wrapping the properties executable.
     """
-    _INPUT_FILE_NAME = 'main.d3'
+    _INPUT_FILE_NAME = 'INPUT'
+    _INPUT_FILE_NAMES = ['INPUT', 'main.d3']
     _OUTPUT_FILE_NAME = 'properties.out'
     _WAVEFUNCTION_FILE_NAME = 'fort.9'
     _PROPERTIES_FILE_NAME = 'fort.25'
@@ -46,7 +47,8 @@ class PropertiesCalculation(CalcJob):
             :param folder: aiida.common.folders.Folder subclass where
                 the plugin should put all its files.
         """
-        # create input files: d3
+        input_filename = self.inputs.metadata.options.input_filename
+
         structure = self.inputs.get('structure', None)
         try:
             d3_content = D3(self.inputs.parameters.get_dict(), structure)
@@ -54,21 +56,18 @@ class PropertiesCalculation(CalcJob):
             raise InputValidationError(
                 "an input file could not be created from the parameters: {}".
                 format(err))
-        with folder.open(self._INPUT_FILE_NAME, "w") as f:
+        with folder.open(input_filename, "w") as f:
             d3_content.write(f)
 
-        # create input files: fort.9
         with self.inputs.wavefunction.open(mode="rb") as f:
             folder.create_file_from_filelike(f, self._WAVEFUNCTION_FILE_NAME, mode="wb")
 
-        # Prepare CodeInfo object for aiida
         codeinfo = CodeInfo()
         codeinfo.code_uuid = self.inputs.code.uuid
-        codeinfo.stdin_name = self._INPUT_FILE_NAME
+        codeinfo.stdin_name = input_filename
         codeinfo.stdout_name = self._OUTPUT_FILE_NAME
         codeinfo.withmpi = False
 
-        # Prepare CalcInfo object for aiida
         calcinfo = CalcInfo()
         calcinfo.uuid = self.uuid
         calcinfo.codes_info = [codeinfo]
