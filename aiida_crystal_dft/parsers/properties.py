@@ -45,22 +45,25 @@ class PropertiesParser(Parser):
           * ``node_list``: list of new nodes to be stored in the db
             (as a list of tuples ``(link_name, node)``)
         """
-        # Check that the retrieved folder is there
         try:
             folder = self.retrieved
         except NotExistent:
             return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
 
-        # parse file here
-        with folder.open("fort.25") as f:
-            parser = Fort25(f)
-            result = parser.parse()
-            self.add_node(self._linkname_bands,
-                          result.get("BAND", None),
-                          self.parse_bands)
-            self.add_node(self._linkname_dos,
-                          result.get("DOSS", None),
-                          self.parse_dos)
+        try:
+            with folder.open("fort.25") as f:
+                parser = Fort25(f)
+                result = parser.parse()
+        except FileNotFoundError:
+            self.logger.warning("fort.25 not found in retrieved folder, skipping bands/DOS parsing")
+            return None
+
+        self.add_node(self._linkname_bands,
+                      result.get("BAND", None),
+                      self.parse_bands)
+        self.add_node(self._linkname_dos,
+                      result.get("DOSS", None),
+                      self.parse_dos)
 
     def add_node(self, link_names, file_name, callback):
         """Adds nodes to parser results"""
