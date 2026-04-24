@@ -219,7 +219,7 @@ class BasePropertiesWorkChain(WorkChain):
                      cls.retrieve_results)
 
         # define outputs
-        spec.output('output_bands', valid_type=get_data_class('array.bands'), required=False)
+        spec.output('output_bands', valid_type=get_data_class('core.array.bands'), required=False)
         spec.output('output_dos', valid_type=get_data_class('array'), required=False)
 
     def init_calculation(self):
