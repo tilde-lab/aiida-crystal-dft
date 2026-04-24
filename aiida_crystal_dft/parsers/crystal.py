@@ -163,7 +163,7 @@ class CrystalParser(Parser):
             if not ase_structs:
                 return None
             structs = [DataFactory('core.structure')(ase=struct) for struct in ase_structs]
-            traj = DataFactory('array.trajectory')()
+            traj = DataFactory('core.array.trajectory')()
             traj.set_structurelist(structs)
             return traj
         except ValueError as exc:
