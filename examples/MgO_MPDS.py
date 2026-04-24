@@ -22,7 +22,7 @@ with open(f'{cwd}/MgO_MPDS.yml') as f:
 #             "n_e": 100
 #         }
 # })
-inputs.mpds_query = DataFactory('dict')(dict={
+inputs.mpds_query = DataFactory('core.dict')(dict={
     "formulae": "MgO",
     "sgs": 225
 }

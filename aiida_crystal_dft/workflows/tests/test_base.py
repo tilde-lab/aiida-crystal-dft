@@ -14,7 +14,7 @@ def test_crystal_wc_run(mock_crystal_code, crystal_calc_parameters, test_structu
     inputs.parameters = crystal_calc_parameters
     inputs.basis_family, _ = DataFactory('crystal_dft.basis_family').get_or_create('STO-3G')
     inputs.structure = test_structure_data
-    inputs.options = DataFactory("dict")(dict={'resources':
+    inputs.options = DataFactory("core.dict")(dict={'resources':
                                                {"num_machines": 1, "num_mpiprocs_per_machine": 1},
                                                'try_oxi_if_fails': False})
     run(BaseCrystalWorkChain, **inputs)
@@ -28,7 +28,7 @@ def test_props_wc_run(mock_properties_code, properties_calc_parameters, test_wav
     inputs.code = mock_properties_code
     inputs.parameters = properties_calc_parameters
     inputs.wavefunction = test_wavefunction
-    inputs.options = DataFactory('dict')(dict={
+    inputs.options = DataFactory('core.dict')(dict={
         'resources': {
             'num_machines': 1,
             'num_mpiprocs_per_machine': 1

@@ -144,7 +144,7 @@ class CrystalParser(Parser):
         # raise flag if structure (atomic and electronic) is good
         self.converged_electronic = params['converged_electronic']
         self.converged_ionic = params['converged_ionic']
-        return DataFactory('dict')(dict=params)
+        return DataFactory('core.dict')(dict=params)
 
     def parse_out_structure(self, f):
         if not self.converged_ionic:
