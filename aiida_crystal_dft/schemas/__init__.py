@@ -1,8 +1,8 @@
 import json
 import os
 
-import jsonschema
 from jsonschema import Draft4Validator, validators
+
 
 _type_checker = Draft4Validator.TYPE_CHECKER.redefine(
     "array", lambda checker, instance: isinstance(instance, (list, tuple))
