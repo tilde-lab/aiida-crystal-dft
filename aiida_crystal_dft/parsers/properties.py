@@ -92,13 +92,13 @@ class PropertiesParser(Parser):
         # and now find k-points along the path
         k_points = get_explicit_kpoints_path(structure, path_description)['explicit_kpoints']
         # ...and finally populate bands data
-        bands_data = DataFactory('array.bands')()
+        bands_data = DataFactory('core.array.bands')()
         bands_data.set_kpointsdata(k_points)
         bands_data.set_bands(bands["bands_up"])
         # TODO: Deal with bands_down?
         bands_down_data = None
         if bands["bands_down"] is not None:
-            bands_down_data = DataFactory('array.bands')()
+            bands_down_data = DataFactory('core.array.bands')()
             bands_down_data.set_kpointsdata(k_points)
             bands_down_data.set_bands(bands["bands_down"])
         return bands_data, bands_down_data
