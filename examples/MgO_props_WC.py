@@ -22,7 +22,7 @@ inputs.parameters = DataFactory('parameter')(dict={
 })
 
 wf = load_node(13)
-assert isinstance(wf, DataFactory('singlefile'))
+assert isinstance(wf, DataFactory('core.singlefile'))
 inputs.wavefunction = wf
 inputs.options = DataFactory('parameter')(dict={
     'resources': {

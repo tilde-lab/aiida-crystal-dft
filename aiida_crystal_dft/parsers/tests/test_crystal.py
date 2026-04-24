@@ -13,14 +13,14 @@ def test_crystal_parser(crystal_calc_inputs):
     nodes = parser.outputs
     # wavefunction tests
     assert parser._linkname_wavefunction in nodes
-    assert isinstance(nodes[parser._linkname_wavefunction], DataFactory("singlefile"))
+    assert isinstance(nodes[parser._linkname_wavefunction], DataFactory("core.singlefile"))
     # output parameter tests
     assert parser._linkname_parameters in nodes
     assert isinstance(nodes[parser._linkname_parameters], DataFactory("core.dict"))
     assert nodes[parser._linkname_parameters].dict.energy == -7380.221696963954
     # output structure tests
     # assert parser._linkname_structure in nodes
-    # assert isinstance(nodes[parser._linkname_structure], DataFactory("structure"))
+    # assert isinstance(nodes[parser._linkname_structure], DataFactory("core.structure"))
     # ase_struct = nodes[parser._linkname_structure].get_ase()
     # assert 8 in ase_struct.get_atomic_numbers()
     # output trajectory tests

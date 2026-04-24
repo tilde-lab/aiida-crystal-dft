@@ -155,7 +155,7 @@ class CrystalParser(Parser):
     def parse_out_wavefunction(self, f):
         if not self.converged_electronic:
             return None
-        return DataFactory('singlefile')(file=f)
+        return DataFactory('core.singlefile')(file=f)
 
     def parse_out_trajectory(self, _):
         try:
