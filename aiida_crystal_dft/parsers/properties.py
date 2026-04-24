@@ -88,7 +88,7 @@ class PropertiesParser(Parser):
         geometry_parser = Fort9(fort9_name)
         cell = geometry_parser.get_cell(scale=True)
         path_description = construct_kpoints_path(cell, path, shrink, k_number)
-        structure = DataFactory('structure')(ase=geometry_parser.get_ase())
+        structure = DataFactory('core.structure')(ase=geometry_parser.get_ase())
         # and now find k-points along the path
         k_points = get_explicit_kpoints_path(structure, path_description)['explicit_kpoints']
         # ...and finally populate bands data

@@ -128,7 +128,7 @@ class CrystalBasisFamilyData(Data):
         self.name = name
 
     def set_structure(self, structure):
-        if not isinstance(structure, DataFactory('structure')):
+        if not isinstance(structure, DataFactory('core.structure')):
             raise TypeError('Structure must be set with StructureData object in basis family')
         if not self.predefined:
             # check if all elements have their bases in the family

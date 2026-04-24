@@ -65,7 +65,7 @@ class Fort9(object):
     def get_structure(self):
         """Returns aiida StructureData"""
         from aiida.plugins import DataFactory
-        return DataFactory('structure')(ase=self.get_ase())
+        return DataFactory('core.structure')(ase=self.get_ase())
 
     def get_ao_number(self):
         """Get number of atomic orbitals (which is the number of bands)"""

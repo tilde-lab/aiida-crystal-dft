@@ -162,7 +162,7 @@ class CrystalParser(Parser):
             ase_structs = self.stdout_parser.get_trajectory()
             if not ase_structs:
                 return None
-            structs = [DataFactory('structure')(ase=struct) for struct in ase_structs]
+            structs = [DataFactory('core.structure')(ase=struct) for struct in ase_structs]
             traj = DataFactory('array.trajectory')()
             traj.set_structurelist(structs)
             return traj
