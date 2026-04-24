@@ -144,7 +144,7 @@ class CrystalParser(Parser):
         # raise flag if structure (atomic and electronic) is good
         self.converged_electronic = params['converged_electronic']
         self.converged_ionic = params['converged_ionic']
-        return DataFactory('dict')(dict=params)
+        return DataFactory('core.dict')(dict=params)
 
     def parse_out_structure(self, f):
         if not self.converged_ionic:
@@ -155,15 +155,15 @@ class CrystalParser(Parser):
     def parse_out_wavefunction(self, f):
         if not self.converged_electronic:
             return None
-        return DataFactory('singlefile')(file=f)
+        return DataFactory('core.singlefile')(file=f)
 
     def parse_out_trajectory(self, _):
         try:
             ase_structs = self.stdout_parser.get_trajectory()
             if not ase_structs:
                 return None
-            structs = [DataFactory('structure')(ase=struct) for struct in ase_structs]
-            traj = DataFactory('array.trajectory')()
+            structs = [DataFactory('core.structure')(ase=struct) for struct in ase_structs]
+            traj = DataFactory('core.array.trajectory')()
             traj.set_structurelist(structs)
             return traj
         except ValueError as exc:

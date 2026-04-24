@@ -26,14 +26,14 @@ class BaseCrystalWorkChain(WorkChain):
 
         # define inputs
         spec.input('code', valid_type=Code)
-        spec.input('structure', valid_type=get_data_class('structure'), required=True)
-        spec.input('parameters', valid_type=get_data_class('dict'), required=True)
-        spec.input('restart_params', valid_type=get_data_class('dict'), required=False,
-                   default=lambda: get_data_class('dict')(dict={}))
+        spec.input('structure', valid_type=get_data_class('core.structure'), required=True)
+        spec.input('parameters', valid_type=get_data_class('core.dict'), required=True)
+        spec.input('restart_params', valid_type=get_data_class('core.dict'), required=False,
+                   default=lambda: get_data_class('core.dict')(dict={}))
         spec.input('basis_family', valid_type=get_data_class('crystal_dft.basis_family'), required=True)
-        spec.input('clean_workdir', valid_type=get_data_class('bool'),
-                   required=False, default=lambda: get_data_node('bool', False))
-        spec.input('options', valid_type=get_data_class('dict'), required=True, help="Calculation options")
+        spec.input('clean_workdir', valid_type=get_data_class('core.bool'),
+                   required=False, default=lambda: get_data_node('core.bool', False))
+        spec.input('options', valid_type=get_data_class('core.dict'), required=True, help="Calculation options")
 
         # define workchain routine
         spec.outline(cls.init_inputs,
@@ -46,12 +46,12 @@ class BaseCrystalWorkChain(WorkChain):
                      cls.finalize)
 
         # define outputs
-        spec.output('output_structure', valid_type=get_data_class('structure'), required=False)
-        spec.output('primitive_structure', valid_type=get_data_class('structure'), required=False)
-        spec.output('output_parameters', valid_type=get_data_class('dict'), required=False)
-        spec.output('output_wavefunction', valid_type=get_data_class('singlefile'), required=False)
-        spec.output('output_trajectory', valid_type=get_data_class('array.trajectory'), required=False)
-        spec.output('oxidation_states', valid_type=get_data_class('dict'), required=False)
+        spec.output('output_structure', valid_type=get_data_class('core.structure'), required=False)
+        spec.output('primitive_structure', valid_type=get_data_class('core.structure'), required=False)
+        spec.output('output_parameters', valid_type=get_data_class('core.dict'), required=False)
+        spec.output('output_wavefunction', valid_type=get_data_class('core.singlefile'), required=False)
+        spec.output('output_trajectory', valid_type=get_data_class('core.array.trajectory'), required=False)
+        spec.output('oxidation_states', valid_type=get_data_class('core.dict'), required=False)
 
         # define error codes
         spec.exit_code(300, 'ERROR_CRYSTAL', message='CRYSTAL error')
@@ -129,7 +129,7 @@ class BaseCrystalWorkChain(WorkChain):
         self.ctx.running_calc += 1
         last_calc = self.ctx.calculations[-1]
         self.report(f'Remote folder: {last_calc.get_outgoing().get_node_by_label("remote_folder")}')
-        self.ctx.inputs.parameters = get_data_class('dict')(dict=self.ctx.restart_params[str(last_calc.exit_status)])
+        self.ctx.inputs.parameters = get_data_class('core.dict')(dict=self.ctx.restart_params[str(last_calc.exit_status)])
         label = self.inputs.metadata.get('label', DEFAULT_TITLE)
         description = self.inputs.metadata.get('description', '')
         self.ctx.inputs.metadata = AttributeDict({'options': self.ctx.options,
@@ -209,9 +209,9 @@ class BasePropertiesWorkChain(WorkChain):
 
         # define inputs
         spec.input('code', valid_type=Code)
-        spec.input('wavefunction', valid_type=get_data_class('singlefile'), required=True)
-        spec.input('parameters', valid_type=get_data_class('dict'), required=True)
-        spec.input('options', valid_type=get_data_class('dict'), required=True, help="Calculation options")
+        spec.input('wavefunction', valid_type=get_data_class('core.singlefile'), required=True)
+        spec.input('parameters', valid_type=get_data_class('core.dict'), required=True)
+        spec.input('options', valid_type=get_data_class('core.dict'), required=True, help="Calculation options")
 
         # define workchain routine
         spec.outline(cls.init_calculation,
@@ -219,8 +219,8 @@ class BasePropertiesWorkChain(WorkChain):
                      cls.retrieve_results)
 
         # define outputs
-        spec.output('output_bands', valid_type=get_data_class('array.bands'), required=False)
-        spec.output('output_dos', valid_type=get_data_class('array'), required=False)
+        spec.output('output_bands', valid_type=get_data_class('core.array.bands'), required=False)
+        spec.output('output_dos', valid_type=get_data_class('core.array'), required=False)
 
     def init_calculation(self):
         """Create input dictionary for the calculation, deal with restart (later?)"""
@@ -280,7 +280,7 @@ class BasePropertiesWorkChain(WorkChain):
                 parameters_dict['dos']['first'] = 1
             if 'last' not in parameters_dict['dos']:
                 parameters_dict['dos']['last'] = wf.get_ao_number()
-        return get_data_class('dict')(dict=parameters_dict)
+        return get_data_class('core.dict')(dict=parameters_dict)
 
     def run_calculation(self):
         """Run a calculation from self.ctx.inputs"""

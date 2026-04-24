@@ -108,7 +108,7 @@ class Fort34(object):
     def to_aiida(self):
         """Return structure in aiida format"""
         from aiida.plugins import DataFactory
-        return DataFactory('structure')(ase=self.to_ase())
+        return DataFactory('core.structure')(ase=self.to_ase())
 
     def read(self, file):
         """Read and parse fort.34 file"""

@@ -88,17 +88,17 @@ class PropertiesParser(Parser):
         geometry_parser = Fort9(fort9_name)
         cell = geometry_parser.get_cell(scale=True)
         path_description = construct_kpoints_path(cell, path, shrink, k_number)
-        structure = DataFactory('structure')(ase=geometry_parser.get_ase())
+        structure = DataFactory('core.structure')(ase=geometry_parser.get_ase())
         # and now find k-points along the path
         k_points = get_explicit_kpoints_path(structure, path_description)['explicit_kpoints']
         # ...and finally populate bands data
-        bands_data = DataFactory('array.bands')()
+        bands_data = DataFactory('core.array.bands')()
         bands_data.set_kpointsdata(k_points)
         bands_data.set_bands(bands["bands_up"])
         # TODO: Deal with bands_down?
         bands_down_data = None
         if bands["bands_down"] is not None:
-            bands_down_data = DataFactory('array.bands')()
+            bands_down_data = DataFactory('core.array.bands')()
             bands_down_data.set_kpointsdata(k_points)
             bands_down_data.set_bands(bands["bands_down"])
         return bands_data, bands_down_data
@@ -110,7 +110,7 @@ class PropertiesParser(Parser):
             raise ValueError("Sorry, didn't find dos info in fort.25")
 
         from aiida.plugins import DataFactory
-        array_data = DataFactory("array")()
+        array_data = DataFactory("core.array")()
         array = [data["e"], data["dos_up"]]
         if data['dos_down'] is not None:
             array.append(-1 * data['dos_down'])

@@ -49,7 +49,7 @@ datarow = [
 ]
 
 atoms = MPDSDataRetrieval.compile_crystal(datarow, flavor='ase')
-inputs.structure = DataFactory('structure')(ase=atoms)
+inputs.structure = DataFactory('core.structure')(ase=atoms)
 
 inputs.options = DataFactory('parameter')(dict={
     'resources': {
