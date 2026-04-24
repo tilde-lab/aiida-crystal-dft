@@ -1,7 +1,13 @@
 import json
 import os
 
-import jsonschema
+from jsonschema import Draft4Validator, validators
+
+
+_type_checker = Draft4Validator.TYPE_CHECKER.redefine(
+    "array", lambda checker, instance: isinstance(instance, (list, tuple))
+)
+_TupleArrayValidator = validators.extend(Draft4Validator, type_checker=_type_checker)
 
 
 def read_schema(name="d12"):
@@ -22,14 +28,7 @@ def validate_with_json(data, name="d12"):
     :param data: dictionary
     """
     schema = read_schema(name)
-
-    # validator = jsonschema.validators.extend(
-    #     jsonschema.Draft4Validator,
-    # )
-    validator = jsonschema.Draft4Validator
-
-    # by default, only validates lists
-    validator(schema, types={"array": (list, tuple)}).validate(data)
+    _TupleArrayValidator(schema).validate(data)
 
 
 def validate_with_dict(data, schema):
@@ -38,10 +37,4 @@ def validate_with_dict(data, schema):
     :param data: dictionary
     :param schema: dictionary
     """
-    # validator = jsonschema.validators.extend(
-    #     jsonschema.Draft4Validator,
-    # )
-    validator = jsonschema.Draft4Validator
-
-    # by default, only validates lists
-    validator(schema, types={"array": (list, tuple)}).validate(data)
+    _TupleArrayValidator(schema).validate(data)
