@@ -110,7 +110,7 @@ class PropertiesParser(Parser):
             raise ValueError("Sorry, didn't find dos info in fort.25")
 
         from aiida.plugins import DataFactory
-        array_data = DataFactory("array")()
+        array_data = DataFactory("core.array")()
         array = [data["e"], data["dos_up"]]
         if data['dos_down'] is not None:
             array.append(-1 * data['dos_down'])
