@@ -13,7 +13,6 @@ class PropertiesCalculation(CalcJob):
     AiiDA calculation plugin wrapping the properties executable.
     """
     _INPUT_FILE_NAME = 'INPUT'
-    _INPUT_FILE_NAMES = ['INPUT', 'main.d3']
     _OUTPUT_FILE_NAME = 'properties.out'
     _WAVEFUNCTION_FILE_NAME = 'fort.9'
     _PROPERTIES_FILE_NAME = 'fort.25'
