@@ -158,6 +158,26 @@ class CrystalParser(Parser):
         return DataFactory('core.singlefile')(file=f)
 
     def parse_out_trajectory(self, _):
+        """Parse the trajectory of structures from the CRYSTAL output.
+
+        For phonon calculations (SCELPHONO) the output contains structures with
+        a different number of atoms (the primitive cell and the supercell),
+        which makes it impossible to store them as a single
+        ``TrajectoryData`` node (``set_structurelist`` requires all structures
+        to share the same symbol list).  In that case we simply skip the
+        trajectory output: the relevant phonon data is already available in
+        ``output_parameters`` under the ``phonons`` key.
+        """
+        # Early return for phonon calculations: when more than one Brillouin-zone
+        # point is present, the output structures inevitably differ in size
+        # (primitive cell vs. supercell), so building a TrajectoryData would
+        # always fail.  Returning ``None`` here avoids raising an exception
+        # inside the parser and leaving the calculation node in the
+        # ``Excepted`` state.
+        phonon_modes = self.stdout_parser.info.get('phonons', {}).get('modes', {})
+        if phonon_modes and len(phonon_modes) > 1:
+            return None
+
         try:
             ase_structs = self.stdout_parser.get_trajectory()
             if not ase_structs:
@@ -166,10 +186,20 @@ class CrystalParser(Parser):
             traj = DataFactory('core.array.trajectory')()
             traj.set_structurelist(structs)
             return traj
-        except ValueError as exc:
-            # fix for SCELPHONO keyword, since a supercell has more atoms than a regular cell
-            bz_points = self.stdout_parser.info['phonons'].get('modes', {})
-            if bz_points and len(bz_points) > 1:
+        except (ValueError, TypeError) as exc:
+            # Fallback for SCELPHONO: a supercell has more atoms than the
+            # regular cell, so ``set_structurelist`` raises either:
+            #   - ValueError: symbol lists differ in length, or
+            #   - TypeError: unhashable type: 'list'
+            #     (raised indirectly during attribute validation in some
+            #     aiida-core versions).
+            # The trajectory is not meaningful for phonon runs anyway, so we
+            # log a warning and return ``None`` instead of propagating the
+            # exception (which would mark the calculation as ``Excepted``).
+            phonon_modes = self.stdout_parser.info.get('phonons', {}).get('modes', {})
+            if phonon_modes and len(phonon_modes) > 1:
                 return None
-            else:
-                raise exc
+            self.logger.warning(
+                'parse_out_trajectory failed to build TrajectoryData: %s', exc
+            )
+            return None
